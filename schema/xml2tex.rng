@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar 
+  xmlns="http://relaxng.org/ns/structure/1.0"
+  xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0"
+  xmlns:xml2tex="http://transpect.io/xml2tex"
+  datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  
+  <a:documentation>
+    The xml2tex configuration file schema.
+  </a:documentation>
+  
+  <start ns="http://transpect.io/xml2tex">
+    <ref name="xml2tex.set"/>
+  </start>
+  
+  <!--  *
+        * elements
+        * -->
+  
+  <define name="xml2tex.set">
+    <element name="xml2tex:set">
+      <ref name="xml2tex.set.content"/>
+    </element>
+  </define>
+  
+  <define name="xml2tex.preamble">
+    <element name="xml2tex:preamble">
+      <text/>
+    </element>
+  </define>
+  
+  <define name="xml2tex.ns">
+    <element name="xml2tex:ns">
+      <ref name="xml2tex.ns.attributes"/>
+      <ref name="xml2tex.content.empty"/>
+    </element>
+  </define>
+  
+  <define name="xml2tex.template">
+    <element name="xml2tex:template">
+      <ref name="xml2tex.template.attributes"/>
+      <ref name="xml2tex.templatemodel.content"/>
+    </element>
+  </define>
+  
+  <define name="xml2tex.regex">
+    <element name="xml2tex:regex">
+      <ref name="xml2tex.regex.attributes"/>
+      <ref name="xml2tex.templatemodel.content"/>
+    </element>
+  </define>
+    
+  <define name="xml2tex.charmap">
+    <element name="xml2tex:charmap">
+      <ref name="xml2tex.charmap.content"/>
+    </element>
+  </define>
+  
+  <define name="xml2tex.rule">
+    <element name="xml2tex:rule">
+      <ref name="xml2tex.rule.attributes"/>
+      <ref name="xml2tex.rule.content"/>
+    </element>
+  </define>
+  
+  <define name="xml2tex.char">
+    <element name="xml2tex:char">
+      <ref name="xml2tex.char.attributes"/>
+      <ref name="xml2tex.content.empty"/>
+    </element>
+  </define>
+  
+  <define name="xml2tex.text">
+    <element name="xml2tex:text">
+      <ref name="xml2tex.atom.attributes"/>
+      <ref name="xml2tex.atom.content"/>      
+    </element>
+  </define>
+  
+  <define name="xml2tex.param">
+    <element name="xml2tex:param">
+      <ref name="xml2tex.atom.attributes"/>
+      <ref name="xml2tex.atom.content"/>      
+    </element>
+  </define>
+  
+  <define name="xml2tex.option">
+    <element name="xml2tex:option">
+      <ref name="xml2tex.atom.attributes"/>
+      <ref name="xml2tex.atom.content"/>      
+    </element>
+  </define>
+  
+  <!--  *
+        * attributes
+        * -->
+  
+  <define name="xml2tex.atom.attributes">
+    <choice>
+      <interleave>
+        <optional>
+          <attribute name="select">
+            <text/>  
+          </attribute>
+        </optional>
+        <optional>
+          <attribute name="regex-group">
+            <data type="integer"/>  
+          </attribute>
+        </optional>
+      </interleave>
+    </choice>
+    
+  </define>
+  
+  <define name="xml2tex.ns.attributes">
+    <interleave>
+      <attribute name="prefix">
+        <data type="QName"/>
+      </attribute>
+      <attribute name="uri">
+        <data type="anyURI"/>
+      </attribute>      
+    </interleave>
+  </define>
+  
+  <define name="xml2tex.template.attributes">
+    <attribute name="context">
+      <text/>
+    </attribute>
+  </define>
+  
+  <define name="xml2tex.rule.attributes">
+    <interleave>
+      <choice>
+        <interleave>
+          <attribute name="name">
+            <text/>
+          </attribute>
+          <attribute name="type">
+            <choice>
+              <value type="string">cmd</value>
+              <value type="string">env</value>
+            </choice>
+          </attribute>                
+        </interleave>
+        <interleave>
+          <empty/>
+        </interleave>
+      </choice>
+      <optional>
+        <attribute name="break-after">
+          <data type="integer"/>
+        </attribute>  
+      </optional>
+    </interleave>
+  </define>
+  
+  <define name="xml2tex.char.attributes">
+    <interleave>
+      <attribute name="character">
+        <text/>
+      </attribute>
+      <attribute name="string">
+        <text/>
+      </attribute>
+      <optional>
+        <attribute name="context">
+          <text/>
+        </attribute>
+      </optional>
+    </interleave>
+  </define>
+  
+  <define name="xml2tex.regex.attributes">
+    <attribute name="regex">
+      <text/>
+    </attribute>
+  </define>
+  
+  <!--  *
+        * content models
+        * -->
+  
+  <define name="xml2tex.set.content">
+    <interleave>
+      <oneOrMore>
+        <ref name="xml2tex.preamble"/>
+      </oneOrMore>
+      <zeroOrMore>
+        <ref name="xml2tex.ns"/>  
+      </zeroOrMore>
+      <oneOrMore>
+        <choice>
+          <ref name="xml2tex.template"/>
+          <ref name="xml2tex.regex"/>
+        </choice>
+      </oneOrMore>
+      <optional>
+        <ref name="xml2tex.charmap"/>  
+      </optional>
+    </interleave>
+  </define>
+  
+  <define name="xml2tex.content.empty">
+    <empty/>
+  </define>
+  
+  <define name="xml2tex.templatemodel.content">
+    <optional>
+      <ref name="xml2tex.rule"/>
+    </optional>
+  </define>
+  
+  <define name="xml2tex.charmap.content">
+    <oneOrMore>
+      <ref name="xml2tex.char"/>
+    </oneOrMore>
+  </define>
+  
+  <define name="xml2tex.rule.content">
+    <zeroOrMore>
+      <choice>
+        <ref name="xml2tex.text"/>
+        <ref name="xml2tex.param"/>
+        <ref name="xml2tex.option"/>
+      </choice>
+    </zeroOrMore>
+  </define>
+  
+  <define name="xml2tex.atom.content">
+    <text/>
+  </define>
+  
+  <!--  *
+        * schematron checks
+        * -->
+  
+  <sch:ns xmlns:sch="http://purl.oclc.org/dsdl/schematron"
+    prefix="xml2tex" uri="http://transpect.io/xml2tex"/>
+  
+  <sch:pattern 
+    xmlns:sch="http://purl.oclc.org/dsdl/schematron">
+    <sch:rule context="xml2tex:*[local-name() = ('option', 'param', 'text')]">
+      <sch:let name="context" value="ancestor::xml2tex:template/@context"/>
+      <sch:assert test="not(normalize-space(.) and @select)">
+        It's not permitted to use inline text and both a @select expression. Please correct xml2tex:template[@context eq '<sch:value-of select="$context"/>'].
+      </sch:assert>
+    </sch:rule>
+  </sch:pattern>
+  
+  <sch:pattern 
+    xmlns:sch="http://purl.oclc.org/dsdl/schematron">
+    <sch:rule context="@select">
+      <sch:assert test="not(ancestor::xml2tex:regex)">                   
+        The @regex-group attribute is not permitted, when the parent is &lt;xml2tex:template&gt;
+      </sch:assert>
+    </sch:rule>
+  </sch:pattern>
+  
+  <sch:pattern 
+    xmlns:sch="http://purl.oclc.org/dsdl/schematron">
+    <sch:rule context="@regex-group">
+      <sch:assert test="not(ancestor::xml2tex:template)">                   
+        The @select attribute is not permitted, when the parent is &lt;xml2tex:regex&gt;
+      </sch:assert>
+    </sch:rule>
+  </sch:pattern>
+  
+</grammar>
