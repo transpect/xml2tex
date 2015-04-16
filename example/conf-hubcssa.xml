@@ -85,51 +85,7 @@
       <xml2tex:param select="@fileref"/>
     </xml2tex:rule>
   </xml2tex:template>
-  
-  <!-- headlines -->
-  
-  <xml2tex:template context="dbk:section[count(ancestor::dbk:section) eq 0]/dbk:title">
-    <xml2tex:rule type="cmd" name="chapter" break-after="1">
-      <xml2tex:param/>
-    </xml2tex:rule>
-  </xml2tex:template>
-  
-  <xml2tex:template context="dbk:section[count(ancestor::dbk:section) eq 1]/dbk:title">
-    <xml2tex:rule type="cmd" name="section" break-after="1">
-      <xml2tex:param/>
-    </xml2tex:rule>
-  </xml2tex:template>
-
-  <xml2tex:template context="dbk:section[count(ancestor::dbk:section) eq 2]/dbk:title">
-    <xml2tex:rule type="cmd" name="subsection" break-after="1">
-      <xml2tex:param/>
-    </xml2tex:rule>
-  </xml2tex:template>
-  
-  <xml2tex:template context="dbk:section[count(ancestor::dbk:section) eq 3]/dbk:title">
-    <xml2tex:rule type="cmd" name="subsubsection" break-after="1">
-      <xml2tex:param/>
-    </xml2tex:rule>
-  </xml2tex:template>
-  
-  <xml2tex:template context="dbk:section[count(ancestor::dbk:section) eq 4]/dbk:title">
-    <xml2tex:rule type="cmd" name="subsubsubsection" break-after="1">
-      <xml2tex:param/>
-    </xml2tex:rule>
-  </xml2tex:template>
-  
-  <xml2tex:template context="dbk:section[count(ancestor::dbk:section) eq 5]/dbk:title">
-    <xml2tex:rule type="cmd" name="paragraph" break-after="1">
-      <xml2tex:param/>
-    </xml2tex:rule>
-  </xml2tex:template>
-  
-  <xml2tex:template context="dbk:section[count(ancestor::dbk:section) = (6,7,8)]/dbk:title">
-    <xml2tex:rule type="cmd" name="subparagraph" break-after="1">
-      <xml2tex:param/>
-    </xml2tex:rule>
-  </xml2tex:template>
-  
+    
   <!-- links -->
   
   <xml2tex:template context="dbk:link">
@@ -201,6 +157,50 @@
   
   <xml2tex:template context="dbk:phrase[@css:font-variant eq 'small-caps']">
     <xml2tex:rule type="cmd" name="textsc">
+      <xml2tex:param/>
+    </xml2tex:rule>
+  </xml2tex:template>
+  
+  <!-- headlines -->
+  
+  <xml2tex:template context="dbk:para[@role = ('berschrift1', 'headline1', 'heading1')]">
+    <xml2tex:rule type="cmd" name="chapter" break-after="1">
+      <xml2tex:param/>
+    </xml2tex:rule>
+  </xml2tex:template>
+  
+  <xml2tex:template context="dbk:para[@role = ('berschrift2', 'headline2', 'heading2')]">
+    <xml2tex:rule type="cmd" name="section" break-after="1">
+      <xml2tex:param/>
+    </xml2tex:rule>
+  </xml2tex:template>
+  
+  <xml2tex:template context="dbk:para[@role = ('berschrift3', 'headline3', 'heading3')]">
+    <xml2tex:rule type="cmd" name="subsection" break-after="1">
+      <xml2tex:param/>
+    </xml2tex:rule>
+  </xml2tex:template>
+  
+  <xml2tex:template context="dbk:para[@role = ('berschrift4', 'headline4', 'heading4')]">
+    <xml2tex:rule type="cmd" name="subsubsection" break-after="1">
+      <xml2tex:param/>
+    </xml2tex:rule>
+  </xml2tex:template>
+  
+  <xml2tex:template context="dbk:para[@role = ('berschrift5', 'headline5', 'heading5')]">
+    <xml2tex:rule type="cmd" name="subsubsubsection" break-after="1">
+      <xml2tex:param/>
+    </xml2tex:rule>
+  </xml2tex:template>
+  
+  <xml2tex:template context="dbk:para[@role = ('berschrift6', 'headline6', 'heading6')]/dbk:title">
+    <xml2tex:rule type="cmd" name="paragraph" break-after="1">
+      <xml2tex:param/>
+    </xml2tex:rule>
+  </xml2tex:template>
+  
+  <xml2tex:template context="dbk:para[matches(@role, '(berschrift|headline|heading)[7-9]')]">
+    <xml2tex:rule type="cmd" name="subparagraph" break-after="1">
       <xml2tex:param/>
     </xml2tex:rule>
   </xml2tex:template>
