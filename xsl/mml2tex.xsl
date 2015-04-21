@@ -12,8 +12,6 @@
 
   <xsl:output method="text" encoding="UTF-8"/>
 
-  <xsl:strip-space elements="*"/>
-
   <xsl:preserve-space elements="mml:mn mml:mi mml:mtext mml:mo mml:ms"/>
 
   <xsl:param name="debug" select="'no'"/>
