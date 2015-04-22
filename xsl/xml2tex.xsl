@@ -258,7 +258,7 @@
                     * handle node() function used in select attributes
                     * -->
               <xso:when test="not(({@select}) instance of item())">
-                <xso:apply-templates select="if(not(({@select}) instance of item())) then node() else ({@select})" mode="#current"/>
+                <xso:apply-templates select="if(not(({@select}) instance of item())) then ({@select}) else node()" mode="#current"/>
               </xso:when>
               <!--  *
                     * fallback: handle as simple text
