@@ -248,12 +248,21 @@
           <xsl:when test="@select">
             <xso:value-of select="$opening-delimiter"/>
             <xso:choose>
-              <xso:when test="({@select}) instance of xs:string">
-                <xso:value-of select="{@select}"/>
-              </xso:when>
+              <!--  *
+                    * handle elements
+                    * -->
               <xso:when test="({@select}) instance of element()">
                 <xso:apply-templates select="if(({@select}) instance of element()) then ({@select}) else node()" mode="#current"/>
               </xso:when>
+              <!--  *
+                    * handle node() function used in select attributes
+                    * -->
+              <xso:when test="not(({@select}) instance of item())">
+                <xso:apply-templates select="{@select}" mode="#current"/>
+              </xso:when>
+              <!--  *
+                    * fallback: handle as simple text
+                    * -->
               <xso:otherwise>
                 <xso:value-of select="{@select}"/>
               </xso:otherwise>
