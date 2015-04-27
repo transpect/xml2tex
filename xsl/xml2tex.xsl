@@ -63,7 +63,7 @@
           </xsl:if>
           <xso:text>\begin{document}&#xa;</xso:text>
           <xso:apply-templates mode="#current"/>
-          <xso:text>&#xa;\end{document}</xso:text>
+          <xso:text>&#xa;\end{document}&#xa;</xso:text>
         </c:data>
       </xso:template>
       
