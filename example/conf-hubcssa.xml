@@ -258,7 +258,7 @@
   </xml2tex:regex>
   
   <xml2tex:charmap>
-  	<xml2tex:char character="&#xad;" string="&quot;-"/>
+    <xml2tex:char character="&#xad;" string="&quot;-"/>
     <xml2tex:char character="Ä" string="\&#34;A" context="dbk:phrase, dbk:section|dbk:para, dbk:entry"/>
     <xml2tex:char character="ä" string="\&#34;a"/>
     <xml2tex:char character="Ö" string="\&#34;O"/>
@@ -271,7 +271,6 @@
     <xml2tex:char character="–" string="--" />
     <xml2tex:char character="—" string="---" />
     <xml2tex:char character="€" string="\texteuro{}" />
-    <xml2tex:char character="#" string="\#" />
     <xml2tex:char character=" " string="\," />
     <xml2tex:char character=" " string="\," />
     <xml2tex:char character="≤" string="$\leq$" />

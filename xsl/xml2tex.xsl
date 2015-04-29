@@ -134,9 +134,12 @@
 
       <!-- escape bad chars, necessary for tex commands -->
       <xso:template match="text()" mode="escape-bad-chars">
-        <xso:variable name="content" select="replace( ., '(%|_|&amp;)', '\\$1' )"/>
+        <xso:variable name="content" select="replace( ., '\\', '\\textbackslash ' )"/>
+        <xso:variable name="content" select="replace( $content, '(%|_|&amp;|\$|#)', '\\$1' )"/>
         <xso:variable name="content" select="replace( $content, '\{{', '\\{{' )"/>
         <xso:variable name="content" select="replace( $content, '\}}', '\\}}' )"/>
+        <xso:variable name="content" select="replace( $content, '~', '\\textasciitilde ' )"/>
+        <xso:variable name="content" select="replace( $content, '\^', '\\textasciicircum' )"/>
         <xso:value-of select="$content"/>
       </xso:template>
 
