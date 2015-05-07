@@ -124,9 +124,10 @@
   </xml2tex:template>
   
   <xml2tex:template context="dbk:listitem">
-  	<xml2tex:rule type="cmd" name="item">
-  		<xml2tex:param/>
-  	</xml2tex:rule>
+    <xml2tex:rule type="cmd" name="item">
+      <xml2tex:text select="' '"/>
+      <xml2tex:text/>
+    </xml2tex:rule>
   </xml2tex:template>
   
   <!-- text styles -->
