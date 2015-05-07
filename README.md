@@ -1,7 +1,7 @@
 # xml2tex
 Converts XML to LaTeX
 
-Author: Martin Kraetke
+Authors: Martin Kraetke, Lars Wittmar
 
 ## configuration
 
