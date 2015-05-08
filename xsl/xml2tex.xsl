@@ -215,9 +215,10 @@
             cmd   ==> commands, e.g. \bla ...
             none  ==> no tex markup, needed for simple paras or other stuff you want to simply tunnel through the process -->
         <xsl:variable name="opening-tag" 
-          select="if(@type eq 'env') then concat('&#xa;\begin{',@name,'}')
-            else if (not(@type)) then ''
-            else concat( '\', @name )"/>
+          select="if(@type eq 'env' and matches(@name, 'table|tabular|figure')) then concat('&#xa;\begin{',@name,'}')
+             else if(@type eq 'env' and not(matches(@name, 'table|tabular|figure'))) then concat('&#xa;\begin{',@name,'}&#xa;')
+             else if(not(@type)) then ''
+             else concat( '\', @name )"/>
         <xsl:variable name="closing-tag"
           select="concat(if(@type eq 'env') then concat('&#xa;\end{',@name,'}&#xa;') else '',
             if(@break-after) then string-join(for $i in (1 to @break-after) return '&#xa;', '') else '')"/>
