@@ -19,6 +19,7 @@
   
   <define name="xml2tex.set">
     <element name="xml2tex:set">
+      <ref name="xml2tex.set.attributes"/>
       <ref name="xml2tex.set.content"/>
     </element>
   </define>
@@ -94,6 +95,14 @@
   <!--  *
         * attributes
         * -->
+  
+  <define name="xml2tex.set.attributes">
+    <optional>
+      <attribute name="xml:base">
+        <data type="anyURI"/>
+      </attribute>
+    </optional>
+  </define>
   
   <define name="xml2tex.atom.attributes">
     <choice>
