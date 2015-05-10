@@ -245,8 +245,13 @@
   
   <template context="dbk:indexterm">
     <rule type="cmd" name="index">
-      <param select="(for $i in .//*[local-name() = ('primary','secondary','tertiary','see','seealso')][position() ne last()] return ($i, '!'),
-        .//*[local-name() = ('primary','secondary','tertiary','see','seealso')][position() eq last()])"/>
+      <param/>
+    </rule>
+  </template>
+  
+  <template context="dbk:secondary|dbk:secondary|dbk:tertiary|dbk:see|dbk:seealso">
+    <rule>
+      <text select="concat('!', .)"></text>
     </rule>
   </template>
   
