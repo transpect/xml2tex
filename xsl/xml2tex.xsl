@@ -249,30 +249,30 @@
         <xso:variable name="opening-delimiter" select="{concat('''', $opening-delimiter, '''')}"/>
         <xso:variable name="closing-delimiter" select="{concat('''', $closing-delimiter, '''')}"/>
         <xsl:choose>
+          <!--  *
+                * select attribute exists either in text/option/param tag
+                * -->
           <xsl:when test="@select">
             <xso:value-of select="$opening-delimiter"/>
             <xso:choose>
-              <!--  *
-                    * handle elements
-                    * -->
+              <!--  handle elements -->
               <xso:when test="({@select}) instance of element()">
                 <xso:apply-templates select="if(({@select}) instance of element()) then ({@select}) else node()" mode="#current"/>
               </xso:when>
-              <!--  *
-                    * handle node() function used in select attributes
-                    * -->
+              <!--  * handle node() function used in select attributes -->
               <xso:when test="not(({@select}) instance of item())">
                 <xso:apply-templates select="if(not(({@select}) instance of item())) then ({@select}) else node()" mode="#current"/>
               </xso:when>
-              <!--  *
-                    * fallback: handle as simple text
-                    * -->
+              <!--  fallback: handle as simple text -->
               <xso:otherwise>
                 <xso:value-of select="{@select}"/>
               </xso:otherwise>
             </xso:choose>
             <xso:value-of select="$closing-delimiter"/>
           </xsl:when>
+          <!--  *
+                * regex attribute exists either in text/option/param tag
+                * -->
           <xsl:when test="@regex">
             <xso:analyze-string select="." regex="{@regex}">
               <xso:matching-substring>
@@ -282,9 +282,15 @@
               </xso:matching-substring>
             </xso:analyze-string>
           </xsl:when>
+          <!--  *
+                * text/option/param tag contains static text
+                * -->
           <xsl:when test="text()">
             <xso:value-of select="{concat('''', text(), '''')}"/>
           </xsl:when>
+          <!--  *
+                * fallback for anything
+                * -->
           <xsl:otherwise>
             <xso:value-of select="$opening-delimiter"/>
             <xso:choose>
