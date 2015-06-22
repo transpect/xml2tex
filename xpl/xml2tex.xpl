@@ -99,7 +99,7 @@
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
   </p:xslt>
   
-  <tr:store-debug pipeline-step="xml2tex/conf2xsl">
+  <tr:store-debug pipeline-step="xml2tex/1.conf2xsl">
     <p:with-option name="extension" select="'xsl'"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
@@ -141,7 +141,7 @@
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
   </p:xslt>
   
-  <tr:store-debug pipeline-step="xml2tex/normalize-calstables">
+  <tr:store-debug pipeline-step="xml2tex/2.normalize-calstables">
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -159,7 +159,7 @@
     <p:with-param name="grid" select="$grid"/>
   </p:xslt>
   
-  <tr:store-debug pipeline-step="xml2tex/cals2tabular">
+  <tr:store-debug pipeline-step="xml2tex/3.cals2tabular">
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -187,7 +187,7 @@
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
   </p:xslt>
   
-  <tr:store-debug pipeline-step="xml2tex/mml2tex">
+  <tr:store-debug pipeline-step="xml2tex/4.mml2tex">
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
