@@ -138,8 +138,6 @@
         <xso:variable name="content" select="replace( $content, '(%|_|&amp;|\$|#)', '\\$1' )"/>
         <xso:variable name="content" select="replace( $content, '\{{', '\\{{' )"/>
         <xso:variable name="content" select="replace( $content, '\}}', '\\}}' )"/>
-        <xso:variable name="content" select="replace( $content, '~', '\\textasciitilde ' )"/>
-        <xso:variable name="content" select="replace( $content, '\^', '\\textasciicircum' )"/>
         <xso:value-of select="$content"/>
       </xso:template>
 
@@ -310,12 +308,16 @@
   <!-- mode replace-chars -->
 
   <xsl:template match="xml2tex:charmap">
+    <xsl:variable name="special-regex-chars" select="'[\^\$\[\]\(\)\\]'" as="xs:string"/>
+    
     <!-- replacement with xpath context -->
     <xso:template match="text()" mode="replace-chars-specific">
-      <xso:variable name="content" select="."/>
+      <xso:variable name="content" select="." as="xs:string"/>
       <xsl:for-each-group select="xml2tex:char[@context]" group-by="@context">
         <xsl:for-each select="current-group()">
-          <xsl:variable name="pattern" select="concat('''', @character, '''')" as="xs:string"/>
+          <xsl:variable name="pattern" select="concat('''', 
+                                                      replace(@character, $special-regex-chars, '\$1'),
+                                                      '''')" as="xs:string"/>
           <!-- escape backspaces and dollar signs -->
           <xsl:variable name="replace" select="concat('''', replace(
                                                               replace(@string, '\\', '\\\\'),
@@ -330,9 +332,11 @@
 
     <!-- no xpath context defined-->
     <xso:template match="text()" mode="replace-chars-general">
-      <xso:variable name="content" select="."/>
+      <xso:variable name="content" select="." as="xs:string"/>
       <xsl:for-each select="xml2tex:char[not(@context)]">
-        <xsl:variable name="pattern" select="concat('''', @character, '''')" as="xs:string"/>
+        <xsl:variable name="pattern" select="concat('''',
+                                                    replace(@character, $special-regex-chars, '\$1'),
+                                                    '''')" as="xs:string"/>
         <!-- escape backspaces and dollar signs -->
         <xsl:variable name="replace" select="concat('''', replace(
                                                             replace(@string, '\\', '\\\\'),
