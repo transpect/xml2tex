@@ -143,7 +143,7 @@
         <xso:param name="string" as="xs:string"/>
         <xso:variable name="map" as="element(map)">
           <map>
-            <mark hex="&#x300;" tex="\`'"/>         <!-- grave accent -->
+            <mark hex="&#x300;" tex="\`"/>          <!-- grave accent -->
             <mark hex="&#x301;" tex="\'"/>          <!-- acute accent -->
             <mark hex="&#x302;" tex="\^"/>          <!-- circumflex accent -->
             <mark hex="&#x303;" tex="\~"/>          <!-- tilde -->
