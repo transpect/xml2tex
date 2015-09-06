@@ -136,50 +136,8 @@
       <xso:template match="text()" mode="escape-bad-chars">
         <xso:variable name="content" select="replace( ., '\\', '\\textbackslash ' )"/>
         <xso:variable name="content" select="replace( $content, '(\{{|\}}|%|_|&amp;|\$|#)', '\\$1' )"/>
-        <xso:value-of select="xml2tex:convert-diacrits($content)"/>
+        <xso:value-of select="$content"/>
       </xso:template>
-      
-      <xso:function name="xml2tex:convert-diacrits" as="xs:string+">
-        <xso:param name="string" as="xs:string"/>
-        <xso:variable name="map" as="element(map)">
-          <map>
-            <mark hex="&#x300;" tex="\`"/>          <!-- grave accent -->
-            <mark hex="&#x301;" tex="\'"/>          <!-- acute accent -->
-            <mark hex="&#x302;" tex="\^"/>          <!-- circumflex accent -->
-            <mark hex="&#x303;" tex="\~"/>          <!-- tilde -->
-            <mark hex="&#x304;" tex="\="/>          <!-- macron -->
-            <mark hex="&#x305;" tex="\="/>          <!-- overline -->
-            <mark hex="&#x306;" tex="\u"/>          <!-- breve -->
-            <mark hex="&#x307;" tex="\."/>          <!-- dot above -->
-            <mark hex="&#x308;" tex="\&quot;"/>     <!-- diaeresis -->
-            <mark hex="&#x30a;" tex="\r"/>          <!-- ring above -->
-            <mark hex="&#x30b;" tex="\H"/>          <!-- double acute accent -->
-            <mark hex="&#x30c;" tex="\v"/>          <!-- caron/háček -->
-            <mark hex="&#x30d;" tex="\="/>          <!-- vertical line above, not we misuse the macron for this -->
-            <mark hex="&#x30e;" tex="\v"/>          <!-- double vertical line above -->
-            <mark hex="&#x323;" tex="\d"/>          <!-- dot below -->
-            <mark hex="&#x327;" tex="\c"/>          <!-- cedilla -->
-            <mark hex="&#x328;" tex="\k"/>          <!-- ogonek -->
-            <mark hex="&#x331;" tex="\b"/>          <!-- macron below -->
-            <mark hex="&#x332;" tex="\b"/>          <!-- low line -->
-            <mark hex="&#x324;" tex="\~"/>          <!-- greek perispomeni -->
-          </map>
-        </xso:variable>
-        <!-- decompose diacritical marks -->
-        <xso:analyze-string select="normalize-unicode($string, 'NFKD')" regex="(.)([&#x300;-&#x36F;])" flags="i">
-          <xso:matching-substring>
-            <xso:variable name="char" select="concat('{{', regex-group(1), '}}')"/>
-            <xso:variable name="mark" select="regex-group(2)"/>
-            <xso:variable name="tex-instr" select="$map//mark[@hex eq $mark]/@tex" as="xs:string*"/>
-            <xso:value-of select="if(string-length($tex-instr) gt 0)
-                                  then concat($tex-instr, $char)
-                                  else ."/>
-          </xso:matching-substring>
-          <xso:non-matching-substring>
-            <xso:value-of select="."/>
-          </xso:non-matching-substring>
-        </xso:analyze-string>
-      </xso:function>
 
       <!-- apply regex from conf file -->
       <xso:template match="text()" mode="apply-regex">
@@ -383,8 +341,51 @@
                                                           '\$', '\\\$'), '''')" as="xs:string"/>
         <xso:variable name="content" select="replace( $content, {$pattern}, {$replace} )" as="xs:string"/>
       </xsl:for-each>
-      <xso:value-of select="$content"/>
+      <!-- convert diacritical marks -->
+      <xso:value-of select="string-join(xml2tex:convert-diacrits($content), '')"/>
     </xso:template>
+    
+    <xso:function name="xml2tex:convert-diacrits" as="xs:string+">
+      <xso:param name="string" as="xs:string"/>
+      <xso:variable name="map" as="element(map)">
+        <map>
+          <mark hex="&#x300;" tex="\`"/>          <!-- grave accent -->
+          <mark hex="&#x301;" tex="\'"/>          <!-- acute accent -->
+          <mark hex="&#x302;" tex="\^"/>          <!-- circumflex accent -->
+          <mark hex="&#x303;" tex="\~"/>          <!-- tilde -->
+          <mark hex="&#x304;" tex="\="/>          <!-- macron -->
+          <mark hex="&#x305;" tex="\="/>          <!-- overline -->
+          <mark hex="&#x306;" tex="\u"/>          <!-- breve -->
+          <mark hex="&#x307;" tex="\."/>          <!-- dot above -->
+          <mark hex="&#x308;" tex="\&quot;"/>     <!-- diaeresis -->
+          <mark hex="&#x30a;" tex="\r"/>          <!-- ring above -->
+          <mark hex="&#x30b;" tex="\H"/>          <!-- double acute accent -->
+          <mark hex="&#x30c;" tex="\v"/>          <!-- caron/háček -->
+          <mark hex="&#x30d;" tex="\="/>          <!-- vertical line above, not we misuse the macron for this -->
+          <mark hex="&#x30e;" tex="\v"/>          <!-- double vertical line above -->
+          <mark hex="&#x323;" tex="\d"/>          <!-- dot below -->
+          <mark hex="&#x327;" tex="\c"/>          <!-- cedilla -->
+          <mark hex="&#x328;" tex="\k"/>          <!-- ogonek -->
+          <mark hex="&#x331;" tex="\b"/>          <!-- macron below -->
+          <mark hex="&#x332;" tex="\b"/>          <!-- low line -->
+          <mark hex="&#x324;" tex="\~"/>          <!-- greek perispomeni -->
+        </map>
+      </xso:variable>
+      <!-- decompose diacritical marks -->
+      <xso:analyze-string select="normalize-unicode($string, 'NFKD')" regex="([a-z])([&#x300;-&#x36F;])" flags="i">
+        <xso:matching-substring>
+          <xso:variable name="char" select="concat('{{', regex-group(1), '}}')"/>
+          <xso:variable name="mark" select="regex-group(2)"/>
+          <xso:variable name="tex-instr" select="$map//mark[@hex eq $mark]/@tex" as="xs:string*"/>
+          <xso:value-of select="if(string-length($tex-instr) gt 0)
+                                then concat($tex-instr, $char)
+                                else ."/>
+        </xso:matching-substring>
+        <xso:non-matching-substring>
+          <xso:value-of select="."/>
+        </xso:non-matching-substring>
+      </xso:analyze-string>
+    </xso:function>
 
   </xsl:template>
   
