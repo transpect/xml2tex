@@ -164,19 +164,13 @@
       </xso:template>
       
       <!-- dissolve pis created by calstable-normalize -->
-      <xso:template match="processing-instruction('cals2tabular')" mode="dissolve-pi">
+      <xso:template match="processing-instruction('cals2tabular')
+        |processing-instruction('mml2tex')
+        |processing-instruction('mathtype')
+        |processing-instruction('latex')" mode="dissolve-pi">
         <xso:value-of select="."/>
       </xso:template>
       
-      <!-- dissolve pis of  mml2tex equations -->
-      <xso:template match="processing-instruction('mml2tex')" mode="dissolve-pi">
-        <xso:value-of select="."/>
-      </xso:template>
-      
-      <xso:template match="processing-instruction('mathtype')" mode="dissolve-pi">
-        <xso:value-of select="."/>
-      </xso:template>
-
       <xsl:apply-templates select="*[not(self::xml2tex:ns)]"/>
 
     </xso:stylesheet>
