@@ -192,6 +192,22 @@
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
   
+  <p:xslt name="lists">
+    <p:documentation>
+      MathML equations are converted to "mml2tex" processing instructions.
+    </p:documentation>    
+    <p:input port="stylesheet">
+      <p:document href="../xsl/lists.xsl"/>
+    </p:input>
+    <p:with-param name="debug" select="$debug"/>
+    <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
+  </p:xslt>
+  
+  <tr:store-debug pipeline-step="xml2tex/5.lists">
+    <p:with-option name="active" select="$debug"/>
+    <p:with-option name="base-uri" select="$debug-dir-uri"/>
+  </tr:store-debug>
+  
   <tr:simple-progress-msg file="xml2tex-convert-xml.txt">
     <p:input port="msgs">
       <p:inline>
