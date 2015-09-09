@@ -134,9 +134,16 @@
   </define>
   
   <define name="xml2tex.template.attributes">
-    <attribute name="context">
-      <text/>
-    </attribute>
+    <interleave>
+      <attribute name="context">
+        <text/>
+      </attribute>
+      <optional>
+        <attribute name="mathmode">
+          <data type="boolean"/>
+        </attribute>
+      </optional>
+    </interleave>
   </define>
   
   <define name="xml2tex.rule.attributes">

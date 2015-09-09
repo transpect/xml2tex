@@ -198,27 +198,53 @@
     <xsl:variable name="template-priority" select="index-of($rule-indexes, generate-id(.))"/>
 
     <xso:template match="{@context}" mode="apply-xpath" priority="{$template-priority}">
-      <!-- if no tex child is present, then matched node will be discarded -->
-      <xsl:for-each select="xml2tex:rule">
-        <!-- three types: 
-            env   ==> environment, eg. e.g. begin{bla} ... end{bla}
-            cmd   ==> commands, e.g. \bla ...
-            none  ==> no tex markup, needed for simple paras or other stuff you want to simply tunnel through the process -->
-        <xsl:variable name="opening-tag" 
-          select="if(@type eq 'env' and matches(@name, 'table|tabular|figure')) then concat('&#xa;\begin{',@name,'}')
-             else if(@type eq 'env' and not(matches(@name, 'table|tabular|figure'))) then concat('&#xa;\begin{',@name,'}&#xa;')
-             else if(not(@type)) then ''
-             else concat( '\', @name )"/>
-        <xsl:variable name="closing-tag"
-          select="concat(if(@type eq 'env') then concat('&#xa;\end{',@name,'}&#xa;') else '',
-            if(@break-after) then string-join(for $i in (1 to @break-after) return '&#xa;', '') else '')"/>
-        <xso:variable name="opening-tag" select="{concat('''', $opening-tag, '''')}"/>
-        <xso:variable name="closing-tag" select="{concat('''', $closing-tag, '''')}"/>
-        <xso:value-of select="$opening-tag"/>
-        <xsl:sequence select="xml2tex:generate-content(*)"/>
-        <xso:value-of select="$closing-tag"/>
-      </xsl:for-each>
+      <xso:copy>
+        <xso:apply-templates select="@*"/>
+        <xsl:if test="@mathmode eq 'true'">
+          <xso:text>$</xso:text>
+        </xsl:if>
+        <!-- if no tex child is present, then matched node will be discarded -->
+          <xsl:for-each select="xml2tex:rule">
+            <!-- three types: 
+                env   ==> environment, eg. e.g. begin{bla} ... end{bla}
+                cmd   ==> commands, e.g. \bla ...
+                none  ==> no tex markup, needed for simple paras or other stuff you want to simply tunnel through the process -->
+            <xsl:variable name="opening-tag" 
+              select="if(@type eq 'env' and matches(@name, 'table|tabular|figure')) then concat('&#xa;\begin{',@name,'}')
+                 else if(@type eq 'env' and not(matches(@name, 'table|tabular|figure'))) then concat('&#xa;\begin{',@name,'}&#xa;')
+                 else if(not(@type)) then ''
+                 else concat( '\', @name )"/>
+            <xsl:variable name="closing-tag"
+              select="concat(if(@type eq 'env') then concat('&#xa;\end{',@name,'}&#xa;') else '',
+                if(@break-after) then string-join(for $i in (1 to @break-after) return '&#xa;', '') else '')"/>
+            <xso:variable name="opening-tag" select="{concat('''', $opening-tag, '''')}"/>
+            <xso:variable name="closing-tag" select="{concat('''', $closing-tag, '''')}"/>
+            <xso:value-of select="$opening-tag"/>
+            <xsl:sequence select="xml2tex:generate-content(*)"/>
+            <xso:value-of select="$closing-tag"/>
+          </xsl:for-each>
+        <xsl:if test="@mathmode eq 'true'">
+          <xso:text>$</xso:text>
+        </xsl:if>
+      </xso:copy>
     </xso:template>
+    
+    <!--  *
+          * set '$' around content and remove dollar characters within to prevent nested math mode sections 
+          * -->
+    <xsl:if test="@mathmode eq 'true'">
+      <xso:template match="{@context}/text()" mode="dissolve-pi" priority="{$template-priority}">
+        <xso:analyze-string select="." regex="\\\$">
+          <xso:matching-substring>
+            <xso:message select="."/>
+            <xso:value-of select="."/>
+          </xso:matching-substring>
+          <xso:non-matching-substring>
+            <xso:value-of select="replace(., '\$', '')"/>
+          </xso:non-matching-substring>
+        </xso:analyze-string>
+      </xso:template>
+    </xsl:if>
 
   </xsl:template>
 
@@ -307,6 +333,7 @@
       <xso:variable name="content" select="." as="xs:string"/>
       <xsl:for-each-group select="xml2tex:char[@context]" group-by="@context">
         <xsl:for-each select="current-group()">
+          <!-- escape regex-characters -->
           <xsl:variable name="pattern" select="concat('''', 
                                                       replace(@character, $special-regex-chars, '\$1'),
                                                       '''')" as="xs:string"/>
