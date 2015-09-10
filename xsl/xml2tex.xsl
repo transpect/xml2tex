@@ -168,7 +168,7 @@
         |processing-instruction('mml2tex')
         |processing-instruction('mathtype')
         |processing-instruction('latex')" mode="dissolve-pi">
-        <xso:value-of select="."/>
+        <xso:value-of select="replace(., '\s\s+', ' ')"/>
       </xso:template>
       
       <xsl:apply-templates select="*[not(self::xml2tex:ns)]"/>
