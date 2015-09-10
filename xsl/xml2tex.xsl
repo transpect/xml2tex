@@ -57,7 +57,7 @@
         <c:data content-type="text/plain">
           <xsl:if test="/xml2tex:set/xml2tex:preamble">
             <xsl:variable name="split-lines" select="tokenize(/xml2tex:set/xml2tex:preamble, '&#xa;')"/>
-            <xsl:for-each select="$split-lines[. ne '']">
+            <xsl:for-each select="$split-lines[not(matches(., '^[\s\n]$'))]">
               <xso:text><xsl:value-of select="replace(., '\s*(.+)', '$1'), '&#xa;'"/></xso:text>
             </xsl:for-each>
           </xsl:if>
