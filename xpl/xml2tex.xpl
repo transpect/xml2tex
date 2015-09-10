@@ -4,6 +4,7 @@
   xmlns:c="http://www.w3.org/ns/xproc-step" 
   xmlns:cx="http://xmlcalabash.com/ns/extensions"
   xmlns:tr="http://transpect.io"
+  xmlns:mml2tex="http://transpect.io/mml2tex"
   xmlns:xml2tex="http://transpect.io/xml2tex"
   version="1.0" 
   name="xml2tex" 
@@ -57,6 +58,7 @@
   </p:option>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
+  <p:import href="http://transpect.io/mml2tex/xpl/mml2tex.xpl"/>
   <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl"/>
   <p:import href="http://transpect.io/xproc-util/simple-progress-msg/xpl/simple-progress-msg.xpl"/>
   <p:import href="http://transpect.io/xproc-util/xslt-mode/xpl/xslt-mode.xpl"/>
@@ -99,7 +101,8 @@
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
   </p:xslt>
   
-  <tr:store-debug pipeline-step="xml2tex/1.conf2xsl">
+  <tr:store-debug>
+    <p:with-option name="pipeline-step" select="concat($prefix, '1.conf2xsl')"/>
     <p:with-option name="extension" select="'xsl'"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
@@ -141,7 +144,8 @@
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
   </p:xslt>
   
-  <tr:store-debug pipeline-step="xml2tex/2.normalize-calstables">
+  <tr:store-debug>
+    <p:with-option name="pipeline-step" select="concat($prefix, '2.normalize-calstables')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -159,7 +163,8 @@
     <p:with-param name="grid" select="$grid"/>
   </p:xslt>
   
-  <tr:store-debug pipeline-step="xml2tex/3.cals2tabular">
+  <tr:store-debug>
+    <p:with-option name="pipeline-step" select="concat($prefix, '3.cals2tabular')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -176,22 +181,20 @@
     <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
   </tr:simple-progress-msg>
   
-  <p:xslt name="mml2tex">
+  <mml2tex:convert name="mml2tex">
     <p:documentation>
       MathML equations are converted to "mml2tex" processing instructions.
     </p:documentation>    
-    <p:input port="stylesheet">
-      <p:document href="../xsl/mml2tex.xsl"/>
-    </p:input>
-    <p:with-param name="debug" select="$debug"/>
-    <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
-  </p:xslt>
+    <p:with-option name="debug" select="$debug"/>
+    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+  </mml2tex:convert>
   
-  <tr:store-debug pipeline-step="xml2tex/4.mml2tex">
+  <tr:store-debug>
+    <p:with-option name="pipeline-step" select="concat($prefix, '4.mml2tex')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
-  
+    
   <p:xslt name="lists">
     <p:documentation>
       MathML equations are converted to "mml2tex" processing instructions.
@@ -203,7 +206,8 @@
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
   </p:xslt>
   
-  <tr:store-debug pipeline-step="xml2tex/5.lists">
+  <tr:store-debug>
+    <p:with-option name="pipeline-step" select="concat($prefix, '5.lists')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -230,7 +234,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-    <p:with-option name="prefix" select="concat($prefix, '1')"/>
+    <p:with-option name="prefix" select="concat($prefix, '6')"/>
   </tr:xslt-mode>
   
   <tr:xslt-mode msg="yes" hub-version="1.1" mode="apply-regex" name="apply-regex">
@@ -243,7 +247,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-    <p:with-option name="prefix" select="concat($prefix, '2')"/>
+    <p:with-option name="prefix" select="concat($prefix, '7')"/>
   </tr:xslt-mode>
   
   <tr:xslt-mode msg="yes" hub-version="1.1" mode="replace-chars-specific" name="replace-chars-specific">
@@ -256,7 +260,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-    <p:with-option name="prefix" select="concat($prefix, '3')"/>
+    <p:with-option name="prefix" select="concat($prefix, '8')"/>
   </tr:xslt-mode>
   
   <tr:xslt-mode msg="yes" hub-version="1.1" mode="replace-chars-general" name="replace-chars-general">
@@ -269,7 +273,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-    <p:with-option name="prefix" select="concat($prefix, '4')"/>
+    <p:with-option name="prefix" select="concat($prefix, '9')"/>
   </tr:xslt-mode>
   
   <tr:xslt-mode msg="yes" hub-version="1.1" mode="dissolve-pi" name="dissolve-pi">
@@ -282,7 +286,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-    <p:with-option name="prefix" select="concat($prefix, '5')"/>
+    <p:with-option name="prefix" select="concat($prefix, '10')"/>
   </tr:xslt-mode>
   
   <tr:xslt-mode msg="yes" hub-version="1.1" mode="apply-xpath" name="apply-xpath">
@@ -295,7 +299,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-    <p:with-option name="prefix" select="concat($prefix, '6')"/>
+    <p:with-option name="prefix" select="concat($prefix, '11')"/>
   </tr:xslt-mode>
   
 </p:declare-step>
