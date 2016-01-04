@@ -250,20 +250,7 @@
     <p:with-option name="prefix" select="concat($prefix, '7')"/>
   </tr:xslt-mode>
   
-  <tr:xslt-mode msg="yes" hub-version="1.1" mode="replace-chars-specific" name="replace-chars-specific">
-    <p:input port="stylesheet">
-      <p:pipe port="result" step="conf2xsl"/>
-    </p:input>
-    <p:input port="parameters">
-      <p:empty/>
-    </p:input>
-    <p:input port="models"><p:empty/></p:input>
-    <p:with-option name="debug" select="$debug"/>
-    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-    <p:with-option name="prefix" select="concat($prefix, '8')"/>
-  </tr:xslt-mode>
-  
-  <tr:xslt-mode msg="yes" hub-version="1.1" mode="replace-chars-general" name="replace-chars-general">
+  <tr:xslt-mode msg="yes" hub-version="1.1" mode="replace-chars" name="replace-chars">
     <p:input port="stylesheet">
       <p:pipe port="result" step="conf2xsl"/>
     </p:input>

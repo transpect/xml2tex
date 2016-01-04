@@ -5,8 +5,11 @@
   xmlns:xlink="http://www.w3.org/1999/xlink"
   xmlns:xml2tex="http://transpect.io/xml2tex"
   xmlns:c="http://www.w3.org/ns/xproc-step"
+  xmlns:functx="http://www.functx.com"
   xmlns:xso="tobereplaced" 
   version="2.0">
+  
+  <xsl:import href="http://transpect.io/xslt-util/functx/Strings/Replacing/escape-for-regex.xsl"/>
 
   <xsl:namespace-alias stylesheet-prefix="xso" result-prefix="xsl"/>
 
@@ -46,17 +49,25 @@
       xmlns:tex="http://www-cs-faculty.st anford.edu/~uno/"
       xmlns:c="http://www.w3.org/ns/xproc-step"
       xmlns:xso="tobereplaced">
+      
       <xsl:apply-templates select="xml2tex:ns"/>
       
       <xsl:attribute name="version">2.0</xsl:attribute>
 
+      <!--<xso:import href="http://transpect.io/xslt-util/functx/Strings/Replacing/escape-for-regex.xsl"/>-->
+
       <xso:output method="text" media-type="text/plain" encoding="UTF8"/>
+
+      <xso:function name="functx:escape-for-regex" as="xs:string" xmlns:functx="http://www.functx.com">
+        <xso:param name="arg" as="xs:string?"/>
+        <xso:sequence select="replace($arg, '(\.|\[|\]|\\|\||\-|\^|\$|\?|\*|\+|\{{|\}}|\(|\))', '\\$1')"/>
+      </xso:function>
 
       <xso:template match="/" mode="apply-xpath">
         <!-- The c:data-section is necessary for XProc text output. -->
         <c:data content-type="text/plain">
           <xsl:if test="/xml2tex:set/xml2tex:preamble">
-            <xsl:variable name="split-lines" select="tokenize(/xml2tex:set/xml2tex:preamble, '&#xa;')"/>
+            <xsl:variable name="split-lines" select="tokenize(/xml2tex:set/xml2tex:preamble, '&#xa;')" as="xs:string*"/>
             <xsl:for-each select="$split-lines[not(matches(., '^[\s\n]$'))]">
               <xso:text><xsl:value-of select="replace(., '\s*(.+)', '$1'), '&#xa;'"/></xso:text>
             </xsl:for-each>
@@ -79,16 +90,12 @@
         <xso:apply-templates select="$escape-bad-chars" mode="apply-regex"/>
       </xso:variable>
 
-      <xso:variable name="replace-chars-specific">
-        <xso:apply-templates select="$apply-regex" mode="replace-chars-specific"/>
-      </xso:variable>
-
-      <xso:variable name="replace-chars-general">
-        <xso:apply-templates select="$replace-chars-specific" mode="replace-chars-general"/>
+      <xso:variable name="replace-chars">
+        <xso:apply-templates select="$apply-regex" mode="replace-chars"/>
       </xso:variable>
 
       <xso:variable name="dissolve-pi">
-        <xso:apply-templates select="$replace-chars-general" mode="dissolve-pi"/>
+        <xso:apply-templates select="$replace-chars" mode="dissolve-pi"/>
       </xso:variable>
 
       <xso:variable name="apply-xpath">
@@ -102,20 +109,20 @@
         <xso:sequence select="$apply-xpath"/>
         <!-- debugging -->
         <xso:if test="{$debug eq 'yes'}()">
-          <xso:result-document href="{$debug-dir-uri}/hub2tex/00_escape-bad-chars.xml" indent="yes" method="xml">
+          <xso:result-document href="{$debug-dir-uri}/xml2tex/00_escape-bad-chars.xml" indent="yes" method="xml">
             <xso:sequence select="$escape-bad-chars"/>
           </xso:result-document>
-          <xso:result-document href="{$debug-dir-uri}/hub2tex/05_apply-regex.xml" indent="yes" method="text">
+          <xso:result-document href="{$debug-dir-uri}/xml2tex/05_apply-regex.xml" indent="yes" method="text">
             <xso:sequence select="$apply-regex"/>
           </xso:result-document>
-          <xso:result-document href="{$debug-dir-uri}/hub2tex/10_replace-chars-specific.xml" indent="yes" method="xml">
-            <xso:sequence select="$replace-chars-specific"/>
+          <xso:result-document href="{$debug-dir-uri}/xml2tex/10_replace-chars.xml" indent="yes" method="xml">
+            <xso:sequence select="$replace-chars"/>
           </xso:result-document>
-          <xso:result-document href="{$debug-dir-uri}/hub2tex/15_replace-chars-general.xml" indent="yes" method="xml">
-            <xso:sequence select="$replace-chars-general"/>
-          </xso:result-document>
-          <xso:result-document href="{$debug-dir-uri}/hub2tex/20_dissolve-pi.xml" indent="yes" method="xml">
+          <xso:result-document href="{$debug-dir-uri}/xml2tex/15_dissolve-pi.xml" indent="yes" method="xml">
             <xso:sequence select="$dissolve-pi"/>
+          </xso:result-document>
+          <xso:result-document href="{$debug-dir-uri}/xml2tex/20_apply-xpath.xml" indent="yes" method="xml">
+            <xso:sequence select="$apply-xpath"/>
           </xso:result-document>
         </xso:if>
       </xso:template>
@@ -134,20 +141,19 @@
 
       <!-- escape bad chars, necessary for tex commands -->
       <xso:template match="text()" mode="escape-bad-chars">
-        <xso:variable name="content" select="replace( ., '\\', '\\textbackslash ' )"/>
-        <xso:variable name="content" select="replace( $content, '(\{{|\}}|%|_|&amp;|\$|#)', '\\$1' )"/>
+        <xso:variable name="content" select="xml2tex:escape-for-tex(replace( ., '\\', '\\textbackslash ' ))" as="xs:string"/>
         <xso:value-of select="$content"/>
       </xso:template>
 
       <!-- apply regex from conf file -->
       <xso:template match="text()" mode="apply-regex">
-        <xso:variable name="content" select="."/>
+        <xso:variable name="content" select="." as="xs:string"/>
         <xsl:for-each select="xml2tex:regex">
           <xsl:variable name="opening-delimiter"
             select="if(@type eq 'option') then '[' 
               else if (@type eq 'text') then ''
               else '{'"/>
-          <xsl:variable name="pattern" select="concat('''', @regex, '''')"/>
+          <xsl:variable name="pattern" select="concat('''', @regex, '''')" as="xs:string"/>
           <xsl:variable name="regex-groups" 
             select="string-join(
                             for $i in xml2tex:rule/* return concat(
@@ -156,9 +162,9 @@
                                 $i/@regex-group,
                                 if($i/local-name() eq 'option') then ']' else if ($i/local-name() eq 'text') then '' else'}' 
                             ),
-                        '')"/>
-          <xsl:variable name="replace" select="concat('''', '\\', xml2tex:rule/@name , $regex-groups, '''')"/>
-          <xso:variable name="content" select="replace( $content, {$pattern}, {$replace} )"/>
+                            '')" as="xs:string"/>
+          <xsl:variable name="replace" select="concat('''', '\\', xml2tex:rule/@name , $regex-groups, '''')" as="xs:string"/>
+          <xso:variable name="content" select="replace( $content, {$pattern}, {$replace} )" as="xs:string"/>
         </xsl:for-each>
         <xso:value-of select="$content"/>
       </xso:template>
@@ -326,45 +332,51 @@
   <!-- mode replace-chars -->
 
   <xsl:template match="xml2tex:charmap">
-    <xsl:variable name="special-regex-chars" select="'[\^\$\[\]\(\)\\]'" as="xs:string"/>
     
-    <!-- replacement with xpath context -->
-    <xso:template match="text()" mode="replace-chars-specific">
-      <xso:variable name="content" select="." as="xs:string"/>
-      <xsl:for-each-group select="xml2tex:char[@context]" group-by="@context">
-        <xsl:for-each select="current-group()">
-          <!-- escape regex-characters -->
-          <xsl:variable name="pattern" select="concat('''', 
-                                                      replace(@character, $special-regex-chars, '\$1'),
-                                                      '''')" as="xs:string"/>
-          <!-- escape backspaces and dollar signs -->
-          <xsl:variable name="replace" select="concat('''', replace(
-                                                              replace(@string, '\\', '\\\\'),
-                                                            '\$', '\\\$'), '''')" as="xs:string"/>
-          <xsl:variable name="split-xpath" select="tokenize(@context, '\||,')" as="xs:string+"/>
-          <xsl:variable name="condition" select="string-join(for $i in $split-xpath return concat('parent::', normalize-space($i)), ' or ')" as="xs:string"/>
-          <xso:variable name="content" select="if({$condition}) then replace($content, {$pattern}, {$replace}) else $content" as="xs:string"/>
-        </xsl:for-each>
-      </xsl:for-each-group>
-      <xso:value-of select="$content"/>
-    </xso:template>
-
-    <!-- no xpath context defined-->
-    <xso:template match="text()" mode="replace-chars-general">
-      <xso:variable name="content" select="." as="xs:string"/>
-      <xsl:for-each select="xml2tex:char[not(@context)]">
-        <xsl:variable name="pattern" select="concat('''',
-                                                    replace(@character, $special-regex-chars, '\$1'),
-                                                    '''')" as="xs:string"/>
-        <!-- escape backspaces and dollar signs -->
-        <xsl:variable name="replace" select="concat('''', replace(
-                                                            replace(@string, '\\', '\\\\'),
-                                                          '\$', '\\\$'), '''')" as="xs:string"/>
-        <xso:variable name="content" select="replace( $content, {$pattern}, {$replace} )" as="xs:string"/>
+    <xso:variable name="texregex" select="{concat('''', '([', string-join(for $ i in //xml2tex:char/@character return functx:escape-for-regex($i), ''), '])', '''')}" as="xs:string"/>
+    
+    <xso:variable name="charmap" as="element(xml2tex:char)+">
+      <xsl:for-each select="xml2tex:char">
+        <xml2tex:char>
+          <xml2tex:character><xsl:value-of select="@character"/></xml2tex:character>
+          <xml2tex:string><xsl:value-of select="@string"/></xml2tex:string>
+        </xml2tex:char>
       </xsl:for-each>
-      <!-- convert diacritical marks -->
-      <xso:value-of select="string-join(xml2tex:convert-diacrits($content), '')"/>
+    </xso:variable>
+        
+    <!-- replacement with xpath context -->
+    <xso:template match="text()" mode="replace-chars">
+      <xso:value-of select="xml2tex:convert-diacrits(string-join(
+                                        if(matches(., $texregex)) then xml2tex:utf2tex(., $charmap, '') else .,
+                                        ''))"/>
     </xso:template>
+    
+    <xso:function name="xml2tex:utf2tex" as="xs:string+">
+      <xso:param name="string" as="xs:string"/>
+      <xso:param name="charmap" as="element(xml2tex:char)+"/>
+      <xso:param name="seen" as="xs:string?"/>
+      
+      <xso:analyze-string select="$string" regex="{{$texregex}}">
+        <xso:matching-substring>      
+          <xso:variable name="pattern" select="functx:escape-for-regex(regex-group(1))" as="xs:string"/>
+          <xso:variable name="replacement" select="replace($charmap[xml2tex:character = regex-group(1)][1]/xml2tex:string, '([\$\\])', '\\$1')" as="xs:string"/>
+          <xso:variable name="result" select="replace(., $pattern, $replacement)" as="xs:string"/>
+          <xso:variable name="seen" select="concat($seen, $pattern)" as="xs:string"/>
+          <xso:choose>
+            <xso:when test="matches($result, $texregex)
+              and not(matches($result, $seen) or matches($result, '^[a-z0-9A-Z\$\\%_&amp;\{{\}}\[\]#]+$'))">
+              <xso:value-of select="string-join(xml2tex:utf2tex($result, $charmap, $seen), '')"/>
+            </xso:when>
+            <xso:otherwise>
+              <xso:value-of select="$result"/>
+            </xso:otherwise>
+          </xso:choose>
+        </xso:matching-substring>
+        <xso:non-matching-substring>
+          <xso:value-of select="."/>
+        </xso:non-matching-substring>
+      </xso:analyze-string>
+    </xso:function>
     
     <xso:function name="xml2tex:convert-diacrits" as="xs:string+">
       <xso:param name="string" as="xs:string"/>
@@ -406,6 +418,11 @@
           <xso:value-of select="."/>
         </xso:non-matching-substring>
       </xso:analyze-string>
+    </xso:function>
+    
+    <xso:function name="xml2tex:escape-for-tex" as="xs:string">
+      <xso:param name="string" as="xs:string"/>
+      <xso:value-of select="replace( $string, '(\{{|\}}|%|_|&amp;|\$|#)', '\\$1' )"/>
     </xso:function>
 
   </xsl:template>
