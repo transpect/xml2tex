@@ -54,14 +54,9 @@
       
       <xsl:attribute name="version">2.0</xsl:attribute>
 
-      <!--<xso:import href="http://transpect.io/xslt-util/functx/Strings/Replacing/escape-for-regex.xsl"/>-->
+      <xso:import href="http://transpect.io/xslt-util/functx/Strings/Replacing/escape-for-regex.xsl"/>
 
       <xso:output method="text" media-type="text/plain" encoding="UTF8"/>
-
-      <xso:function name="functx:escape-for-regex" as="xs:string" xmlns:functx="http://www.functx.com">
-        <xso:param name="arg" as="xs:string?"/>
-        <xso:sequence select="replace($arg, '(\.|\[|\]|\\|\||\-|\^|\$|\?|\*|\+|\{{|\}}|\(|\))', '\\$1')"/>
-      </xso:function>
 
       <xso:template match="/" mode="apply-xpath">
         <!-- The c:data-section is necessary for XProc text output. -->
