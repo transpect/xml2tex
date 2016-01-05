@@ -341,9 +341,8 @@
         
     <!-- replacement with xpath context -->
     <xso:template match="text()" mode="replace-chars">
-      <xso:value-of select="xml2tex:convert-diacrits(string-join(
-                                        if(matches(., $texregex)) then xml2tex:utf2tex(., $charmap, ()) else .,
-                                        ''))"/>
+      <xso:variable name="utf2tex" select="if(matches(., $texregex)) then xml2tex:utf2tex(., $charmap, '') else ." as="xs:string+"/>
+      <xso:value-of select="string-join(xml2tex:convert-diacrits($utf2tex), '')"/>
     </xso:template>
     
     <xso:function name="xml2tex:utf2tex" as="xs:string+">
@@ -371,6 +370,7 @@
           <xso:value-of select="."/>
         </xso:non-matching-substring>
       </xso:analyze-string>
+      
     </xso:function>
     
     <xso:function name="xml2tex:convert-diacrits" as="xs:string+">
