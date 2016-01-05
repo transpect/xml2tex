@@ -359,7 +359,7 @@
           <xso:variable name="seen" select="concat($seen, $pattern)" as="xs:string"/>
           <xso:choose>
             <xso:when test="matches($result, $texregex)
-              and not(($pattern = $seen) or matches($result, '^[a-z0-9A-Z\$\\%_&amp;\{{\}}\[\]#]+$'))">
+                            and not(($pattern = $seen) or matches($result, '^[a-z0-9A-Z\$\\%_&amp;\{{\}}\[\]#\|]+$'))">
               <xso:value-of select="string-join(xml2tex:utf2tex($result, $charmap, ($seen, $pattern)), '')"/>
             </xso:when>
             <xso:otherwise>
