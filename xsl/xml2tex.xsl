@@ -341,8 +341,9 @@
         
     <!-- replacement with xpath context -->
     <xso:template match="text()" mode="replace-chars">
-      <xso:variable name="utf2tex" select="if(matches(., $texregex)) then string-join(xml2tex:utf2tex(., $charmap, ()), '') else ." as="xs:string"/>
-      <xso:value-of select="string-join(xml2tex:convert-diacrits($utf2tex), '')"/>
+      <xso:variable name="diacrits" select="string-join(xml2tex:convert-diacrits(.), '')" as="xs:string"/>
+      <xso:variable name="utf2tex" select="if(matches($diacrits, $texregex)) then string-join(xml2tex:utf2tex($diacrits, $charmap, ()), '') else $diacrits" as="xs:string"/>
+      <xso:value-of select="$utf2tex"/>
     </xso:template>
     
     <xso:function name="xml2tex:utf2tex" as="xs:string+">
@@ -397,22 +398,64 @@
           <mark hex="&#x331;" tex="\b"/>          <!-- macron below -->
           <mark hex="&#x332;" tex="\b"/>          <!-- low line -->
           <mark hex="&#x324;" tex="\~"/>          <!-- greek perispomeni -->
+          <mark hex="&#x2044;" tex="\frac"/>      <!-- fraction slash -->
+          <mark hex="&#x221a;" tex="\sqrt"/>     <!-- radical -->
+          <mark hex="&#x221b;" tex="\sqrt[3]"/>  <!-- cube root -->
+          <mark hex="&#x221c;" tex="\sqrt[4]"/>  <!-- fourth root -->
         </map>
       </xso:variable>
       <!-- decompose diacritical marks -->
-      <xso:analyze-string select="normalize-unicode($string, 'NFKD')" regex="([a-z])([&#x300;-&#x36F;])" flags="i">
-        <xso:matching-substring>
-          <xso:variable name="char" select="concat('{{', regex-group(1), '}}')"/>
-          <xso:variable name="mark" select="regex-group(2)"/>
-          <xso:variable name="tex-instr" select="$map//mark[@hex eq $mark]/@tex" as="xs:string*"/>
-          <xso:value-of select="if(string-length($tex-instr) gt 0)
-                                then concat($tex-instr, $char)
-                                else ."/>
-        </xso:matching-substring>
-        <xso:non-matching-substring>
-          <xso:value-of select="."/>
-        </xso:non-matching-substring>
-      </xso:analyze-string>
+      <xso:variable name="normalize-unicode" select="normalize-unicode($string, 'NFKD')" as="xs:string"/>
+      <xso:choose>
+        <xso:when test="matches($normalize-unicode, '(([a-z])([&#x300;-&#x36F;]))')">
+          <xso:analyze-string select="$normalize-unicode" regex="([a-z])([&#x300;-&#x36F;])" flags="i">
+            <xso:matching-substring>
+              <xso:variable name="char" select="concat('{{', regex-group(1), '}}')" as="xs:string"/>
+              <xso:variable name="mark" select="regex-group(2)" as="xs:string"/>
+              <xso:variable name="tex-instr" select="$map//mark[@hex eq $mark]/@tex" as="xs:string*"/>
+              <xso:value-of select="if(string-length($tex-instr) gt 0)
+                                    then concat($tex-instr, $char)
+                                    else ."/>
+            </xso:matching-substring>
+            <xso:non-matching-substring>
+              <xso:value-of select="."/>
+            </xso:non-matching-substring>
+          </xso:analyze-string>    
+        </xso:when>
+        <!-- simple fractions -->
+        <xso:when test="matches($normalize-unicode, '(\d+)(&#x2044;)(\d+)')">
+          <xso:analyze-string select="$normalize-unicode" regex="(\d+)(&#x2044;)(\d+)" flags="i">
+            <xso:matching-substring>
+              <xso:variable name="args" select="concat('{{', regex-group(1), '}}{{', regex-group(3), '}}')" as="xs:string"/>
+              <xso:variable name="mark" select="regex-group(2)" as="xs:string"/>
+              <xso:variable name="tex-instr" select="$map//mark[@hex eq $mark]/@tex" as="xs:string*"/>
+              <xso:value-of select="concat('$', $tex-instr, $args, '$')"/>
+            </xso:matching-substring>
+            <xso:non-matching-substring>
+              <xso:value-of select="."/>
+            </xso:non-matching-substring>
+          </xso:analyze-string>
+        </xso:when>
+        <!-- simple square root -->
+        <xso:when test="matches($string, '([&#x221a;&#x221b;&#x221c;])(\d+)')">
+          <xso:analyze-string select="$string" regex="([&#x221a;&#x221b;&#x221c;])(\d+)" flags="i">
+            <xso:matching-substring>
+              <xso:variable name="args" select="concat('{{', regex-group(2), '}}')" as="xs:string"/>
+              <xso:variable name="mark" select="regex-group(1)" as="xs:string"/>
+              <xso:variable name="tex-instr" select="$map//mark[@hex eq $mark]/@tex" as="xs:string*"/>
+              <xso:value-of select="concat('$', $tex-instr, $args, '$')"/>
+            </xso:matching-substring>
+            <xso:non-matching-substring>
+              <xso:value-of select="."/>
+            </xso:non-matching-substring>
+          </xso:analyze-string>
+        </xso:when>
+        <xso:otherwise>
+          <xso:value-of select="$string"/>
+        </xso:otherwise>
+        
+      </xso:choose>
+      
     </xso:function>
     
     <xso:function name="xml2tex:escape-for-tex" as="xs:string">
