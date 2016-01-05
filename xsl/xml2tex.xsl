@@ -342,14 +342,14 @@
     <!-- replacement with xpath context -->
     <xso:template match="text()" mode="replace-chars">
       <xso:value-of select="xml2tex:convert-diacrits(string-join(
-                                        if(matches(., $texregex)) then xml2tex:utf2tex(., $charmap, '') else .,
+                                        if(matches(., $texregex)) then xml2tex:utf2tex(., $charmap, ()) else .,
                                         ''))"/>
     </xso:template>
     
     <xso:function name="xml2tex:utf2tex" as="xs:string+">
       <xso:param name="string" as="xs:string"/>
       <xso:param name="charmap" as="element(xml2tex:char)+"/>
-      <xso:param name="seen" as="xs:string?"/>
+      <xso:param name="seen" as="xs:string*"/>
       
       <xso:analyze-string select="$string" regex="{{$texregex}}">
         <xso:matching-substring>      
@@ -359,8 +359,8 @@
           <xso:variable name="seen" select="concat($seen, $pattern)" as="xs:string"/>
           <xso:choose>
             <xso:when test="matches($result, $texregex)
-              and not(matches($result, $seen) or matches($result, '^[a-z0-9A-Z\$\\%_&amp;\{{\}}\[\]#]+$'))">
-              <xso:value-of select="string-join(xml2tex:utf2tex($result, $charmap, $seen), '')"/>
+              and not(($pattern = $seen) or matches($result, '^[a-z0-9A-Z\$\\%_&amp;\{{\}}\[\]#]+$'))">
+              <xso:value-of select="string-join(xml2tex:utf2tex($result, $charmap, ($seen, $pattern)), '')"/>
             </xso:when>
             <xso:otherwise>
               <xso:value-of select="$result"/>
