@@ -21,24 +21,7 @@
   <xsl:include href="handle-namespace.xsl"/>
 
   <xsl:template match="/xml2tex:set">
-    
-    <!--  *
-          * Console output for debugging purposes 
-          * -->
-    
-    <xsl:variable name="convert-node-list" 
-      select="for $i in xml2tex:template return 
-            if($i/xml2tex:rule) 
-                then concat('CONVERT ', $i/@context, ' TO ', $i/xml2tex:rule/@name, '&#xa;') 
-                else concat('DISCARD ', $i/@context, '&#xa;')"/>
-    <xsl:variable name="replace-char-list" 
-      select="for $i in xml2tex:charmap/xml2tex:char return concat('REPLACE ', $i/@character, ' WITH ', $i/@string, 
-            if($i/@context) then concat(' ONLY IN ', $i/@context) else ''
-            , '&#xa;')"/>
-    <xsl:variable name="regex-list" select="for $i in xml2tex:regex return concat('REPLACE PATTERN ', $i/@regex, ' WITH ', $i/xml2tex:rule/@name, '&#xa;')"/>
-    
-    <xsl:message select="'&#xa;', $convert-node-list, $replace-char-list, $regex-list"/>
-    
+        
     <!--  *
           * Generate XSLT from mapping instructions. 
           * -->
@@ -399,9 +382,9 @@
           <mark hex="&#x332;" tex="\b"/>          <!-- low line -->
           <mark hex="&#x324;" tex="\~"/>          <!-- greek perispomeni -->
           <mark hex="&#x2044;" tex="\frac"/>      <!-- fraction slash -->
-          <mark hex="&#x221a;" tex="\sqrt"/>     <!-- radical -->
-          <mark hex="&#x221b;" tex="\sqrt[3]"/>  <!-- cube root -->
-          <mark hex="&#x221c;" tex="\sqrt[4]"/>  <!-- fourth root -->
+          <mark hex="&#x221a;" tex="\sqrt"/>      <!-- radical -->
+          <mark hex="&#x221b;" tex="\sqrt[3]"/>   <!-- cube root -->
+          <mark hex="&#x221c;" tex="\sqrt[4]"/>   <!-- fourth root -->          
         </map>
       </xso:variable>
       <!-- decompose diacritical marks -->
@@ -450,10 +433,20 @@
             </xso:non-matching-substring>
           </xso:analyze-string>
         </xso:when>
+        <!-- set simple equations automatically in math mode, e.g. 3 + 2 = a -->
+        <xso:when test="matches($string, '[a-zA-Z\d]+\s?[=\-+×·/]+\s?[a-zA-Z\d]+')">
+          <xso:analyze-string select="$string" regex="[a-zA-Z\d]+\s?[=\-+×·/]+\s?[a-zA-Z\d]+" flags="i">
+            <xso:matching-substring>
+              <xso:value-of select="concat('$', ., '$')"/>
+            </xso:matching-substring>
+            <xso:non-matching-substring>
+              <xso:value-of select="."/>
+            </xso:non-matching-substring>
+          </xso:analyze-string>
+        </xso:when>
         <xso:otherwise>
           <xso:value-of select="$string"/>
         </xso:otherwise>
-        
       </xso:choose>
       
     </xso:function>

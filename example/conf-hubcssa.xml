@@ -16,6 +16,7 @@
     \usepackage{amsmath}
     \usepackage{amssymb}
     \usepackage{amsfonts}
+    \usepackage{wasysym}
     \usepackage{enumerate}
     \usepackage[ngerman]{babel}
   </preamble>
