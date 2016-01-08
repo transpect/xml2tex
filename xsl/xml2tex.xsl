@@ -9,7 +9,7 @@
   xmlns:xso="tobereplaced" 
   version="2.0">
   
-  <xsl:import href="http://transpect.io/xslt-util/functx/Strings/Replacing/escape-for-regex.xsl"/>
+  <xsl:import href="http://transpect.io/xslt-util/functx/xsl/functx.xsl"/>
 
   <xsl:namespace-alias stylesheet-prefix="xso" result-prefix="xsl"/>
 
@@ -37,7 +37,7 @@
       
       <xsl:attribute name="version">2.0</xsl:attribute>
 
-      <xso:import href="http://transpect.io/xslt-util/functx/Strings/Replacing/escape-for-regex.xsl"/>
+      <xso:import href="http://transpect.io/xslt-util/functx/xsl/functx.xsl"/>
 
       <xso:output method="text" media-type="text/plain" encoding="UTF8"/>
 
