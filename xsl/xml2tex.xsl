@@ -144,7 +144,14 @@
           <xsl:variable name="replace" select="concat('''', '\\', xml2tex:rule/@name , $regex-groups, '''')" as="xs:string"/>
           <xso:variable name="content" select="replace( $content, {$pattern}, {$replace} )" as="xs:string"/>
         </xsl:for-each>
+        <!-- replace multiple breaks -->
         <xso:value-of select="$content"/>
+      </xso:template>
+      
+      <xso:template match="text()" mode="clean">
+        <xso:variable name="normalize-linebreaks" select="replace(., '\n\n\n+', '&#xa;&#xa;', 'm')" as="xs:string"/>
+        <xso:variable name="normalize-whitespace" select="replace($normalize-linebreaks, '\t\t+', '&#x20;')" as="xs:string"/>
+        <xso:value-of select="$normalize-whitespace"/>
       </xso:template>
       
       <!-- dissolve pis created by calstable-normalize -->
@@ -182,8 +189,6 @@
     <xsl:variable name="template-priority" select="index-of($rule-indexes, generate-id(.))"/>
 
     <xso:template match="{@context}" mode="apply-xpath" priority="{$template-priority}">
-      <xso:copy>
-        <xso:apply-templates select="@*"/>
         <xsl:if test="@mathmode eq 'true'">
           <xso:text>$</xso:text>
         </xsl:if>
@@ -210,7 +215,6 @@
         <xsl:if test="@mathmode eq 'true'">
           <xso:text>$</xso:text>
         </xsl:if>
-      </xso:copy>
     </xso:template>
     
     <!--  *
