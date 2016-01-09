@@ -224,7 +224,7 @@
     <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
   </tr:simple-progress-msg>
     
-  <tr:xslt-mode msg="yes" hub-version="1.1" mode="escape-bad-chars" name="escape-bad-chars">
+  <tr:xslt-mode msg="yes" mode="escape-bad-chars" name="escape-bad-chars">
     <p:input port="stylesheet">
       <p:pipe port="result" step="conf2xsl"/>
     </p:input>
@@ -237,7 +237,7 @@
     <p:with-option name="prefix" select="concat($prefix, '6')"/>
   </tr:xslt-mode>
   
-  <tr:xslt-mode msg="yes" hub-version="1.1" mode="apply-regex" name="apply-regex">
+  <tr:xslt-mode msg="yes" mode="apply-regex" name="apply-regex">
     <p:input port="stylesheet">
       <p:pipe port="result" step="conf2xsl"/>
     </p:input>
@@ -250,7 +250,7 @@
     <p:with-option name="prefix" select="concat($prefix, '7')"/>
   </tr:xslt-mode>
   
-  <tr:xslt-mode msg="yes" hub-version="1.1" mode="replace-chars" name="replace-chars">
+  <tr:xslt-mode msg="yes" mode="replace-chars" name="replace-chars">
     <p:input port="stylesheet">
       <p:pipe port="result" step="conf2xsl"/>
     </p:input>
@@ -263,7 +263,7 @@
     <p:with-option name="prefix" select="concat($prefix, '9')"/>
   </tr:xslt-mode>
   
-  <tr:xslt-mode msg="yes" hub-version="1.1" mode="dissolve-pi" name="dissolve-pi">
+  <tr:xslt-mode msg="yes" mode="dissolve-pi" name="dissolve-pi">
     <p:input port="stylesheet">
       <p:pipe port="result" step="conf2xsl"/>
     </p:input>
@@ -276,7 +276,7 @@
     <p:with-option name="prefix" select="concat($prefix, '10')"/>
   </tr:xslt-mode>
   
-  <tr:xslt-mode msg="yes" hub-version="1.1" mode="apply-xpath" name="apply-xpath">
+  <tr:xslt-mode msg="yes" mode="apply-xpath" name="apply-xpath">
     <p:input port="stylesheet">
       <p:pipe port="result" step="conf2xsl"/>
     </p:input>
@@ -289,7 +289,7 @@
     <p:with-option name="prefix" select="concat($prefix, '11')"/>
   </tr:xslt-mode>
   
-  <tr:xslt-mode msg="yes" hub-version="1.1" mode="clean" name="clean">
+  <tr:xslt-mode msg="yes" mode="clean" name="clean">
     <p:input port="stylesheet">
       <p:pipe port="result" step="conf2xsl"/>
     </p:input>

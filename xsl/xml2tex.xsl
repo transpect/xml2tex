@@ -148,6 +148,16 @@
         <xso:value-of select="$content"/>
       </xso:template>
       
+      <xso:template match="/" mode="clean">
+        <xso:apply-templates select="c:data" mode="#current"/>
+      </xso:template>
+      
+      <xso:template match="/c:data//*" mode="clean">
+        <xso:apply-templates mode="#current"/>
+      </xso:template>
+      
+      <xso:template match="processing-instruction()" mode="clean"/>
+      
       <xso:template match="text()" mode="clean">
         <xso:variable name="normalize-linebreaks" select="replace(., '\n\n\n+', '&#xa;&#xa;', 'm')" as="xs:string"/>
         <xso:variable name="normalize-whitespace" select="replace($normalize-linebreaks, '\t\t+', '&#x20;')" as="xs:string"/>
