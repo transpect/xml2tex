@@ -324,10 +324,16 @@
         
     <!-- replacement with xpath context -->
     <xso:template match="text()" mode="replace-chars">
-      <xso:variable name="diacrits" select="string-join(xml2tex:convert-diacrits(.), '')" as="xs:string"/>
-      <xso:variable name="utf2tex" select="if(matches($diacrits, $texregex)) then string-join(xml2tex:utf2tex($diacrits, $charmap, ()), '') else $diacrits" as="xs:string"/>
-      <xso:value-of select="$utf2tex"/>
+      <!-- this function needs to run before any character mapping, because of roots e.g. -->
+      <xso:variable name="simplemath" select="string-join(xml2tex:convert-simplemath(.), '')" as="xs:string"/>
+      <!-- maps unicode to latex -->
+      <xso:variable name="utf2tex" select="if(matches($simplemath, $texregex)) then string-join(xml2tex:utf2tex($simplemath, $charmap, ()), '') else $simplemath" as="xs:string"/>
+      <!-- has to run last because it resolves combined unicode characters -->
+      <xso:variable name="diacrits" select="string-join(xml2tex:convert-diacrits($utf2tex), '')" as="xs:string"/>
+      <xso:value-of select="$diacrits"/>
     </xso:template>
+    
+    <!-- replace unicode characters with latex from charmap -->
     
     <xso:function name="xml2tex:utf2tex" as="xs:string+">
       <xso:param name="string" as="xs:string"/>
@@ -357,6 +363,8 @@
       
     </xso:function>
     
+    <!-- convert unicode characters combined with diacritical marks -->
+    
     <xso:function name="xml2tex:convert-diacrits" as="xs:string+">
       <xso:param name="string" as="xs:string"/>
       <xso:variable name="map" as="element(map)">
@@ -382,16 +390,15 @@
           <mark hex="&#x332;" tex="\b"/>          <!-- low line -->
           <mark hex="&#x324;" tex="\~"/>          <!-- greek perispomeni -->
           <mark hex="&#x2044;" tex="\frac"/>      <!-- fraction slash -->
-          <mark hex="&#x221a;" tex="\sqrt"/>      <!-- radical -->
-          <mark hex="&#x221b;" tex="\sqrt[3]"/>   <!-- cube root -->
-          <mark hex="&#x221c;" tex="\sqrt[4]"/>   <!-- fourth root -->          
         </map>
       </xso:variable>
-      <!-- decompose diacritical marks -->
       <xso:variable name="normalize-unicode" select="normalize-unicode($string, 'NFKD')" as="xs:string"/>
+      <xso:variable name="diacritica-regex" select="'([a-z])([&#x300;-&#x36F;])'" as="xs:string"/>
+      <xso:variable name="fraction-regex" select="'(\d+)([&#x2044;])(\d+)'" as="xs:string"/>
+      <!-- decompose diacritical marks -->
       <xso:choose>
-        <xso:when test="matches($normalize-unicode, '(([a-z])([&#x300;-&#x36F;]))')">
-          <xso:analyze-string select="$normalize-unicode" regex="([a-z])([&#x300;-&#x36F;])" flags="i">
+        <xso:when test="matches($normalize-unicode, $diacritica-regex)">
+          <xso:analyze-string select="$normalize-unicode" regex="{{$diacritica-regex}}" flags="i">
             <xso:matching-substring>
               <xso:variable name="char" select="concat('{{', regex-group(1), '}}')" as="xs:string"/>
               <xso:variable name="mark" select="regex-group(2)" as="xs:string"/>
@@ -406,11 +413,11 @@
           </xso:analyze-string>    
         </xso:when>
         <!-- simple fractions -->
-        <xso:when test="matches($normalize-unicode, '(\d+)(&#x2044;)(\d+)')">
-          <xso:analyze-string select="$normalize-unicode" regex="(\d+)(&#x2044;)(\d+)" flags="i">
+        <xso:when test="matches($normalize-unicode, $fraction-regex)">
+          <xso:analyze-string select="$normalize-unicode" regex="{{$fraction-regex}}" flags="i">
             <xso:matching-substring>
               <xso:variable name="args" select="concat('{{', regex-group(1), '}}{{', regex-group(3), '}}')" as="xs:string"/>
-              <xso:variable name="mark" select="regex-group(2)" as="xs:string"/>
+              <xso:variable name="mark" select="'&#x2044;'" as="xs:string"/>
               <xso:variable name="tex-instr" select="$map//mark[@hex eq $mark]/@tex" as="xs:string*"/>
               <xso:value-of select="concat('$', $tex-instr, $args, '$')"/>
             </xso:matching-substring>
@@ -419,9 +426,30 @@
             </xso:non-matching-substring>
           </xso:analyze-string>
         </xso:when>
-        <!-- simple square root -->
-        <xso:when test="matches($string, '([&#x221a;&#x221b;&#x221c;])(\d+)')">
-          <xso:analyze-string select="$string" regex="([&#x221a;&#x221b;&#x221c;])(\d+)" flags="i">
+        <xso:otherwise>
+          <xso:value-of select="$string"/>
+        </xso:otherwise>
+      </xso:choose>
+      
+    </xso:function>
+    
+    <!-- set simple math expressions in math mode -->
+    
+    <xso:function name="xml2tex:convert-simplemath" as="xs:string+">
+      <xso:param name="string" as="xs:string"/>
+      <xso:variable name="map" as="element(map)">
+        <map>
+          <mark hex="&#x221a;" tex="\sqrt"/>      <!-- radical -->
+          <mark hex="&#x221b;" tex="\sqrt[3]"/>   <!-- cube root -->
+          <mark hex="&#x221c;" tex="\sqrt[4]"/>   <!-- fourth root -->          
+        </map>
+      </xso:variable> 
+      <xso:variable name="root-regex" select="'([&#x221a;&#x221b;&#x221c;])(\d+)'" as="xs:string"/>
+      <xso:variable name="simpleeq-regex" select="'[a-zA-Z\d]+\s?[=\-+×·/]+\s?[a-zA-Z\d]+'" as="xs:string"/>
+      <xso:choose>
+        <!-- simple root -->
+        <xso:when test="matches($string, $root-regex)">
+          <xso:analyze-string select="$string" regex="{{$root-regex}}" flags="i">
             <xso:matching-substring>
               <xso:variable name="args" select="concat('{{', regex-group(2), '}}')" as="xs:string"/>
               <xso:variable name="mark" select="regex-group(1)" as="xs:string"/>
@@ -434,8 +462,8 @@
           </xso:analyze-string>
         </xso:when>
         <!-- set simple equations automatically in math mode, e.g. 3 + 2 = a -->
-        <xso:when test="matches($string, '[a-zA-Z\d]+\s?[=\-+×·/]+\s?[a-zA-Z\d]+')">
-          <xso:analyze-string select="$string" regex="[a-zA-Z\d]+\s?[=\-+×·/]+\s?[a-zA-Z\d]+" flags="i">
+        <xso:when test="matches($string, $simpleeq-regex)">
+          <xso:analyze-string select="$string" regex="{{$simpleeq-regex}}" flags="i">
             <xso:matching-substring>
               <xso:value-of select="concat('$', ., '$')"/>
             </xso:matching-substring>
