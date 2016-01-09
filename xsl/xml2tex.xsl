@@ -148,10 +148,6 @@
         <xso:value-of select="$content"/>
       </xso:template>
       
-      <xso:template match="/" mode="clean">
-        <xso:apply-templates select="c:data" mode="#current"/>
-      </xso:template>
-      
       <xso:template match="/c:data//*" mode="clean">
         <xso:apply-templates mode="#current"/>
       </xso:template>
