@@ -79,12 +79,16 @@
       <xso:variable name="apply-xpath">
         <xso:apply-templates select="$dissolve-pi" mode="apply-xpath"/>
       </xso:variable>
+      
+      <xso:variable name="clean">
+        <xso:apply-templates select="$apply-xpath" mode="clean"/>
+      </xso:variable>
 
       <!-- main template for generated stylesheet -->
       <xsl:comment select="'main template, invoke with it:main'"/>
 
       <xso:template name="main">
-        <xso:sequence select="$apply-xpath"/>
+        <xso:sequence select="$clean"/>
         <!-- debugging -->
         <xso:if test="{$debug eq 'yes'}()">
           <xso:result-document href="{$debug-dir-uri}/xml2tex/00_escape-bad-chars.xml" indent="yes" method="xml">
@@ -101,6 +105,9 @@
           </xso:result-document>
           <xso:result-document href="{$debug-dir-uri}/xml2tex/20_apply-xpath.xml" indent="yes" method="xml">
             <xso:sequence select="$apply-xpath"/>
+          </xso:result-document>
+          <xso:result-document href="{$debug-dir-uri}/xml2tex/25_clean.xml" indent="yes" method="xml">
+            <xso:sequence select="$clean"/>
           </xso:result-document>
         </xso:if>
       </xso:template>
