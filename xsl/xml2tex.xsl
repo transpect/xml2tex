@@ -454,8 +454,9 @@
           <mark hex="&#x221c;" tex="\sqrt[4]"/>   <!-- fourth root -->          
         </map>
       </xso:variable> 
+      <!--  -->
       <xso:variable name="root-regex" select="'([&#x221a;&#x221b;&#x221c;])(\d+)'" as="xs:string"/>
-      <xso:variable name="simpleeq-regex" select="'[a-zA-Z\d]+\s?[=\-+×·/]+\s?[a-zA-Z\d]+'" as="xs:string"/>
+      <xso:variable name="simpleeq-regex" select="'([a-zA-Z\d]\s?=\s?([a-zA-Z\d]+\s?[,\.\-+/]\s?)+)|(([a-zA-Z\d]+\s?[,\.\-+/]\s?)+[a-zA-Z\d]\s?=\s?[a-zA-Z\d])'" as="xs:string"/>
       <xso:choose>
         <!-- simple root -->
         <xso:when test="matches($string, $root-regex)">
