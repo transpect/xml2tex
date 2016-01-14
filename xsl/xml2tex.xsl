@@ -327,7 +327,15 @@
 
   <xsl:template match="xml2tex:charmap">
     
-    <xso:variable name="texregex" select="{concat('''', '([', string-join(for $ i in //xml2tex:char/@character return functx:escape-for-regex($i), ''), '])', '''')}" as="xs:string"/>
+    <xso:variable name="texregex" select="{concat('''', 
+                                                  '([', 
+                                                  string-join(
+                                                              for $ i 
+                                                              in //xml2tex:char/@character 
+                                                              return functx:escape-for-regex(normalize-space($i)), 
+                                                              ''), 
+                                                  '])', 
+                                                  '''')}" as="xs:string"/>
     
     <xso:variable name="charmap" as="element(xml2tex:char)+">
       <xsl:for-each select="xml2tex:char">
@@ -409,11 +417,11 @@
         </map>
       </xso:variable>
       <xso:variable name="normalize-unicode" select="normalize-unicode($string, 'NFKD')" as="xs:string"/>
-      <xso:variable name="diacritica-regex" select="'([a-zA-Z])([&#x300;-&#x36F;])'" as="xs:string"/>
+      <xso:variable name="diacritica-regex" select="'([a-z])([&#x300;-&#x36F;])'" as="xs:string"/>
       <xso:variable name="fraction-regex" select="'(\d+)([&#x2044;])(\d+)'" as="xs:string"/>
       <!-- decompose diacritical marks -->
       <xso:choose>
-        <xso:when test="matches($normalize-unicode, $diacritica-regex, 'i')">
+        <xso:when test="matches($normalize-unicode, $diacritica-regex)">
           <xso:analyze-string select="$normalize-unicode" regex="{{$diacritica-regex}}" flags="i">
             <xso:matching-substring>
               <xso:variable name="char" select="concat('{{', regex-group(1), '}}')" as="xs:string"/>
