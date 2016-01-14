@@ -237,7 +237,6 @@
       <xso:template match="{@context}/text()" mode="dissolve-pi" priority="{$template-priority}">
         <xso:analyze-string select="." regex="\\\$">
           <xso:matching-substring>
-            <xso:message select="."/>
             <xso:value-of select="."/>
           </xso:matching-substring>
           <xso:non-matching-substring>
@@ -410,11 +409,11 @@
         </map>
       </xso:variable>
       <xso:variable name="normalize-unicode" select="normalize-unicode($string, 'NFKD')" as="xs:string"/>
-      <xso:variable name="diacritica-regex" select="'([a-z])([&#x300;-&#x36F;])'" as="xs:string"/>
+      <xso:variable name="diacritica-regex" select="'([a-zA-Z])([&#x300;-&#x36F;])'" as="xs:string"/>
       <xso:variable name="fraction-regex" select="'(\d+)([&#x2044;])(\d+)'" as="xs:string"/>
       <!-- decompose diacritical marks -->
       <xso:choose>
-        <xso:when test="matches($normalize-unicode, $diacritica-regex)">
+        <xso:when test="matches($normalize-unicode, $diacritica-regex, 'i')">
           <xso:analyze-string select="$normalize-unicode" regex="{{$diacritica-regex}}" flags="i">
             <xso:matching-substring>
               <xso:variable name="char" select="concat('{{', regex-group(1), '}}')" as="xs:string"/>
