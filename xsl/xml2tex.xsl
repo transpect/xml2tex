@@ -417,7 +417,7 @@
         </map>
       </xso:variable>
       <xso:variable name="normalize-unicode" select="normalize-unicode($string, 'NFKD')" as="xs:string"/>
-      <xso:variable name="diacritica-regex" select="'([a-z])([&#x300;-&#x36F;])'" as="xs:string"/>
+      <xso:variable name="diacritica-regex" select="'([a-zA-Z])([&#x300;-&#x36F;])'" as="xs:string"/>
       <xso:variable name="fraction-regex" select="'(\d+)([&#x2044;])(\d+)'" as="xs:string"/>
       <!-- decompose diacritical marks -->
       <xso:choose>
