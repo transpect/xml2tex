@@ -9,16 +9,10 @@
   <xsl:import href="http://transpect.io/xslt-util/roman-numerals/xsl/roman2int.xsl"/>
   
   <xsl:template match="*:orderedlist">
-    <xsl:variable name="list-type" 
-      select="if(@numeration eq 'loweralpha') then 'a'
-      else if(@numeration eq 'upperalpha') then 'A'
-      else if(@numeration eq 'lowerroman') then 'i'
-      else if(@numeration eq 'upperroman') then 'I'
-      else if(@numeration eq 'arabic') then '1'
-      else dbk:listitem[1]/@override" as="xs:string"/>
+    <xsl:variable name="list-type" select="tr:enumerate-list-type(@numeration, dbk:listitem[1]/@override)" as="xs:string"/>
     <xsl:variable name="start" select="tr:list-number-to-integer(
-      replace(dbk:listitem[1]/@override, '[\.\s\(\)\]\[\{\}]', '', 'i'),
-      @numeration
+        dbk:listitem[1]/@override,
+        @numeration
       ) - 1" as="xs:integer"/>    
     <xsl:variable name="level" select="count(ancestor::*:orderedlist) + 1" as="xs:integer"/>
     <xsl:variable name="level-roman" as="xs:string">
@@ -27,14 +21,16 @@
     <xsl:copy>
       <xsl:apply-templates select="@*"/>
       <xsl:processing-instruction name="latex" 
-      select="concat('&#xa;&#xa;\begin{enumerate}[',
+      select="concat('\begin{enumerate}[',
                      $list-type,']&#xa;',
                      if($start gt 0) 
-                     then concat('\setcounter{enum', $level-roman, '}{', $start, '}&#xa;') 
+                     then concat('\setcounter{enum', $level-roman, '}{', $start, '}') 
                      else ''
               )"/>
+      <xsl:text>&#xa;</xsl:text>
       <xsl:apply-templates/>
-      <xsl:processing-instruction name="latex" select="'\end{enumerate}&#xa;&#xa;'"/>
+      <xsl:processing-instruction name="latex" select="'\end{enumerate}'"/>
+      <xsl:text>&#xa;&#xa;</xsl:text>
     </xsl:copy>
   </xsl:template>
   
@@ -44,9 +40,25 @@
     </xsl:copy>
   </xsl:template>
   
+  <xsl:function name="tr:enumerate-list-type" as="xs:string">
+    <xsl:param name="numeration" as="xs:string"/>
+    <xsl:param name="override-1st-item" as="xs:string?"/>
+    <xsl:variable name="override-arabic" select="($override-1st-item, '1')[1]" as="xs:string"/>
+    <xsl:variable name="list-type" select="if($numeration eq 'loweralpha') then 'a'
+      else if($numeration eq 'upperalpha') then 'A'
+      else if($numeration eq 'lowerroman') then 'i'
+      else if($numeration eq 'upperroman') then 'I'
+      else if($numeration eq 'arabic') then replace($override-arabic, '^(.+)(\.\d+)$', '{$1}$2')
+      else $override-arabic" as="xs:string"/>
+     <xsl:value-of select="$list-type"/>
+  </xsl:function>
+  
   <xsl:function name="tr:list-number-to-integer" as="xs:integer">
-    <xsl:param name="counter" as="xs:string"/>
+    <xsl:param name="override" as="xs:string"/>
     <xsl:param name="list-type" as="xs:string"/>
+    <xsl:variable name="counter" select="tokenize(
+                                                  replace(replace($override, '[\s\(\)\]\[\{\}]', '', 'i'), '\.$', ''),
+                                                  '\.')[last()]" as="xs:string"/>
     <xsl:choose>
       <xsl:when test="$list-type = ('upperroman', 'lowerroman')">
         <xsl:value-of select="tr:roman-to-int($counter)"/>
