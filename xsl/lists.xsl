@@ -27,7 +27,7 @@
                      then concat('\setcounter{enum', $level-roman, '}{', $start, '}') 
                      else ''
               )"/>
-      <xsl:text>&#xa;</xsl:text>
+      <xsl:text>&#xa;&#xa;</xsl:text>
       <xsl:apply-templates/>
       <xsl:processing-instruction name="latex" select="'\end{enumerate}'"/>
       <xsl:text>&#xa;&#xa;</xsl:text>
