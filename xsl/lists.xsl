@@ -42,15 +42,15 @@
   
   <xsl:function name="tr:enumerate-list-type" as="xs:string">
     <xsl:param name="numeration" as="xs:string"/>
-    <xsl:param name="override-1st-item" as="xs:string?"/>
-    <xsl:variable name="override-arabic" select="($override-1st-item, '1')[1]" as="xs:string"/>
-    <xsl:variable name="list-type" select="if($numeration eq 'loweralpha') then 'a'
-      else if($numeration eq 'upperalpha') then 'A'
-      else if($numeration eq 'lowerroman') then 'i'
-      else if($numeration eq 'upperroman') then 'I'
-      else if($numeration eq 'arabic') then replace($override-arabic, '^(.+)(\.\d+)$', '{$1}$2')
-      else $override-arabic" as="xs:string"/>
-     <xsl:value-of select="$list-type"/>
+    <xsl:param name="override" as="xs:string?"/>
+    <xsl:variable name="list-type" 
+                  select="if($numeration eq 'loweralpha') then 'a'
+                          else if($numeration eq 'upperalpha') then 'A'
+                          else if($numeration eq 'lowerroman') then 'i'
+                          else if($numeration eq 'upperroman') then 'I'
+                          else if($numeration eq 'arabic' and matches($override, '(\d+)(\.\d+)+')) then replace($override, '^(.+)\.\d+\.?$', '{$1}.1')
+                          else '1'" as="xs:string"/>
+    <xsl:value-of select="$list-type"/>
   </xsl:function>
   
   <xsl:function name="tr:list-number-to-integer" as="xs:integer">
