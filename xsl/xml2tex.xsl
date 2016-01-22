@@ -164,14 +164,15 @@
       <xso:template match="text()" mode="clean">
         <xso:variable name="normalize-linebreaks" select="replace(., '\n\n\n+', '&#xa;&#xa;', 'm')" as="xs:string"/>
         <xso:variable name="normalize-whitespace" select="replace($normalize-linebreaks, '\t\t+', '&#x20;')" as="xs:string"/>
+        <xso:variable name="normalize-mathmode-sections" select="replace($normalize-whitespace, '(.+\$.+)\$\$', '$1')" as="xs:string"/>        
         <xso:value-of select="$normalize-whitespace"/>
       </xso:template>
       
       <!-- dissolve pis created by calstable-normalize -->
       <xso:template match="processing-instruction('cals2tabular')
-        |processing-instruction('mml2tex')
-        |processing-instruction('mathtype')
-        |processing-instruction('latex')" mode="dissolve-pi">
+                           |processing-instruction('mml2tex')
+                           |processing-instruction('mathtype')
+                           |processing-instruction('latex')" mode="dissolve-pi">
         <xso:value-of select="replace(., '\s\s+', ' ')"/>
       </xso:template>
       
