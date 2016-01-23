@@ -155,16 +155,11 @@
         <xso:value-of select="$content"/>
       </xso:template>
       
-      <xso:template match="/c:data//*" mode="clean">
-        <xso:apply-templates mode="#current"/>
-      </xso:template>
-      
       <xso:template match="processing-instruction()" mode="clean"/>
       
       <xso:template match="text()" mode="clean">
         <xso:variable name="normalize-linebreaks" select="replace(., '\n\n\n+', '&#xa;&#xa;', 'm')" as="xs:string"/>
-        <xso:variable name="normalize-whitespace" select="replace($normalize-linebreaks, '\t\t+', '&#x20;')" as="xs:string"/>
-        <xso:variable name="normalize-mathmode-sections" select="replace($normalize-whitespace, '(.+\$.+)\$\$', '$1')" as="xs:string"/>        
+        <xso:variable name="normalize-whitespace" select="replace($normalize-linebreaks, '\t\t+', '&#x20;')" as="xs:string"/>        
         <xso:value-of select="$normalize-whitespace"/>
       </xso:template>
       
@@ -176,11 +171,16 @@
         <xso:value-of select="replace(., '\s\s+', ' ')"/>
       </xso:template>
       
+      <!-- dissolve elements which are not matched by other templates -->
+      
+      <xso:template match="*" mode="apply-xpath">
+        <xso:apply-templates mode="#current"/>
+      </xso:template>
+            
       <xsl:apply-templates select="*[not(self::xml2tex:ns)]"/>
 
     </xso:stylesheet>
   </xsl:template>
-
 
   <!-- create namespace nodes -->
   <xsl:template match="xml2tex:ns">
@@ -196,10 +196,10 @@
   <xsl:variable name="rule-indexes" select="for $i in //xml2tex:template return generate-id($i)" as="xs:string*"/>
   
   <xsl:template match="xml2tex:template">
-    <!-- the priority of a rule is determined by its order. If more than one 
-      rule matches against a particular element, the last rule declaration has a higher priority
-      and overwrites the rule with a lesser priority.
-    -->
+    <!--  * the priority of a rule is determined by its order. If more than one 
+          * rule matches against a particular element, the last rule declaration has a higher priority
+          * and overwrites the rule with a lesser priority.
+          * -->
     <xsl:variable name="template-priority" select="index-of($rule-indexes, generate-id(.))"/>
 
     <xso:template match="{@context}" mode="apply-xpath" priority="{$template-priority}">
@@ -230,7 +230,7 @@
           <xso:text>$</xso:text>
         </xsl:if>
     </xso:template>
-    
+        
     <!--  *
           * set '$' around content and remove dollar characters within to prevent nested math mode sections 
           * -->
@@ -246,8 +246,7 @@
         </xso:analyze-string>
       </xso:template>
     </xsl:if>
-
-  </xsl:template>
+  </xsl:template>  
 
   <xsl:function name="xml2tex:generate-content">
     <xsl:param name="elements" as="node()*"/>
@@ -255,14 +254,12 @@
       <!-- types: text | param | option -->
       <xsl:variable name="type" select="local-name()"/>
       <xso:variable name="type" select="{concat('''', $type, '''')}"/>
-        <xsl:variable name="opening-delimiter"
-          select="if($type eq 'option') then '[' 
-          else if ($type eq 'text') then '' 
-          else '{'"/>
-        <xsl:variable name="closing-delimiter"
-          select="if($type eq 'option') then ']' 
-          else if ($type eq 'text') then ''  
-          else '}'"/>
+        <xsl:variable name="opening-delimiter" select="if($type eq 'option') then '[' 
+                                                       else if ($type eq 'text') then '' 
+                                                       else '{'"/>
+        <xsl:variable name="closing-delimiter" select="if($type eq 'option') then ']' 
+                                                       else if ($type eq 'text') then ''  
+                                                       else '}'"/>
         <xso:variable name="opening-delimiter" select="{concat('''', $opening-delimiter, '''')}"/>
         <xso:variable name="closing-delimiter" select="{concat('''', $closing-delimiter, '''')}"/>
         <xsl:choose>
