@@ -200,11 +200,15 @@
     <xsl:variable name="col-count" select="count(*:colspec)" as="xs:integer"/>
     <xsl:variable name="col-declaration" select="concat($line-separator, string-join(for $i in (1 to $col-count) return 'l', $line-separator), $line-separator)" as="xs:string"/>
     <xsl:variable name="top-separator" select="if($grid eq 'yes') then '&#x20;\hline&#x20;&#xa;' else ''" as="xs:string"/>
-    <xsl:processing-instruction name="cals2tabular" select="concat('&#xa;\begin{tabular}{', $col-declaration, '}&#xa;', $top-separator)"/>
     <xsl:copy>
-      <xsl:apply-templates select="@*, node()" mode="#current"/>
+      <xsl:apply-templates select="@*" mode="#current"/>
+      <xsl:text>&#xa;</xsl:text>
+      <xsl:processing-instruction name="cals2tabular" select="concat('\begin{tabular}{', $col-declaration, '}', $top-separator)"/>
+      <xsl:text>&#xa;</xsl:text>
+      <xsl:apply-templates mode="#current"/>
+      <xsl:processing-instruction name="cals2tabular" select="'\end{tabular}'"/>
+      <xsl:text>&#xa;&#xa;</xsl:text>
     </xsl:copy>
-    <xsl:processing-instruction name="cals2tabular" select="'&#xa;\end{tabular}&#xa;&#xa;'"/>
   </xsl:template>
-
+  
 </xsl:stylesheet>

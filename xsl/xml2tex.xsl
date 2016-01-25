@@ -159,8 +159,9 @@
       
       <xso:template match="text()" mode="clean">
         <xso:variable name="normalize-linebreaks" select="replace(., '\n\n\n+', '&#xa;&#xa;', 'm')" as="xs:string"/>
-        <xso:variable name="normalize-whitespace" select="replace($normalize-linebreaks, '\t\t+', '&#x20;')" as="xs:string"/>        
-        <xso:value-of select="$normalize-whitespace"/>
+        <xso:variable name="normalize-whitespace" select="replace($normalize-linebreaks, '\t\t+', '&#x20;')" as="xs:string"/>
+        <xso:variable name="normalize-mathmode-sections" select="replace($normalize-whitespace, '\$(.+?)\$\$(.+?)\$', '$1$2')" as="xs:string"/>        
+        <xso:value-of select="$normalize-mathmode-sections"/>
       </xso:template>
       
       <!-- dissolve pis created by calstable-normalize -->
