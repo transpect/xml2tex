@@ -159,7 +159,7 @@
       
       <xso:template match="text()" mode="clean">
         <xso:variable name="normalize-linebreaks" select="replace(., '\n\n\n+', '&#xa;&#xa;', 'm')" as="xs:string"/>
-        <xso:variable name="normalize-whitespace" select="replace($normalize-linebreaks, '\t\t+', '&#x20;')" as="xs:string"/>        
+        <xso:variable name="normalize-whitespace" select="replace($normalize-linebreaks, '[&#x20;&#x9;][&#x20;&#x9;]+', '&#x20;')" as="xs:string"/>        
         <xso:value-of select="$normalize-whitespace"/>
       </xso:template>
       
