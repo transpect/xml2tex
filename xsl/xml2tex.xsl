@@ -365,7 +365,7 @@
       <xso:analyze-string select="$string" regex="{{$texregex}}">
         <xso:matching-substring>      
           <xso:variable name="pattern" select="functx:escape-for-regex(regex-group(1))" as="xs:string"/>
-          <xso:variable name="replacement" select="replace($charmap[xml2tex:character = regex-group(1)][1]/xml2tex:string, '([\$\\])', '\\$1')" as="xs:string"/>
+          <xso:variable name="replacement" select="replace($charmap[matches(xml2tex:character, regex-group(1))][1]/xml2tex:string, '([\$\\])', '\\$1')" as="xs:string"/>
           <xso:variable name="result" select="replace(., $pattern, $replacement)" as="xs:string"/>
           <xso:variable name="seen" select="concat($seen, $pattern)" as="xs:string"/>
           <xso:choose>
