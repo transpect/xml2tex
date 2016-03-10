@@ -9,6 +9,10 @@
   version="1.0" 
   name="xml2tex" 
   type="xml2tex:convert">
+
+  <p:documentation>
+    Converts an XML file according to an XML configuration to LaTeX.
+  </p:documentation>
   
   <p:input port="source" primary="true">
     <p:empty/>
