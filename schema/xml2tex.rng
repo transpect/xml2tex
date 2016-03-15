@@ -169,6 +169,11 @@
           <data type="integer"/>
         </attribute>  
       </optional>
+      <optional>
+        <attribute name="break-before">
+          <data type="integer"/>
+        </attribute>  
+      </optional>
     </interleave>
   </define>
   
