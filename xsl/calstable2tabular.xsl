@@ -197,7 +197,14 @@
   </xsl:template>
   
   <xsl:template match="*:tgroup" mode="cals2tabular:final">
-    <xsl:variable name="col-count" select="count(*:colspec)" as="xs:integer"/>
+    <xsl:variable name="col-count" select="(
+                                             (
+                                               count(*:colspec), 
+                                               for $cols in @cols[. castable as xs:integer] return xs:integer($cols),
+                                               xs:integer(max(for $row in (*:row, */*:row) return count($row/*)))
+                                             )[not(. = 0)][1],
+                                             0
+                                           )[1]" as="xs:integer"/>
     <xsl:variable name="col-declaration" select="concat($line-separator, string-join(for $i in (1 to $col-count) return 'l', $line-separator), $line-separator)" as="xs:string"/>
     <xsl:variable name="top-separator" select="if($grid eq 'yes') then '&#x20;\hline&#x20;&#xa;' else ''" as="xs:string"/>
     <xsl:copy>
