@@ -9,8 +9,9 @@
   
   <!-- this template expects a hub file with normalized tables -->
   
-  <xsl:param name="grid" select="'yes'" as="xs:string"/>
-  <xsl:param name="line-separator" select="if($grid eq 'yes') then '|' else ''" as="xs:string"/>
+  <xsl:param name="table-model" select="'tabularx'" as="xs:string"/><!-- tabularx | tabular -->
+  <xsl:param name="table-grid" select="'yes'" as="xs:string"/>
+  <xsl:param name="line-separator" select="if($table-grid eq 'yes') then '|' else ''" as="xs:string"/>
   
   <xsl:param name="debug" select="'no'"/>
   <xsl:param name="debug-dir-uri" select="'debug'"/>
@@ -191,7 +192,7 @@
       </xsl:when>
       <xsl:otherwise>
         <xsl:text>&#x20;</xsl:text>
-        <xsl:processing-instruction name="cals2tabular" select="if($grid eq 'yes') then '\hline&#x20;&#xa;' else ''"/>
+        <xsl:processing-instruction name="cals2tabular" select="if($table-grid eq 'yes') then '\hline&#x20;&#xa;' else ''"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
@@ -205,15 +206,19 @@
                                              )[not(. = 0)][1],
                                              0
                                            )[1]" as="xs:integer"/>
-    <xsl:variable name="col-declaration" select="concat($line-separator, string-join(for $i in (1 to $col-count) return 'l', $line-separator), $line-separator)" as="xs:string"/>
-    <xsl:variable name="top-separator" select="if($grid eq 'yes') then '&#x20;\hline&#x20;&#xa;' else ''" as="xs:string"/>
+    <xsl:variable name="col-declaration" select="concat($line-separator, 
+                                                        string-join(for $i in (1 to $col-count) 
+                                                                    return if($table-model eq 'tabular') then 'l' else 'X', 
+                                                                    $line-separator), 
+                                                        $line-separator)" as="xs:string"/>
+    <xsl:variable name="top-separator" select="if($table-grid eq 'yes') then '&#x20;\hline&#x20;&#xa;' else ''" as="xs:string"/>
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:text>&#xa;</xsl:text>
-      <xsl:processing-instruction name="cals2tabular" select="concat('\begin{tabular}{', $col-declaration, '}', $top-separator)"/>
+      <xsl:processing-instruction name="cals2tabular" select="concat('\begin{', if($table-model eq 'tabular') then 'tabular' else 'tabularx}{\textwidth', '}{', $col-declaration, '}', $top-separator)"/>
       <xsl:text>&#xa;</xsl:text>
       <xsl:apply-templates mode="#current"/>
-      <xsl:processing-instruction name="cals2tabular" select="'\end{tabular}'"/>
+      <xsl:processing-instruction name="cals2tabular" select="concat('\end{', if($table-model eq 'tabular') then 'tabular' else 'tabularx' ,'}')"/>
       <xsl:text>&#xa;&#xa;</xsl:text>
     </xsl:copy>
   </xsl:template>

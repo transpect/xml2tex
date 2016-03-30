@@ -49,7 +49,13 @@
     </p:documentation>
   </p:option>
   
-  <p:option name="grid" select="'yes'" required="false">
+  <p:option name="table-model" select="'tabularx'" required="false">
+    <p:documentation>
+      Used LaTeX package to draw tables. Possible values are 'tabular' and 'tabularx'.
+    </p:documentation>
+  </p:option>
+  
+  <p:option name="table-grid" select="'yes'" required="false">
     <p:documentation>
       Draw table cell borders.
     </p:documentation>
@@ -162,9 +168,10 @@
     <p:input port="stylesheet">
       <p:document href="../xsl/calstable2tabular.xsl"/>
     </p:input>
+    <p:with-param name="table-model" select="$table-model"/>
+    <p:with-param name="table-grid" select="$table-grid"/>
     <p:with-param name="debug" select="$debug"/>
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
-    <p:with-param name="grid" select="$grid"/>
   </p:xslt>
   
   <tr:store-debug>
