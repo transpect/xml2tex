@@ -206,11 +206,17 @@
                                              )[not(. = 0)][1],
                                              0
                                            )[1]" as="xs:integer"/>
+    <xsl:variable name="col-widths" select="for $i in *:colspec/@colwidth
+                                            return xs:decimal(replace($i, '[a-z]', ''))" as="xs:decimal+"/>
+    <xsl:variable name="table-width" select="sum($col-widths)" as="xs:decimal"/>
+    <xsl:variable name="rel-col-widths" select="for $i in $col-widths return 
+                                                round-half-to-even($i div $table-width, 2)" as="xs:decimal+"/>
     <xsl:variable name="col-declaration" select="concat($line-separator, 
                                                         string-join(for $i in (1 to $col-count) 
-                                                                    return if($table-model eq 'tabular') then 'l' else 'X', 
+                                                                    return concat('&#xa;p{\dimexpr ', $rel-col-widths[$i] ,'\linewidth-2\tabcolsep}'), 
                                                                     $line-separator), 
                                                         $line-separator)" as="xs:string"/>
+    <xsl:variable name="n" select="ro"></xsl:variable>
     <xsl:variable name="top-separator" select="if($table-grid eq 'yes') then '&#x20;\hline&#x20;&#xa;' else ''" as="xs:string"/>
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
@@ -218,6 +224,7 @@
       <xsl:processing-instruction name="cals2tabular" select="concat('\begin{', if($table-model eq 'tabular') then 'tabular' else 'tabularx}{\textwidth', '}{', $col-declaration, '}', $top-separator)"/>
       <xsl:text>&#xa;</xsl:text>
       <xsl:apply-templates mode="#current"/>
+      <xsl:text>&#xa;</xsl:text>
       <xsl:processing-instruction name="cals2tabular" select="concat('\end{', if($table-model eq 'tabular') then 'tabular' else 'tabularx' ,'}')"/>
       <xsl:text>&#xa;&#xa;</xsl:text>
     </xsl:copy>
