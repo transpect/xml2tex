@@ -216,7 +216,6 @@
                                                                     return concat('&#xa;p{\dimexpr ', $rel-col-widths[$i] ,'\linewidth-2\tabcolsep}'), 
                                                                     $line-separator), 
                                                         $line-separator)" as="xs:string"/>
-    <xsl:variable name="n" select="ro"></xsl:variable>
     <xsl:variable name="top-separator" select="if($table-grid eq 'yes') then '&#x20;\hline&#x20;&#xa;' else ''" as="xs:string"/>
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
