@@ -30,6 +30,7 @@
       xmlns:xs="http://www.w3.org/2001/XMLSchema"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       xmlns:tex="http://www-cs-faculty.st anford.edu/~uno/"
+      xmlns:html="http://www.w3c.org/1999/xhtml"
       xmlns:c="http://www.w3.org/ns/xproc-step"
       xmlns:xso="tobereplaced">
       
@@ -343,6 +344,7 @@
     <xso:variable name="charmap" as="element(xml2tex:char)+">
       <xsl:for-each select="xml2tex:char">
         <xml2tex:char>
+          <xsl:copy-of select="@context"/>
           <xml2tex:character><xsl:value-of select="@character"/></xml2tex:character>
           <xml2tex:string><xsl:value-of select="@string"/></xml2tex:string>
         </xml2tex:char>
@@ -354,7 +356,9 @@
       <!-- this function needs to run before any character mapping, because of roots e.g. -->
       <xso:variable name="simplemath" select="string-join(xml2tex:convert-simplemath(.), '')" as="xs:string"/>
       <!-- maps unicode to latex -->
-      <xso:variable name="utf2tex" select="if(matches($simplemath, $texregex)) then string-join(xml2tex:utf2tex($simplemath, $charmap, ()), '') else $simplemath" as="xs:string"/>
+      <xso:variable name="utf2tex" select="if(matches($simplemath, $texregex)) 
+                                           then string-join(xml2tex:utf2tex(.., $simplemath, $charmap, ()), '') 
+                                           else $simplemath" as="xs:string"/>
       <!-- has to run last because it resolves combined unicode characters -->
       <xso:variable name="diacrits" select="string-join(xml2tex:convert-diacrits($utf2tex), '')" as="xs:string"/>
       <xso:value-of select="$diacrits"/>
@@ -363,22 +367,39 @@
     <!-- replace unicode characters with latex from charmap -->
     
     <xso:function name="xml2tex:utf2tex" as="xs:string+">
+      <xso:param name="context" as="element(*)"/>
       <xso:param name="string" as="xs:string"/>
       <xso:param name="charmap" as="element(xml2tex:char)+"/>
       <xso:param name="seen" as="xs:string*"/>
       <xso:analyze-string select="$string" regex="{{$texregex}}">
         <xso:matching-substring>      
           <xso:variable name="pattern" select="functx:escape-for-regex(regex-group(1))" as="xs:string"/>
-          <xso:variable name="replacement" select="replace($charmap[matches(xml2tex:character, $pattern)][1]/xml2tex:string, '([\$\\])', '\\$1')" as="xs:string"/>
-          <xso:variable name="result" select="replace(., $pattern, $replacement)" as="xs:string"/>
-          <xso:variable name="seen" select="concat($seen, $pattern)" as="xs:string"/>
+          <xso:variable name="map-char" as="element(xml2tex:char)?" select="$charmap[matches(xml2tex:character, $pattern)][1]"/>
+          <xso:variable name="replacement-candidates" as="xs:string*">
+            <xso:sequence select="string($map-char[not(@context)]/xml2tex:string)"/>
+            <!-- Test whether there was a context restriction for the mapping of the current char.
+            The last item is the replacement string that will be output in the most specific context. --> 
+            <xso:apply-templates select="root($context), $context/ancestor-or-self::*" mode="char-context">
+              <xso:with-param name="char-in-doc" select="."/>
+            </xso:apply-templates>
+          </xso:variable>
           <xso:choose>
-            <xso:when test="matches($result, $texregex)
-                            and not(($pattern = $seen) or matches($result, '^[a-z0-9A-Z\$\\%_&amp;\{{\}}\[\]#\|]+$'))">
-              <xso:value-of select="string-join(xml2tex:utf2tex($result, $charmap, ($seen, $pattern)), '')"/>
+            <xso:when test="empty($replacement-candidates)">
+              <xso:value-of select="."/>
             </xso:when>
             <xso:otherwise>
-              <xso:value-of select="$result"/>
+              <xso:variable name="replacement" select="replace($replacement-candidates[last()], '([\$\\])', '\\$1')" as="xs:string"/>
+              <xso:variable name="result" select="replace(., $pattern, $replacement)" as="xs:string"/>
+              <xso:variable name="seen" select="concat($seen, $pattern)" as="xs:string"/>
+              <xso:choose>
+                <xso:when test="matches($result, $texregex)
+                                and not(($pattern = $seen) or matches($result, '^[a-z0-9A-Z\$\\%_&amp;\{{\}}\[\]#\|]+$'))">
+                  <xso:value-of select="string-join(xml2tex:utf2tex($context, $result, $charmap, ($seen, $pattern)), '')"/>
+                </xso:when>
+                <xso:otherwise>
+                  <xso:value-of select="$result"/>
+                </xso:otherwise>
+              </xso:choose>
             </xso:otherwise>
           </xso:choose>
         </xso:matching-substring>
@@ -386,7 +407,6 @@
           <xso:value-of select="."/>
         </xso:non-matching-substring>
       </xso:analyze-string>
-      
     </xso:function>
     
     <!-- convert unicode characters combined with diacritical marks -->
@@ -510,7 +530,31 @@
       <xso:param name="string" as="xs:string"/>
       <xso:value-of select="replace( $string, '(\{{|\}}|%|_|&amp;|\$|#)', '\\$1' )"/>
     </xso:function>
-
+    
+    
+    <xso:template match="text()" mode="char-context"/>
+    <xso:template match="*" mode="char-context" as="xs:string?" priority="-1"/>
+    <xso:template match="/" mode="char-context" as="xs:string?" priority="-1"/>
+    
+    <xsl:for-each-group select="xml2tex:char[normalize-space(@context)]" group-by="@context">
+      <xso:template match="{@context}" mode="char-context" as="xs:string?"><!-- priority="{xml2tex:index-of(../xml2tex:char, .)}" -->
+        <xso:param name="char-in-doc" as="xs:string?"/>
+        <xso:choose>
+          <xsl:for-each select="current-group()">
+            <xso:when test="$char-in-doc = '{@character}'">
+              <xso:sequence select="'{@string}'"/>
+            </xso:when>
+          </xsl:for-each>  
+        </xso:choose>
+      </xso:template>
+    </xsl:for-each-group>
   </xsl:template>
   
+  <xsl:function name="xml2tex:index-of" as="xs:integer">
+    <xsl:param name="seq" as="node()*"/>
+    <xsl:param name="node" as="node()?"/>
+    <xsl:sequence select="index-of(for $n in $seq return generate-id($n), $node/generate-id())"/>
+  </xsl:function>
+  
+
 </xsl:stylesheet>
