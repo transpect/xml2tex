@@ -374,9 +374,8 @@
       <xso:analyze-string select="$string" regex="{{$texregex}}">
         <xso:matching-substring>      
           <xso:variable name="pattern" select="functx:escape-for-regex(regex-group(1))" as="xs:string"/>
-          <xso:variable name="map-char" as="element(xml2tex:char)?" select="$charmap[matches(xml2tex:character, $pattern)][1]"/>
           <xso:variable name="replacement-candidates" as="xs:string*">
-            <xso:sequence select="string($map-char[not(@context)]/xml2tex:string)"/>
+            <xso:sequence select="string($charmap[matches(xml2tex:character, $pattern)][not(@context)]/xml2tex:string)"/>
             <!-- Test whether there was a context restriction for the mapping of the current char.
             The last item is the replacement string that will be output in the most specific context. --> 
             <xso:apply-templates select="root($context), $context/ancestor-or-self::*" mode="char-context">

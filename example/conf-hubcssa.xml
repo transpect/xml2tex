@@ -423,7 +423,9 @@
     <!-- degree sign -->
     <char character="°" string="$^{\circ}$"/>
     <char character="&lt;" string="{\textless}"/>
+    <char character="&lt;" string="&lt;" context="dbk:mathphrase"/>
     <char character="&gt;" string="{\textgreater}"/>
+    <char character="&gt;" string="&gt;" context="dbk:mathphrase"/>
     <char character="²" string="\textsuperscript{2}"/>
     <char character="³" string="\textsuperscript{3}"/>
     <!-- *
@@ -436,6 +438,7 @@
     
     <!--nbsp-->   
     <char character="&#xa0;" string="${~}$"/>
+    <char character="&#xa0;" string="~" context="dbk:mathphrase"/>
     <!--= \mathcent (txfonts), cent-->
     <char character="&#xa2;" string="${\cent}$"/>
     <!--= \mathsterling (txfonts), POUND SIGN, fourier prints a dollar sign-->
@@ -449,13 +452,16 @@
     <!--plus-or-minus sign-->
     <char character="&#xb1;" string="${\pm}$"/>
     <!--= \tcmu (mathcomp), t \textmu (textcomp), # \mathrm{\mu} (omlmathrm), # \muup (kpfonts mathdesign), MICRO SIGN-->
-    <char character="&#xb5;" string="${\mu}$"/>
+    <char character="&#xb5;" string="${\upmu}$"/>
+    <char character="&#xb5;" string="{\upmu}" context="dbk:mathphrase"/>
     <!--MULTIPLICATION SIGN, z notation Cartesian product-->
     <char character="&#xd7;" string="${\times}$"/>
+    <char character="&#xd7;" string="{\times}" context="dbk:mathphrase"/>
     <!--eth-->
     <char character="&#xf0;" string="${\eth}$"/>
     <!--divide sign-->
     <char character="&#xf7;" string="${\div}$"/>
+    <char character="&#xf7;" string="{\div}" context="dbk:mathphrase"/>
     
     <!-- *
          * Latin Extended-A
