@@ -191,7 +191,6 @@
         </xsl:for-each>    
       </xsl:when>
       <xsl:otherwise>
-        <xsl:text>&#x20;</xsl:text>
         <xsl:processing-instruction name="cals2tabular" select="if($table-grid eq 'yes') then '\hline&#x20;&#xa;' else ''"/>
       </xsl:otherwise>
     </xsl:choose>
