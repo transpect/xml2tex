@@ -12,7 +12,7 @@
     <xsl:variable name="list-type" select="tr:enumerate-list-type(@numeration, *:listitem[1]/@override)" as="xs:string"/>
     <!-- use 1st override or if empty 1st override of sublist -->
     <xsl:variable name="override" select="(*:listitem[1], *:listitem[1]/*:orderedlist[1]/*:listitem[1])[string-length(@override) gt 0][1]/@override" as="xs:string?"/>
-    <xsl:variable name="start" select="if(string-length($override) gt 0) 
+    <xsl:variable name="start" select="if(string-length($override) gt 0 and @numeration) 
                                        then tr:list-number-to-integer($override, @numeration) - 1
                                        else 0" as="xs:integer"/>
     <xsl:variable name="level" select="count(ancestor::*:orderedlist) + 1" as="xs:integer"/>
