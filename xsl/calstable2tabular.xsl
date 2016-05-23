@@ -206,7 +206,7 @@
                                              0
                                            )[1]" as="xs:integer"/>
     <xsl:variable name="col-widths" select="for $i in *:colspec/@colwidth
-                                            return xs:decimal(replace($i, '[a-z]', ''))" as="xs:decimal+"/>
+                                            return xs:decimal(replace(replace(replace($i, '[a-z]', ''), '^\.', '0.'), '\*$', ''))" as="xs:decimal+"/>
     <xsl:variable name="table-width" select="sum($col-widths)" as="xs:decimal"/>
     <xsl:variable name="rel-col-widths" select="for $i in $col-widths return 
                                                 round-half-to-even($i div $table-width, 2)" as="xs:decimal+"/>
