@@ -45,13 +45,8 @@
       <xso:template match="/" mode="apply-xpath">
         <!-- The c:data-section is necessary for XProc text output. -->
         <c:data content-type="text/plain">
-          <xsl:if test="/xml2tex:set/xml2tex:preamble">
-            <xsl:variable name="split-lines" select="tokenize(/xml2tex:set/xml2tex:preamble, '&#xa;')" as="xs:string*"/>
-            <xsl:for-each select="$split-lines[not(matches(., '^[\s\n]$'))]">
-              <xso:text><xsl:value-of select="replace(., '\s*(.+)', '$1'), '&#xa;'"/></xso:text>
-            </xsl:for-each>
-          </xsl:if>
-          <xso:text>\begin{document}&#xa;</xso:text>
+          <xsl:apply-templates select="xml2tex:preamble"/>
+          <xso:text>&#xa;\begin{document}&#xa;</xso:text>
           <xso:apply-templates mode="#current"/>
           <xso:text>&#xa;\end{document}&#xa;</xso:text>
         </c:data>
@@ -178,7 +173,7 @@
         <xso:apply-templates mode="#current"/>
       </xso:template>
             
-      <xsl:apply-templates select="*[not(self::xml2tex:ns)]"/>
+      <xsl:apply-templates select="* except (xml2tex:ns, xml2tex:preamble)"/>
 
     </xso:stylesheet>
   </xsl:template>
@@ -190,9 +185,16 @@
     <xsl:call-template name="handle-namespace"/>
   </xsl:template>
 
-  <!-- mode apply-xpath -->
-
-  <xsl:template match="xml2tex:preamble"/>
+  <xsl:template match="xml2tex:preamble">
+    <xsl:variable name="split-lines" select="tokenize(
+                                                      string-join(/xml2tex:set/xml2tex:preamble/text(), ''), 
+                                                      '&#xa;')" as="xs:string*"/>
+    <xsl:for-each select="$split-lines[not(matches(., '^[\s\n]$'))]">
+      <xso:text><xsl:value-of select="replace(., '\s*(.+)', '$1'), '&#xa;'"/></xso:text>
+    </xsl:for-each>
+    <xsl:text>&#xa;</xsl:text>
+    <xsl:apply-templates select="node() except text()" mode="#current"/>
+  </xsl:template>
   
   <xsl:variable name="rule-indexes" select="for $i in //xml2tex:template return generate-id($i)" as="xs:string*"/>
   
@@ -252,7 +254,13 @@
         </xso:analyze-string>
       </xso:template>
     </xsl:if>
-  </xsl:template>  
+  </xsl:template>
+  
+  <xsl:template match="xsl:*|@*" priority="100">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()"/>
+    </xsl:copy>
+  </xsl:template>
 
   <xsl:function name="xml2tex:generate-content">
     <xsl:param name="elements" as="node()*"/>
