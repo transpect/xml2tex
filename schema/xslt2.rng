@@ -1,0 +1,1366 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- taken from https://norman.walsh.name/2004/07/25/xslt20, converted to RNG and edited by @mkraetke -->
+<!-- $Id: xslt20.rnc,v 1.1 2004/07/24 22:37:02 ndw Exp $ -->
+<!--
+  This was mostly generated from the syntax summary in the XSLT 1.0
+  Recommendation (using XSLT of course) by James. Norm hacked at it
+  a bit to make it validate XSLT 2.0.
+-->
+<!--
+  Issues: this validates extension elements as literal result
+  elements, which is overly restrictive.
+-->
+<grammar ns="http://www.w3.org/1999/XSL/Transform" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <start combine="choice">
+    <choice>
+      <ref name="xslt2.stylesheet.element"/>
+      <ref name="xslt2.transform.element"/>
+      <ref name="xslt2.literal-result-element-as-stylesheet"/>
+    </choice>
+  </start>
+  
+  <define name="xslt2.version">
+    <value>2.0</value>
+  </define>
+  
+  <define name="xslt2.top-level-elements.model">
+    <zeroOrMore>
+      <choice>
+        <ref name="xslt2.declaration.category"/>
+        <ref name="xslt2.top-level-extension"/>
+      </choice>
+    </zeroOrMore>
+  </define>
+  
+  <define name="xslt2.top-level-extension">
+    <element>
+      <anyName>
+        <except>
+          <nsName/>
+          <nsName ns=""/>
+        </except>
+      </anyName>
+      <grammar>
+        <start>
+          <ref name="any"/>
+        </start>
+        <define name="any">
+          <zeroOrMore>
+            <choice>
+              <attribute>
+                <anyName/>
+              </attribute>
+              <text/>
+              <element>
+                <anyName/>
+                <ref name="any"/>
+              </element>
+            </choice>
+          </zeroOrMore>
+        </define>
+      </grammar>
+    </element>
+  </define>
+  
+  <define name="xslt2.template.model">
+    <zeroOrMore>
+      <choice>
+        <ref name="xslt2.instruction.category"/>
+        <ref name="xslt2.literal-result-element"/>
+        <text/>
+      </choice>
+    </zeroOrMore>
+  </define>
+  
+  <define name="xslt2.literal-result-element-as-stylesheet">
+    <element>
+      <anyName>
+        <except>
+          <nsName/>
+        </except>
+      </anyName>
+      <attribute name="xsl:version">
+        <ref name="xslt2.version"/>
+      </attribute>
+      <ref name="xslt2.literal-result-element-no-version.atts"/>
+      <ref name="xslt2.template.model"/>
+    </element>
+  </define>
+  
+  <define name="xslt2.literal-result-element">
+    <element>
+      <anyName>
+        <except>
+          <nsName/>
+        </except>
+      </anyName>
+      <ref name="xslt2.literal-result-element.atts"/>
+      <ref name="xslt2.template.model"/>
+    </element>
+  </define>
+  
+  <define name="xslt2.literal-result-element.atts">
+    <ref name="xslt2.literal-result-element-no-version.atts"/>
+    <optional>
+      <attribute name="xsl:version">
+        <ref name="xslt2.version"/>
+      </attribute>
+    </optional>
+  </define>
+  
+  <define name="xslt2.literal-result-element-no-version.atts">
+    <zeroOrMore>
+      <choice>
+        <attribute>
+          <anyName>
+            <except>
+              <nsName/>
+            </except>
+          </anyName>
+          <ref name="xslt2.avt.datatype"/>
+        </attribute>
+        <attribute name="xsl:extension-element-prefixes">
+          <ref name="xslt2.prefixes.datatype"/>
+        </attribute>
+        <attribute name="xsl:exclude-result-prefixes">
+          <ref name="xslt2.prefixes.datatype"/>
+        </attribute>
+        <attribute name="xsl:use-attribute-sets">
+          <ref name="xslt2.qnames.datatype"/>
+        </attribute>
+      </choice>
+    </zeroOrMore>
+  </define>
+  
+  <define name="xslt2.declaration.category">
+    <choice>
+      <ref name="xslt2.attribute-set.element"/>
+      <ref name="xslt2.character-map.element"/>
+      <ref name="xslt2.decimal-format.element"/>
+      <ref name="xslt2.function.element"/>
+      <ref name="xslt2.import-schema.element"/>
+      <ref name="xslt2.include.element"/>
+      <ref name="xslt2.key.element"/>
+      <ref name="xslt2.namespace-alias.element"/>
+      <ref name="xslt2.output.element"/>
+      <ref name="xslt2.param.element"/>
+      <ref name="xslt2.preserve-space.element"/>
+      <ref name="xslt2.strip-space.element"/>
+      <ref name="xslt2.template.element"/>
+      <ref name="xslt2.variable.element"/>
+    </choice>
+  </define>
+  <define name="xslt2.instruction.category">
+    <choice>
+      <ref name="xslt2.analyze-string.element"/>
+      <ref name="xslt2.apply-imports.element"/>
+      <ref name="xslt2.apply-templates.element"/>
+      <ref name="xslt2.attribute.element"/>
+      <ref name="xslt2.call-template.element"/>
+      <ref name="xslt2.choose.element"/>
+      <ref name="xslt2.comment.element"/>
+      <ref name="xslt2.copy.element"/>
+      <ref name="xslt2.copy-of.element"/>
+      <ref name="xslt2.element.element"/>
+      <ref name="xslt2.fallback.element"/>
+      <ref name="xslt2.for-each.element"/>
+      <ref name="xslt2.for-each-group.element"/>
+      <ref name="xslt2.if.element"/>
+      <ref name="xslt2.message.element"/>
+      <ref name="xslt2.namespace.element"/>
+      <ref name="xslt2.next-match.element"/>
+      <ref name="xslt2.number.element"/>
+      <ref name="xslt2.perform-sort.element"/>
+      <ref name="xslt2.processing-instruction.element"/>
+      <ref name="xslt2.result-document.element"/>
+      <ref name="xslt2.sequence.element"/>
+      <ref name="xslt2.text.element"/>
+      <ref name="xslt2.value-of.element"/>
+      <ref name="xslt2.variable.element"/>
+    </choice>
+  </define>
+  
+  <define name="xslt2.extension.atts">
+    <zeroOrMore>
+      <attribute>
+        <anyName>
+          <except>
+            <nsName/>
+            <nsName ns=""/>
+          </except>
+        </anyName>
+      </attribute>
+    </zeroOrMore>
+  </define>
+  
+  <define name="xslt2.stylesheet.element">
+    <element name="stylesheet">
+      <ref name="xslt2.stylesheet.model"/>
+    </element>
+  </define>
+  
+  <define name="xslt2.transform.element">
+    <element name="transform">
+      <ref name="xslt2.stylesheet.model"/>
+    </element>
+  </define>
+  
+  <define name="xslt2.stylesheet.model">
+    <ref name="xslt2.extension.atts"/>
+    <optional>
+      <attribute name="id">
+        <data type="NCName"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="extension-element-prefixes">
+        <ref name="xslt2.prefixes.datatype"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="exclude-result-prefixes">
+        <ref name="xslt2.prefixes.datatype"/>
+      </attribute>
+    </optional>
+    <attribute name="version">
+      <ref name="xslt2.version"/>
+    </attribute>
+    <optional>
+      <attribute name="xpath-default-namespace">
+        <data type="anyURI"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="default-validation">
+        <choice>
+          <value>strict</value>
+          <value>lax</value>
+          <value>preserve</value>
+          <value>strip</value>
+        </choice>
+      </attribute>
+    </optional>
+    <group>
+      <zeroOrMore>
+        <ref name="xslt2.import.element"/>
+      </zeroOrMore>
+      <ref name="xslt2.top-level-elements.model"/>
+    </group>
+  </define>
+  
+  <define name="xslt2.include.element">
+    <element name="include">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="href">
+        <data type="anyURI"/>
+      </attribute>
+    </element>
+  </define>
+  
+  <define name="xslt2.import.element">
+    <element name="import">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="href">
+        <data type="anyURI"/>
+      </attribute>
+    </element>
+  </define>
+  
+  <define name="xslt2.import-schema.element">
+    <element name="import-schema">
+      <ref name="xslt2.extension.atts"/>
+      <optional>
+        <attribute name="namespace">
+          <data type="anyURI"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="schema-location">
+          <data type="anyURI"/>
+        </attribute>
+      </optional>
+    </element>
+  </define>
+  
+  <define name="xslt2.strip-space.element">
+    <element name="strip-space">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="elements">
+        <ref name="xslt2.wildcards.datatype"/>
+      </attribute>
+    </element>
+  </define>
+  
+  <define name="xslt2.preserve-space.element">
+    <element name="preserve-space">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="elements">
+        <ref name="xslt2.wildcards.datatype"/>
+      </attribute>
+    </element>
+  </define>
+  
+  <define name="xslt2.template.element">
+    <element name="template">
+      <ref name="xslt2.extension.atts"/>
+      <optional>
+        <attribute name="match">
+          <ref name="xslt2.pattern.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="name">
+          <ref name="xslt2.qname.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="priority">
+          <ref name="xslt2.number.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="mode">
+          <ref name="xslt2.qname.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="as">
+          <ref name="xslt2.sequence.datatype"/>
+        </attribute>
+      </optional>
+      <group>
+        <zeroOrMore>
+          <ref name="xslt2.param.element"/>
+        </zeroOrMore>
+        <ref name="xslt2.template.model"/>
+      </group>
+    </element>
+  </define>
+  
+  <define name="xslt2.apply-templates.element">
+    <element name="apply-templates">
+      <ref name="xslt2.extension.atts"/>
+      <optional>
+        <attribute name="select">
+          <ref name="xslt2.expression.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="mode">
+          <ref name="xslt2.qname.datatype"/>
+        </attribute>
+      </optional>
+      <zeroOrMore>
+        <choice>
+          <ref name="xslt2.sort.element"/>
+          <ref name="xslt2.with-param.element"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  
+  <define name="xslt2.apply-imports.element">
+    <element name="apply-imports">
+      <ref name="xslt2.extension.atts"/>
+    </element>
+  </define>
+  <define name="xslt2.call-template.element">
+    <element name="call-template">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="name">
+        <ref name="xslt2.qname.datatype"/>
+      </attribute>
+      <zeroOrMore>
+        <ref name="xslt2.with-param.element"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="xslt2.namespace-alias.element">
+    <element name="namespace-alias">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="stylesheet-prefix">
+        <ref name="xslt2.prefix.datatype"/>
+      </attribute>
+      <attribute name="result-prefix">
+        <ref name="xslt2.prefix.datatype"/>
+      </attribute>
+    </element>
+  </define>
+  <define name="xslt2.element.element">
+    <element name="element">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="name">
+        <choice>
+          <ref name="xslt2.qname.datatype"/>
+          <ref name="xslt2.expr-avt.datatype"/>
+        </choice>
+      </attribute>
+      <optional>
+        <attribute name="namespace">
+          <choice>
+            <data type="anyURI"/>
+            <ref name="xslt2.brace-avt.datatype"/>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="use-attribute-sets">
+          <ref name="xslt2.qnames.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="type">
+          <data type="QName"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="validation">
+          <choice>
+            <value>strict</value>
+            <value>lax</value>
+            <value>preserve</value>
+            <value>strip</value>
+          </choice>
+        </attribute>
+      </optional>
+      <ref name="xslt2.template.model"/>
+    </element>
+  </define>
+  <define name="xslt2.attribute.element">
+    <element name="attribute">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="name">
+        <choice>
+          <ref name="xslt2.qname.datatype"/>
+          <ref name="xslt2.expr-avt.datatype"/>
+        </choice>
+      </attribute>
+      <optional>
+        <attribute name="namespace">
+          <choice>
+            <data type="anyURI"/>
+            <ref name="xslt2.brace-avt.datatype"/>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="separator"/>
+      </optional>
+      <optional>
+        <attribute name="type">
+          <data type="QName"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="validation">
+          <choice>
+            <value>strict</value>
+            <value>lax</value>
+            <value>preserve</value>
+            <value>strip</value>
+          </choice>
+        </attribute>
+      </optional>
+      <choice>
+        <optional>
+          <attribute name="select">
+            <ref name="xslt2.expression.datatype"/>
+          </attribute>
+        </optional>
+        <ref name="xslt2.template.model"/>
+      </choice>
+    </element>
+  </define>
+  <define name="xslt2.attribute-set.element">
+    <element name="attribute-set">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="name">
+        <ref name="xslt2.qname.datatype"/>
+      </attribute>
+      <optional>
+        <attribute name="use-attribute-sets">
+          <ref name="xslt2.qnames.datatype"/>
+        </attribute>
+      </optional>
+      <zeroOrMore>
+        <ref name="xslt2.attribute.element"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="xslt2.text.element">
+    <element name="text">
+      <ref name="xslt2.extension.atts"/>
+      <optional>
+        <attribute name="disable-output-escaping">
+          <choice>
+            <value>yes</value>
+            <value>no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <text/>
+    </element>
+  </define>
+  <define name="xslt2.processing-instruction.element">
+    <element name="processing-instruction">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="name">
+        <choice>
+          <data type="NCName"/>
+          <ref name="xslt2.expr-avt.datatype"/>
+        </choice>
+      </attribute>
+      <optional>
+        <attribute name="select">
+          <ref name="xslt2.expression.datatype"/>
+        </attribute>
+      </optional>
+      <ref name="xslt2.template.model"/>
+    </element>
+  </define>
+  <define name="xslt2.comment.element">
+    <element name="comment">
+      <ref name="xslt2.extension.atts"/>
+      <optional>
+        <attribute name="select">
+          <ref name="xslt2.expression.datatype"/>
+        </attribute>
+      </optional>
+      <ref name="xslt2.template.model"/>
+    </element>
+  </define>
+  <define name="xslt2.copy.element">
+    <element name="copy">
+      <ref name="xslt2.extension.atts"/>
+      <optional>
+        <attribute name="copy-namespaces">
+          <choice>
+            <value>yes</value>
+            <value>no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="use-attribute-sets">
+          <ref name="xslt2.qnames.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="type">
+          <data type="QName"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="validation">
+          <choice>
+            <value>strict</value>
+            <value>lax</value>
+            <value>preserve</value>
+            <value>strip</value>
+          </choice>
+        </attribute>
+      </optional>
+      <ref name="xslt2.template.model"/>
+    </element>
+  </define>
+  <define name="xslt2.value-of.element">
+    <element name="value-of">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="select">
+        <ref name="xslt2.expression.datatype"/>
+      </attribute>
+      <optional>
+        <attribute name="disable-output-escaping">
+          <choice>
+            <value>yes</value>
+            <value>no</value>
+          </choice>
+        </attribute>
+      </optional>
+    </element>
+  </define>
+  <define name="xslt2.number.element">
+    <element name="number">
+      <ref name="xslt2.extension.atts"/>
+      <optional>
+        <attribute name="level">
+          <choice>
+            <value type="string">single</value>
+            <value type="string">multiple</value>
+            <value type="string">any</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="count">
+          <ref name="xslt2.pattern.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="from">
+          <ref name="xslt2.pattern.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="value">
+          <ref name="xslt2.expression.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="format">
+          <ref name="xslt2.avt.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="lang">
+          <choice>
+            <data type="NMTOKEN"/>
+            <ref name="xslt2.expr-avt.datatype"/>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="letter-value">
+          <choice>
+            <value type="string">alphabetic</value>
+            <value type="string">traditional</value>
+            <ref name="xslt2.expr-avt.datatype"/>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="grouping-separator">
+          <choice>
+            <ref name="xslt2.char.datatype"/>
+            <ref name="xslt2.expr-avt.datatype"/>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="grouping-size">
+          <choice>
+            <ref name="xslt2.number.datatype"/>
+            <ref name="xslt2.expr-avt.datatype"/>
+          </choice>
+        </attribute>
+      </optional>
+      <attribute name="select">
+        <ref name="xslt2.expression.datatype"/>
+      </attribute>
+      <optional>
+        <attribute name="ordinal"/>
+      </optional>
+    </element>
+  </define>
+  <define name="xslt2.for-each.element">
+    <element name="for-each">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="select">
+        <ref name="xslt2.expression.datatype"/>
+      </attribute>
+      <group>
+        <zeroOrMore>
+          <ref name="xslt2.sort.element"/>
+        </zeroOrMore>
+        <ref name="xslt2.template.model"/>
+      </group>
+    </element>
+  </define>
+  <define name="xslt2.if.element">
+    <element name="if">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="test">
+        <ref name="xslt2.expression.datatype"/>
+      </attribute>
+      <ref name="xslt2.template.model"/>
+    </element>
+  </define>
+  <define name="xslt2.choose.element">
+    <element name="choose">
+      <ref name="xslt2.extension.atts"/>
+      <group>
+        <oneOrMore>
+          <ref name="xslt2.when.element"/>
+        </oneOrMore>
+        <optional>
+          <ref name="xslt2.otherwise.element"/>
+        </optional>
+      </group>
+    </element>
+  </define>
+  <define name="xslt2.when.element">
+    <element name="when">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="test">
+        <ref name="xslt2.expression.datatype"/>
+      </attribute>
+      <ref name="xslt2.template.model"/>
+    </element>
+  </define>
+  <define name="xslt2.otherwise.element">
+    <element name="otherwise">
+      <ref name="xslt2.extension.atts"/>
+      <ref name="xslt2.template.model"/>
+    </element>
+  </define>
+  <!-- what about the sequence constructor now allowed in sort? -->
+  <define name="xslt2.sort.element">
+    <element name="sort">
+      <ref name="xslt2.extension.atts"/>
+      <optional>
+        <attribute name="select">
+          <ref name="xslt2.expression.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="lang">
+          <choice>
+            <data type="NMTOKEN"/>
+            <ref name="xslt2.expr-avt.datatype"/>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="data-type">
+          <choice>
+            <value type="string">text</value>
+            <value type="string">number</value>
+            <ref name="xslt2.qname-but-not-ncname.datatype"/>
+            <ref name="xslt2.expr-avt.datatype"/>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="order">
+          <choice>
+            <value type="string">ascending</value>
+            <value type="string">descending</value>
+            <ref name="xslt2.expr-avt.datatype"/>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="case-order">
+          <choice>
+            <value type="string">upper-first</value>
+            <value type="string">lower-first</value>
+            <ref name="xslt2.expr-avt.datatype"/>
+          </choice>
+        </attribute>
+      </optional>
+    </element>
+  </define>
+  <define name="xslt2.variable.element">
+    <element name="variable">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="name">
+        <ref name="xslt2.qname.datatype"/>
+      </attribute>
+      <optional>
+        <attribute name="as">
+          <ref name="xslt2.sequence.datatype"/>
+        </attribute>
+      </optional>
+      <choice>
+        <attribute name="select">
+          <ref name="xslt2.expression.datatype"/>
+        </attribute>
+        <ref name="xslt2.template.model"/>
+      </choice>
+    </element>
+  </define>
+  <define name="xslt2.param.element">
+    <element name="param">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="name">
+        <ref name="xslt2.qname.datatype"/>
+      </attribute>
+      <optional>
+        <attribute name="as">
+          <ref name="xslt2.sequence.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="required">
+          <choice>
+            <value>yes</value>
+            <value>no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="tunnel">
+          <choice>
+            <value>yes</value>
+            <value>no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <choice>
+        <attribute name="select">
+          <ref name="xslt2.expression.datatype"/>
+        </attribute>
+        <ref name="xslt2.template.model"/>
+      </choice>
+    </element>
+  </define>
+  <define name="xslt2.copy-of.element">
+    <element name="copy-of">
+      <ref name="xslt2.extension.atts"/>
+      <optional>
+        <attribute name="copy-namespaces">
+          <choice>
+            <value>yes</value>
+            <value>no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="type">
+          <data type="QName"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="validation">
+          <choice>
+            <value>strict</value>
+            <value>lax</value>
+            <value>preserve</value>
+            <value>strip</value>
+          </choice>
+        </attribute>
+      </optional>
+      <attribute name="select">
+        <ref name="xslt2.expression.datatype"/>
+      </attribute>
+    </element>
+  </define>
+  <define name="xslt2.with-param.element">
+    <element name="with-param">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="name">
+        <ref name="xslt2.qname.datatype"/>
+      </attribute>
+      <optional>
+        <attribute name="as">
+          <ref name="xslt2.sequence.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="tunnel">
+          <choice>
+            <value>yes</value>
+            <value>no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <choice>
+        <attribute name="select">
+          <ref name="xslt2.expression.datatype"/>
+        </attribute>
+        <ref name="xslt2.template.model"/>
+      </choice>
+    </element>
+  </define>
+  <define name="xslt2.key.element">
+    <element name="key">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="name">
+        <ref name="xslt2.qname.datatype"/>
+      </attribute>
+      <attribute name="match">
+        <ref name="xslt2.pattern.datatype"/>
+      </attribute>
+      <optional>
+        <attribute name="use">
+          <ref name="xslt2.expression.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="collation">
+          <data type="anyURI"/>
+        </attribute>
+      </optional>
+    </element>
+  </define>
+  <define name="xslt2.decimal-format.element">
+    <element name="decimal-format">
+      <ref name="xslt2.extension.atts"/>
+      <optional>
+        <attribute name="name">
+          <ref name="xslt2.qname.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="decimal-separator">
+          <ref name="xslt2.char.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="grouping-separator">
+          <ref name="xslt2.char.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="infinity"/>
+      </optional>
+      <optional>
+        <attribute name="minus-sign">
+          <ref name="xslt2.char.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="NaN"/>
+      </optional>
+      <optional>
+        <attribute name="percent">
+          <ref name="xslt2.char.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="per-mille">
+          <ref name="xslt2.char.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="zero-digit">
+          <ref name="xslt2.char.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="digit">
+          <ref name="xslt2.char.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="pattern-separator">
+          <ref name="xslt2.char.datatype"/>
+        </attribute>
+      </optional>
+    </element>
+  </define>
+  <define name="xslt2.message.element">
+    <element name="message">
+      <ref name="xslt2.extension.atts"/>
+      <optional>
+        <attribute name="terminate">
+          <choice>
+            <value type="string">yes</value>
+            <value type="string">no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <choice>
+        <optional>
+          <attribute name="select">
+            <ref name="xslt2.expression.datatype"/>
+          </attribute>
+        </optional>
+        <ref name="xslt2.template.model"/>
+      </choice>
+    </element>
+  </define>
+  <define name="xslt2.fallback.element">
+    <element name="fallback">
+      <ref name="xslt2.extension.atts"/>
+      <ref name="xslt2.template.model"/>
+    </element>
+  </define>
+  <define name="xslt2.output.element">
+    <element name="output">
+      <ref name="xslt2.extension.atts"/>
+      <optional>
+        <attribute name="name">
+          <data type="QName"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="method">
+          <choice>
+            <value type="string">xml</value>
+            <value type="string">html</value>
+            <value type="string">xhtml</value>
+            <value type="string">text</value>
+            <ref name="xslt2.qname-but-not-ncname.datatype"/>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="cdata-section-elements">
+          <ref name="xslt2.qnames.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="doctype-public"/>
+      </optional>
+      <optional>
+        <attribute name="doctype-system"/>
+      </optional>
+      <optional>
+        <attribute name="encoding"/>
+      </optional>
+      <optional>
+        <attribute name="escape-uri-attribute">
+          <choice>
+            <value>yes</value>
+            <value>no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="include-content-type">
+          <choice>
+            <value>yes</value>
+            <value>no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="indent">
+          <choice>
+            <value type="string">yes</value>
+            <value type="string">no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="media-type"/>
+      </optional>
+      <optional>
+        <attribute name="normalize-unicode">
+          <choice>
+            <value>yes</value>
+            <value>no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="omit-xml-declaration">
+          <choice>
+            <value type="string">yes</value>
+            <value type="string">no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="standalone">
+          <choice>
+            <value type="string">yes</value>
+            <value type="string">no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="undeclare-namespaces">
+          <choice>
+            <value>yes</value>
+            <value>no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="use-character-maps">
+          <ref name="xslt2.rqnames.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="version">
+          <data type="NMTOKEN"/>
+        </attribute>
+      </optional>
+    </element>
+  </define>
+  <define name="xslt2.analyze-string.element">
+    <element name="analyze-string">
+      <attribute name="select">
+        <ref name="xslt2.expression.datatype"/>
+      </attribute>
+      <attribute name="regex"/>
+      <optional>
+        <attribute name="flags"/>
+      </optional>
+      <group>
+        <optional>
+          <ref name="xslt2.matching-substring.element"/>
+        </optional>
+        <optional>
+          <ref name="xslt2.non-matching-substring.element"/>
+        </optional>
+        <zeroOrMore>
+          <ref name="xslt2.fallback.element"/>
+        </zeroOrMore>
+      </group>
+    </element>
+  </define>
+  <define name="xslt2.matching-substring.element">
+    <element name="matching-substring">
+      <ref name="xslt2.template.model"/>
+    </element>
+  </define>
+  <define name="xslt2.non-matching-substring.element">
+    <element name="non-matching-substring">
+      <ref name="xslt2.template.model"/>
+    </element>
+  </define>
+  <define name="xslt2.character-map.element">
+    <element name="character-map">
+      <attribute name="name">
+        <data type="QName"/>
+      </attribute>
+      <optional>
+        <attribute name="use-character-maps">
+          <ref name="xslt2.rqnames.datatype"/>
+        </attribute>
+      </optional>
+      <zeroOrMore>
+        <ref name="xslt2.output-character.element"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="xslt2.output-character.element">
+    <element name="output-character">
+      <attribute name="character">
+        <ref name="xslt2.char.datatype"/>
+      </attribute>
+      <attribute name="string"/>
+    </element>
+  </define>
+  <define name="xslt2.function.element">
+    <element name="function">
+      <attribute name="name">
+        <data type="QName"/>
+      </attribute>
+      <optional>
+        <attribute name="as">
+          <ref name="xslt2.sequence.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="override">
+          <choice>
+            <value>yes</value>
+            <value>no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <group>
+        <zeroOrMore>
+          <ref name="xslt2.param.element"/>
+        </zeroOrMore>
+        <ref name="xslt2.template.model"/>
+      </group>
+    </element>
+  </define>
+  <define name="xslt2.for-each-group.element">
+    <element name="for-each-group">
+      <attribute name="select">
+        <ref name="xslt2.expression.datatype"/>
+      </attribute>
+      <optional>
+        <attribute name="group-by">
+          <ref name="xslt2.expression.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="group-adjacent">
+          <ref name="xslt2.expression.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="group-starting-with">
+          <ref name="xslt2.pattern.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="group-ending-with">
+          <ref name="xslt2.pattern.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="collation">
+          <data type="anyURI"/>
+        </attribute>
+      </optional>
+      <group>
+        <zeroOrMore>
+          <ref name="xslt2.sort.element"/>
+        </zeroOrMore>
+        <ref name="xslt2.template.model"/>
+      </group>
+    </element>
+  </define>
+  <define name="xslt2.namespace.element">
+    <element name="namespace">
+      <optional>
+        <attribute name="name">
+          <data type="NCName"/>
+        </attribute>
+      </optional>
+      <choice>
+        <attribute name="select">
+          <ref name="xslt2.expression.datatype"/>
+        </attribute>
+        <ref name="xslt2.template.model"/>
+      </choice>
+    </element>
+  </define>
+  <define name="xslt2.next-match.element">
+    <element name="next-match">
+      <zeroOrMore>
+        <choice>
+          <ref name="xslt2.with-param.element"/>
+          <ref name="xslt2.fallback.element"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="xslt2.perform-sort.element">
+    <element name="perform-sort">
+      <optional>
+        <attribute name="select">
+          <ref name="xslt2.expression.datatype"/>
+        </attribute>
+      </optional>
+      <group>
+        <oneOrMore>
+          <ref name="xslt2.sort.element"/>
+        </oneOrMore>
+        <ref name="xslt2.template.model"/>
+      </group>
+    </element>
+  </define>
+  <define name="xslt2.result-document.element">
+    <element name="result-document">
+      <optional>
+        <attribute name="format">
+          <data type="QName"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="href">
+          <data type="anyURI"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="validation">
+          <choice>
+            <value>strict</value>
+            <value>lax</value>
+            <value>preserve</value>
+            <value>strip</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="type">
+          <data type="QName"/>
+        </attribute>
+      </optional>
+      <ref name="xslt2.template.model"/>
+    </element>
+  </define>
+  <define name="xslt2.sequence.element">
+    <element name="sequence">
+      <optional>
+        <attribute name="as">
+          <ref name="xslt2.sequence.datatype"/>
+        </attribute>
+      </optional>
+      <choice>
+        <optional>
+          <attribute name="select">
+            <ref name="xslt2.expression.datatype"/>
+          </attribute>
+        </optional>
+        <ref name="xslt2.template.model"/>
+      </choice>
+    </element>
+  </define>
+  <define name="xslt2.prefixes.datatype">
+    <list>
+      <zeroOrMore>
+        <choice>
+          <data type="NCName"/>
+          <value>#default</value>
+        </choice>
+      </zeroOrMore>
+    </list>
+  </define>
+  <define name="xslt2.prefix.datatype">
+    <choice>
+      <data type="NCName"/>
+      <value>#default</value>
+    </choice>
+  </define>
+  <define name="xslt2.wildcards.datatype">
+    <list>
+      <zeroOrMore>
+        <choice>
+          <data type="QName"/>
+          <data type="token">
+            <param name="pattern">\*|\i\c*:\*</param>
+          </data>
+        </choice>
+      </zeroOrMore>
+    </list>
+  </define>
+  <define name="xslt2.qname.datatype">
+    <data type="QName"/>
+  </define>
+  <define name="xslt2.qnames.datatype">
+    <list>
+      <zeroOrMore>
+        <data type="QName"/>
+      </zeroOrMore>
+    </list>
+  </define>
+  <define name="xslt2.rqnames.datatype">
+    <list>
+      <oneOrMore>
+        <data type="QName"/>
+      </oneOrMore>
+    </list>
+  </define>
+  <define name="xslt2.char.datatype">
+    <data type="string">
+      <param name="length">1</param>
+    </data>
+  </define>
+  <define name="xslt2.number.datatype">
+    <data type="decimal"/>
+  </define>
+  <define name="xslt2.expression.datatype">
+    <text/>
+  </define>
+  <define name="xslt2.sequence.datatype">
+    <text/>
+  </define>
+  <define name="xslt2.pattern.datatype">
+    <text/>
+  </define>
+  <define name="xslt2.qname-but-not-ncname.datatype">
+    <data type="QName">
+      <param name="pattern">.*:.*</param>
+    </data>
+  </define>
+  <!-- An AVT containing at least one expression. -->
+  <define name="xslt2.expr-avt.datatype">
+    <data type="string">
+      <param name="pattern">([^\{\}]|\{\{|\}\})*\{([^"'\{\}]|"[^"]*"|'[^']*')+\}([^\{\}]|\{\{|\}\}|\{([^"'\{\}]|"[^"]*"|'[^']*')+\})*</param>
+    </data>
+  </define>
+  <!--
+    An AVT containing at least one brace; ie where instantiated AVT
+    is not the same as the literal AVT.
+  -->
+  <define name="xslt2.brace-avt.datatype">
+    <data type="string">
+      <param name="pattern">[^\{\}]*(\{\{|\}\}|\{([^"'\{\}]|"[^"]*"|'[^']*')+\})([^\{\}]|\{\{|\}\}|\{([^"'\{\}]|"[^"]*"|'[^']*')+\})*</param>
+    </data>
+  </define>
+  <define name="xslt2.avt.datatype">
+    <data type="string">
+      <param name="pattern">([^\{\}]|\{\{|\}\}|\{([^"'\{\}]|"[^"]*"|'[^']*')+\})*</param>
+    </data>
+  </define>
+</grammar>

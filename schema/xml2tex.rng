@@ -9,6 +9,8 @@
     The xml2tex configuration file schema.
   </a:documentation>
   
+  <include href="xslt2.rng"/>
+  
   <start ns="http://transpect.io/xml2tex">
     <ref name="xml2tex.set"/>
   </start>
@@ -26,7 +28,12 @@
   
   <define name="xml2tex.preamble">
     <element name="xml2tex:preamble">
-      <text/>
+      <zeroOrMore>
+        <choice>
+          <text />
+          <ref name="xslt2.template.model"/>
+        </choice>
+      </zeroOrMore>
     </element>
   </define>
   
@@ -259,7 +266,12 @@
   </define>
   
   <define name="xml2tex.atom.content">
-    <text/>
+    <oneOrMore>
+      <text/>
+    </oneOrMore>
+    <zeroOrMore>
+      <ref name="xslt2.template.model"/>
+    </zeroOrMore>
   </define>
   
   <!--  *

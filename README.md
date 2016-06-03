@@ -157,6 +157,19 @@ A character map is wrapped by a `charmap` element. It can contain multiple chara
 </charmap>
 ```
 
+### Inline XSLT
+
+You are allowed to use XSLT elements \(XSLT template model\) inside of the xml2tex configuration elements `preamble`, `text`, `option`, `param` elements. This might be useful if you want to apply other markup based on dynamic evaluations of the processed content.
+
+```
+<preamble>
+  <!-- use german babel package when document language is 'de' -->
+  <xsl:if test="/*/@xml:lang eq 'de'">
+    <xsl:text>\usepackage[ngerman]{babel}</xsl:text>
+  </xsl:if>
+<preamble>
+```
+
 ## MathML
 Equations specified in MathML syntax are automatically converted with the module [mml2tex](https://github.com/transpect/mml2tex).
 
