@@ -62,8 +62,7 @@
     <xsl:variable name="counter"
 		  select="tokenize(
                                    replace(replace($override, '[\s\(\)\]\[\{\}&#xa0;]', '', 'i'), '\.$', ''),
-                                   '\.')[last()]
-			           )" as="xs:string"/>
+                                   '\.')[last()]" as="xs:string"/>
     <xsl:choose>
       <xsl:when test="$list-type = ('upperroman', 'lowerroman')">
         <xsl:value-of select="tr:roman-to-int($counter)"/>
