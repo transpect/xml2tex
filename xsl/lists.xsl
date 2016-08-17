@@ -9,12 +9,11 @@
   <xsl:import href="http://transpect.io/xslt-util/roman-numerals/xsl/roman2int.xsl"/>
   
   <xsl:template match="*:orderedlist">
-    <xsl:variable name="list-type" select="tr:enumerate-list-type(@numeration, *:listitem[1]/@override)" as="xs:string"/>
+    <xsl:variable name="list-type"
+		  select="tr:enumerate-list-type(@numeration, *:listitem[1]/@override)" as="xs:string"/>
     <!-- use 1st override or if empty 1st override of sublist -->
     <xsl:variable name="override"
-		  select="normalize-space(
-			                  (*:listitem[1], *:listitem[1]/*:orderedlist[1]/*:listitem[1])[string-length(@override) gt 0][1]/@override
-			  )" as="xs:string?"/>
+		  select="(*:listitem[1], *:listitem[1]/*:orderedlist[1]/*:listitem[1])[string-length(@override) gt 0][1]/@override" as="xs:string?"/>
     <xsl:variable name="start" select="if(string-length($override) gt 0 and @numeration) 
                                        then tr:list-number-to-integer($override, @numeration) - 1
                                        else 0" as="xs:integer"/>
@@ -61,11 +60,10 @@
     <xsl:param name="override" as="xs:string"/>
     <xsl:param name="list-type" as="xs:string"/>
     <xsl:variable name="counter"
-		  select="normalize-space(
-                                          tokenize(
-                                                   replace(replace($override, '[\s\(\)\]\[\{\}&#xa0;]', '', 'i'), '\.$', ''),
-                                                   '\.')[last()]
-			                  )" as="xs:string"/>
+		  select="tokenize(
+                                   replace(replace($override, '[\s\(\)\]\[\{\}&#xa0;]', '', 'i'), '\.$', ''),
+                                   '\.')[last()]
+			           )" as="xs:string"/>
     <xsl:choose>
       <xsl:when test="$list-type = ('upperroman', 'lowerroman')">
         <xsl:value-of select="tr:roman-to-int($counter)"/>
