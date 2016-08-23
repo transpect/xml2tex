@@ -10,7 +10,7 @@
   
   <xsl:template match="*:orderedlist">
     <xsl:variable name="list-type"
-		  select="tr:enumerate-list-type(@numeration, *:listitem[1]/@override)" as="xs:string"/>
+		  select="tr:enumerate-list-type((@numeration, 'arabic')[1], *:listitem[1]/@override)" as="xs:string"/>
     <!-- use 1st override or if empty 1st override of sublist -->
     <xsl:variable name="override"
 		  select="(*:listitem[1], *:listitem[1]/*:orderedlist[1]/*:listitem[1])[string-length(@override) gt 0][1]/@override" as="xs:string?"/>
