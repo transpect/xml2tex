@@ -383,7 +383,7 @@
         <xso:matching-substring>      
           <xso:variable name="pattern" select="functx:escape-for-regex(regex-group(1))" as="xs:string"/>
           <xso:variable name="replacement-candidates" as="xs:string*">
-            <xso:sequence select="for $i in $charmap[matches(xml2tex:character, $pattern)][not(@context)]/xml2tex:string
+            <xso:sequence select="for $i in $charmap[matches(xml2tex:character, concat($pattern, '$'))][not(@context)]/xml2tex:string
                                   return string($i)"/>
             <!-- Test whether there was a context restriction for the mapping of the current char.
             The last item is the replacement string that will be output in the most specific context. --> 
