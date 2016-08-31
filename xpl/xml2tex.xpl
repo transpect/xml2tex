@@ -20,7 +20,11 @@
   <p:input port="conf" primary="false">
     <p:empty/>
   </p:input>
-  
+
+  <p:input port="lists-xsl">
+    <p:document href="../xsl/list.xsl"/>
+  </p:input>
+
   <p:output port="result" primary="true"/>
   
   <p:serialization port="result" method="text" media-type="text/plain" encoding="utf8"/>
@@ -111,9 +115,8 @@
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
   </p:xslt>
   
-  <tr:store-debug>
+  <tr:store-debug extension="xsl">
     <p:with-option name="pipeline-step" select="concat($prefix, '1.conf2xsl')"/>
-    <p:with-option name="extension" select="'xsl'"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -208,10 +211,11 @@
     
   <p:xslt name="lists">
     <p:documentation>
-      MathML equations are converted to "mml2tex" processing instructions.
+      MathML equations are converted to "mml2tex" processing instructions. (?)
+      UPDATE THIS
     </p:documentation>    
     <p:input port="stylesheet">
-      <p:document href="../xsl/lists.xsl"/>
+      <p:pipe port="lists-xsl" step="xml2tex"/>
     </p:input>
     <p:with-param name="debug" select="$debug"/>
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
