@@ -21,6 +21,12 @@
     \usepackage{upgreek}
     \usepackage{enumerate}
     \usepackage[ngerman]{babel}
+    \usepackage{listings}
+    \lstset{columns=flexible,
+            basicstyle={\small\ttfamily},
+            breaklines=true,
+            breakatwhitespace=true,
+            tabsize=4}
   </preamble>
 
   <!-- xml namespace declaration -->
@@ -159,20 +165,24 @@
 
   <!-- itemized lists -->
 
-  <template context="ul">
+  <template context="ul|*[matches(@class, '[/\s]ul\s')]">
     <rule name="itemize" type="env">
       <text/>
     </rule>
   </template>
   
-  <template context="*[contains(@class, 'li ')][not(parent::glossentry)]">
+  <template context="ol|*[matches(@class, '[/\s]ol\s')]">
+    <rule name="enumerate" type="env">
+      <text/>
+    </rule>
+  </template>
+  
+  <template context="li|*[matches(@class, '[/\s]li\s')]/cmd">
     <rule name="item" type="cmd">
       <text select="' '"/>
       <text/>
     </rule>
   </template>
-  
-  <!-- orderedlists are handled in enum.xsl bzw. lists.xsl -->
   
   <!-- variable list -->
   
@@ -182,11 +192,11 @@
     </rule>
   </template>
   
-  <!--<template context="li[parent::glossentry]">
+  <template context="glossdef[parent::glossentry]">
     <rule>
       <text/>
     </rule>
-  </template>-->
+  </template>
   
   <template context="glossterm[parent::glossentry]">
     <rule name="item" type="cmd">
@@ -266,7 +276,7 @@
     </rule>
   </template>
 
-  <template context="title[count(ancestor::*) = 6]">
+  <template context="title[parent::section]">
     <rule break-after="2" name="subsubsection" type="cmd">
       <param/>
     </rule>
@@ -301,6 +311,20 @@
   <template context="fn/p">
     <rule break-after="1">
       <text/>
+    </rule>
+  </template>
+  
+  <!-- code -->
+  
+  <template context="codeph">
+    <rule name="texttt" type="cmd">
+      <param/>
+    </rule>
+  </template>
+  
+  <template context="codeblock">
+    <rule name="lstlisting" type="env" break-after="5">
+      <text/>      
     </rule>
   </template>
 
@@ -398,7 +422,9 @@
     <char character="&#x20ef;" string="{\underrightarrow}"/>
     <!-- brackets -->
     <char character="[" string="{[}"/>
+    <char character="[" string="[" context="codeblock"/>
     <char character="]" string="{]}"/>
+    <char character="]" string="]" context="codeblock"/>
     <!-- dashes -->
     <char character="−" string="$-$"/>
     <char character="–" string="-"/>
@@ -437,9 +463,9 @@
     <!-- degree sign -->
     <char character="°" string="$^{\circ}$"/>
     <char character="&lt;" string="{\textless}"/>
-    <!--<char character="&lt;" string="&lt;" context="dbk:mathphrase"/>-->
+    <char character="&lt;" string="&lt;" context="codeblock"/>
     <char character="&gt;" string="{\textgreater}"/>
-    <!--<char character="&gt;" string="&gt;" context="dbk:mathphrase"/>-->
+    <char character="&gt;" string="&gt;" context="codeblock"/>
     <char character="²" string="\textsuperscript{2}"/>
     <char character="³" string="\textsuperscript{3}"/>
     <!-- *
@@ -3569,6 +3595,14 @@
     <!--mathematical monospace digit 9-->
     <char character="&#x1d7ff;" string="${\mathtt{9}}$"/>
 
+    <!-- *
+         * Codeblock
+         * -->
+    <char character="$" string="&#36;" context="codeblock"/>
+    <char character="{" string="&#123;" context="codeblock"/>
+    <char character="}" string="&#125;" context="codeblock"/>
+    <char character="#" string="&#35;" context="codeblock"/>
+    
   </charmap>
 
 </set>
