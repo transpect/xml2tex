@@ -22,7 +22,7 @@
   </p:input>
 
   <p:input port="lists-xsl">
-    <p:document href="../xsl/list.xsl"/>
+    <p:document href="../xsl/lists.xsl"/>
   </p:input>
 
   <p:output port="result" primary="true"/>
