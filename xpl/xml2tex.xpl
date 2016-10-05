@@ -73,6 +73,7 @@
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   <p:import href="http://transpect.io/mml2tex/xpl/mml2tex.xpl"/>
+  <p:import href="http://transpect.io/xslt-util/calstable/xpl/resolve-nested-tables.xpl"/>
   <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl"/>
   <p:import href="http://transpect.io/xproc-util/simple-progress-msg/xpl/simple-progress-msg.xpl"/>
   <p:import href="http://transpect.io/xproc-util/xslt-mode/xpl/xslt-mode.xpl"/>
@@ -80,7 +81,7 @@
   <!--  *
         * validate the configuration file.
         * -->
-  <p:validate-with-relax-ng>
+  <p:validate-with-relax-ng name="validate">
     <p:input port="schema">
       <p:document href="../schema/xml2tex.rng"/>
     </p:input>
@@ -90,7 +91,7 @@
     <p:with-option name="assert-valid" select="$fail-on-error"/>
   </p:validate-with-relax-ng>
   
-  <tr:simple-progress-msg file="xml2tex-validate-config.txt">
+  <tr:simple-progress-msg file="xml2tex-validate-config.txt" name="msg-1">
     <p:input port="msgs">
       <p:inline>
         <c:messages>
@@ -115,13 +116,13 @@
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
   </p:xslt>
   
-  <tr:store-debug extension="xsl">
+  <tr:store-debug name="debug-conf">
     <p:with-option name="pipeline-step" select="concat($prefix, '1.conf2xsl')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
   
-  <tr:simple-progress-msg file="xml2tex-convert-tables.txt">
+  <tr:simple-progress-msg file="xml2tex-convert-tables.txt" name="msg-2">
     <p:input port="msgs">
       <p:inline>
         <c:messages>
@@ -132,32 +133,16 @@
     </p:input>
     <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
   </tr:simple-progress-msg>
+    
+  <p:sink/>
   
-  <p:xslt name="normalize-calstables">
-    <p:documentation>Rowspans and Colspans are dissolved and filled with empty cells. 
-      This facilitates the conversion of CALS tables to LaTeX tabular tables. The graphic 
-      below gives an example:
-      
-      -------------------             -------------------
-      |  A  |  B        |             |  A  |  B  |  b  |
-      -     -           -             -------------------
-      |     |           |     -->     |  a  |  b  |  b  |
-      -------------------             -------------------
-      |  C  |  D        |             |  C  |  D  |  d  |
-      -------------------             -------------------
-      
-    </p:documentation>
+  <tr:resolve-nested-calstables name="normalize-calstables">
     <p:input port="source">
       <p:pipe port="source" step="xml2tex"/>
     </p:input>
-    <p:input port="stylesheet">
-      <p:document href="../xsl/calstable-normalize.xsl"/>
-    </p:input>
-    <p:with-param name="debug" select="$debug"/>
-    <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
-  </p:xslt>
+  </tr:resolve-nested-calstables>
   
-  <tr:store-debug>
+  <tr:store-debug name="debug-calstables">
     <p:with-option name="pipeline-step" select="concat($prefix, '2.normalize-calstables')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
@@ -177,13 +162,13 @@
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
   </p:xslt>
   
-  <tr:store-debug>
+  <tr:store-debug name="debug-cals2tabular">
     <p:with-option name="pipeline-step" select="concat($prefix, '3.cals2tabular')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
   
-  <tr:simple-progress-msg file="xml2tex-convert-mml.txt">
+  <tr:simple-progress-msg file="xml2tex-convert-mml.txt" name="msg-3">
     <p:input port="msgs">
       <p:inline>
         <c:messages>
@@ -203,7 +188,7 @@
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </mml2tex:convert>
   
-  <tr:store-debug>
+  <tr:store-debug name="debug-mml2tex">
     <p:with-option name="pipeline-step" select="concat($prefix, '4.mml2tex')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
@@ -221,13 +206,13 @@
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
   </p:xslt>
   
-  <tr:store-debug>
+  <tr:store-debug name="debug-lists">
     <p:with-option name="pipeline-step" select="concat($prefix, '5.lists')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
   
-  <tr:simple-progress-msg file="xml2tex-convert-xml.txt">
+  <tr:simple-progress-msg file="xml2tex-convert-xml.txt" name="msg-4">
     <p:input port="msgs">
       <p:inline>
         <c:messages>
