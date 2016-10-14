@@ -26,8 +26,7 @@
           * Generate XSLT from mapping instructions. 
           * -->
     
-    <xso:stylesheet
-      xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    <xso:stylesheet xmlns:xs="http://www.w3.org/2001/XMLSchema"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       xmlns:tex="http://www-cs-faculty.st anford.edu/~uno/"
       xmlns:html="http://www.w3c.org/1999/xhtml"
@@ -40,7 +39,11 @@
 
       <xso:import href="http://transpect.io/xslt-util/functx/xsl/functx.xsl"/>
 
+      <xsl:apply-templates select="xsl:import"/>
+
       <xso:output method="text" media-type="text/plain" encoding="UTF8"/>
+
+      <xsl:apply-templates select="xsl:* except xsl:import"/>
 
       <xso:template match="/" mode="apply-xpath">
         <!-- The c:data-section is necessary for XProc text output. -->
@@ -173,7 +176,7 @@
         <xso:apply-templates mode="#current"/>
       </xso:template>
             
-      <xsl:apply-templates select="* except (xml2tex:ns, xml2tex:preamble)"/>
+      <xsl:apply-templates select="xml2tex:* except (xml2tex:ns, xml2tex:preamble)"/>
 
     </xso:stylesheet>
   </xsl:template>
