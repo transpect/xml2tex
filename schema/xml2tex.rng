@@ -220,6 +220,14 @@
         * -->
   
   <define name="xml2tex.set.content">
+    <zeroOrMore>
+      <group>
+        <zeroOrMore>
+          <ref name="xslt2.import.element"/>
+        </zeroOrMore>
+        <ref name="xslt2.top-level-elements.model"/>
+      </group>
+    </zeroOrMore>
     <interleave>
       <oneOrMore>
         <ref name="xml2tex.preamble"/>
