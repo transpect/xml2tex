@@ -47,7 +47,7 @@
     </p:documentation>
   </p:option>
   
-  <p:option name="fail-on-error" select="'true'">
+  <p:option name="fail-on-error" select="'yes'">
     <p:documentation>
       Whether the pipeline should fail on some errors.
     </p:documentation>
@@ -81,14 +81,13 @@
   <!--  *
         * validate the configuration file.
         * -->
-  <p:validate-with-relax-ng name="validate">
+  <p:validate-with-relax-ng name="validate" assert-valid="true">
     <p:input port="schema">
       <p:document href="../schema/xml2tex.rng"/>
     </p:input>
     <p:input port="source">
       <p:pipe port="conf" step="xml2tex"/>
     </p:input>
-    <p:with-option name="assert-valid" select="$fail-on-error"/>
   </p:validate-with-relax-ng>
   
   <tr:simple-progress-msg file="xml2tex-validate-config.txt" name="msg-1">
@@ -116,8 +115,8 @@
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
   </p:xslt>
   
-  <tr:store-debug name="debug-conf">
-    <p:with-option name="pipeline-step" select="concat($prefix, '1.conf2xsl')"/>
+  <tr:store-debug name="debug-conf" extension="xsl">
+    <p:with-option name="pipeline-step" select="concat($prefix, '1.config')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -234,6 +233,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
     <p:with-option name="prefix" select="concat($prefix, '6')"/>
   </tr:xslt-mode>
   
@@ -247,6 +247,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
     <p:with-option name="prefix" select="concat($prefix, '7')"/>
   </tr:xslt-mode>
   
@@ -260,6 +261,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
     <p:with-option name="prefix" select="concat($prefix, '9')"/>
   </tr:xslt-mode>
   
@@ -273,6 +275,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
     <p:with-option name="prefix" select="concat($prefix, '10')"/>
   </tr:xslt-mode>
   
@@ -286,6 +289,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
     <p:with-option name="prefix" select="concat($prefix, '11')"/>
   </tr:xslt-mode>
   
@@ -299,6 +303,7 @@
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
     <p:with-option name="prefix" select="concat($prefix, '12')"/>
   </tr:xslt-mode>
   
