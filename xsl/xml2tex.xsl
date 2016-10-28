@@ -246,7 +246,9 @@
           * set '$' around content and remove dollar characters within to prevent nested math mode sections 
           * -->
     <xsl:if test="@mathmode eq 'true'">
-      <xso:template match="{@context}/text()" mode="dissolve-pi" priority="{$template-priority}">
+      <xso:template match="{string-join(for $i in tokenize(@context, '\|') 
+                                        return concat($i, '/text()'),
+                                        '|')}" mode="dissolve-pi" priority="{$template-priority}">
         <xso:analyze-string select="." regex="\\\$">
           <xso:matching-substring>
             <xso:value-of select="."/>
