@@ -18,7 +18,7 @@
     <p:empty/>
   </p:input>
   <p:input port="conf" primary="false">
-    <p:empty/>
+    <p:document href="../example/conf-hubcssa.xml"/>
   </p:input>
 
   <p:input port="lists-xsl">
@@ -64,6 +64,13 @@
       Draw table cell borders.
     </p:documentation>
   </p:option>
+
+  <p:option name="nested-tables" select="'no'" required="false">
+    <p:documentation>
+      Whether nested tables should remain or resolved in one table.
+    </p:documentation>
+  </p:option>
+
   
   <p:option name="prefix" select="'xml2tex/xml2tex0'">
     <p:documentation>
@@ -134,12 +141,22 @@
   </tr:simple-progress-msg>
     
   <p:sink/>
-  
-  <tr:resolve-nested-calstables name="normalize-calstables">
+
+  <p:identity>
     <p:input port="source">
       <p:pipe port="source" step="xml2tex"/>
     </p:input>
-  </tr:resolve-nested-calstables>
+  </p:identity>
+
+  <p:choose>
+    <p:when test="$nested-tables eq 'yes'">
+      <tr:resolve-nested-calstables name="normalize-calstables"/>
+    </p:when>
+    <p:otherwise>
+      <p:identity/>
+    </p:otherwise>
+
+  </p:choose>  
   
   <tr:store-debug name="debug-calstables">
     <p:with-option name="pipeline-step" select="concat($prefix, '2.normalize-calstables')"/>
