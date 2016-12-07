@@ -80,6 +80,7 @@
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   <p:import href="http://transpect.io/mml2tex/xpl/mml2tex.xpl"/>
+  <p:import href="http://transpect.io/xslt-util/calstable/xpl/normalize.xpl"/>
   <p:import href="http://transpect.io/xslt-util/calstable/xpl/resolve-nested-tables.xpl"/>
   <p:import href="http://transpect.io/xproc-util/store-debug/xpl/store-debug.xpl"/>
   <p:import href="http://transpect.io/xproc-util/simple-progress-msg/xpl/simple-progress-msg.xpl"/>
@@ -140,23 +141,22 @@
     <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
   </tr:simple-progress-msg>
     
-  <p:sink/>
-
-  <p:identity>
+  <p:sink name="drop-config-xslt"/>
+  
+  <p:identity name="pipe-input-xml">
     <p:input port="source">
       <p:pipe port="source" step="xml2tex"/>
     </p:input>
   </p:identity>
-
-  <p:choose>
+  
+  <p:choose name="resolve-tables-or-normalize">
     <p:when test="$nested-tables eq 'yes'">
-      <tr:resolve-nested-calstables name="normalize-calstables"/>
+      <tr:normalize-calstables name="normalize-calstables"/>
     </p:when>
     <p:otherwise>
-      <p:identity/>
+      <tr:resolve-nested-calstables name="normalize-calstables"/>
     </p:otherwise>
-
-  </p:choose>  
+  </p:choose>
   
   <tr:store-debug name="debug-calstables">
     <p:with-option name="pipeline-step" select="concat($prefix, '2.normalize-calstables')"/>
