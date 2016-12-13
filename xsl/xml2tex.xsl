@@ -505,7 +505,7 @@
       </xso:variable> 
       <!--  -->
       <xso:variable name="root-regex" select="'([&#x221a;&#x221b;&#x221c;])(\d+)'" as="xs:string"/>
-      <xso:variable name="simpleeq-regex" select="'([a-zA-Z\d]\s?=\s?([a-zA-Z\d]+\s?[,\.\-+/]\s?)+)|(([a-zA-Z\d]+\s?[,\.\-+/]\s?)+[a-zA-Z\d]\s?=\s?[a-zA-Z\d])'" as="xs:string"/>
+      <xso:variable name="simpleeq-regex" select="'(\p{{L}}|\d+([\.,]\d+)*)((\s*[=\-+/]\s*)+(\p{{L}}|\d+([\.,]\d+)*)){{2,}}'" as="xs:string"/>
       <xso:choose>
         <!-- simple root -->
         <xso:when test="matches($string, $root-regex)">
@@ -522,10 +522,10 @@
           </xso:analyze-string>
         </xso:when>
         <!-- set simple equations automatically in math mode, e.g. 3 + 2 = a -->
-        <xso:when test="matches($string, $simpleeq-regex)">
+        <xso:when test="matches($string, concat('(^|\s)', $simpleeq-regex, '($|\s)'))">
           <xso:analyze-string select="$string" regex="{{$simpleeq-regex}}" flags="i">
             <xso:matching-substring>
-              <xso:value-of select="concat('$', ., '$')"/>
+              <xso:value-of select="concat(' $', ., '$ ')"/>
             </xso:matching-substring>
             <xso:non-matching-substring>
               <xso:value-of select="."/>
