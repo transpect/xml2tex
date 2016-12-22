@@ -53,6 +53,12 @@
     </p:documentation>
   </p:option>
   
+  <p:option name="preprocessing" select="'yes'">
+    <p:documentation>
+      Switch XSLT optimizations for MathML on or off.
+    </p:documentation>
+  </p:option>
+  
   <p:option name="table-model" select="'tabularx'" required="false">
     <p:documentation>
       Used LaTeX package to draw tables. Possible values are 'tabular' and 'tabularx'.
@@ -70,7 +76,6 @@
       Whether nested tables should remain or resolved in one table.
     </p:documentation>
   </p:option>
-
   
   <p:option name="prefix" select="'xml2tex/xml2tex0'">
     <p:documentation>
@@ -199,7 +204,8 @@
   <mml2tex:convert name="mml2tex">
     <p:documentation>
       MathML equations are converted to "mml2tex" processing instructions.
-    </p:documentation>    
+    </p:documentation>
+    <p:with-option name="preprocessing" select="$preprocessing"/>    
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </mml2tex:convert>
@@ -212,8 +218,8 @@
     
   <p:xslt name="lists">
     <p:documentation>
-      MathML equations are converted to "mml2tex" processing instructions. (?)
-      UPDATE THIS
+      Ordered lists are converted to enumerate environment.
+      Supports various list numbering styles and individual start values.
     </p:documentation>    
     <p:input port="stylesheet">
       <p:pipe port="lists-xsl" step="xml2tex"/>
