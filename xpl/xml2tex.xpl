@@ -274,29 +274,19 @@
     <p:with-option name="prefix" select="concat($prefix, '7')"/>
   </tr:xslt-mode>
   
-  <p:choose>
-    <p:when test="/xml2tex:set/xml2tex:charmap/xml2tex:char">
-      <p:xpath-context>
-        <p:pipe port="conf" step="xml2tex"/>
-      </p:xpath-context>
-      <tr:xslt-mode msg="yes" mode="replace-chars" name="replace-chars">
-        <p:input port="stylesheet">
-          <p:pipe port="result" step="conf2xsl"/>
-        </p:input>
-        <p:input port="parameters">
-          <p:empty/>
-        </p:input>
-        <p:input port="models"><p:empty/></p:input>
-        <p:with-option name="debug" select="$debug"/>
-        <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-        <p:with-option name="fail-on-error" select="$fail-on-error"/>
-        <p:with-option name="prefix" select="concat($prefix, '9')"/>
-      </tr:xslt-mode>
-    </p:when>
-    <p:otherwise>
-      <p:identity/>
-    </p:otherwise>
-  </p:choose>
+  <tr:xslt-mode msg="yes" mode="replace-chars" name="replace-chars">
+    <p:input port="stylesheet">
+      <p:pipe port="result" step="conf2xsl"/>
+    </p:input>
+    <p:input port="parameters">
+      <p:empty/>
+    </p:input>
+    <p:input port="models"><p:empty/></p:input>
+    <p:with-option name="debug" select="$debug"/>
+    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
+    <p:with-option name="prefix" select="concat($prefix, '9')"/>
+  </tr:xslt-mode>
   
   <tr:xslt-mode msg="yes" mode="dissolve-pi" name="dissolve-pi">
     <p:input port="stylesheet">
