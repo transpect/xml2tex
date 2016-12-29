@@ -26,6 +26,13 @@
     </element>
   </define>
   
+  <define name="xml2tex.import">
+    <element name="xml2tex:import">
+      <ref name="xml2tex.import.attributes"/>
+      <ref name="xml2tex.content.empty"/>
+    </element>
+  </define>
+  
   <define name="xml2tex.preamble">
     <element name="xml2tex:preamble">
       <zeroOrMore>
@@ -126,7 +133,12 @@
         </optional>
       </interleave>
     </choice>
-    
+  </define>
+  
+  <define name="xml2tex.import.attributes">
+    <attribute name="href">
+      <text/>
+    </attribute>
   </define>
   
   <define name="xml2tex.ns.attributes">
@@ -227,6 +239,9 @@
         </zeroOrMore>
         <ref name="xslt2.top-level-elements.model"/>
       </group>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="xml2tex.import"/>
     </zeroOrMore>
     <interleave>
       <oneOrMore>
