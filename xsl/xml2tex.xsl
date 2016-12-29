@@ -19,6 +19,13 @@
   <xsl:param name="debug-dir-uri" select="'debug'"/>
   
   <xsl:include href="handle-namespace.xsl"/>
+  
+  <xsl:variable name="imported-templates" as="element(xsl:template)*">
+    <xsl:for-each select="/xml2tex:set/xml2tex:import">
+      <xsl:variable name="doc" select="doc(@href)" as="document-node(element(xml2tex:set))"/>
+      <xsl:apply-templates select="$doc/xml2tex:set/xml2tex:template"/>
+    </xsl:for-each>  
+  </xsl:variable>
 
   <xsl:template match="/xml2tex:set">
         
@@ -48,6 +55,7 @@
       <xso:template match="/" mode="apply-xpath">
         <!-- The c:data-section is necessary for XProc text output. -->
         <c:data content-type="text/plain">
+          
           <xsl:apply-templates select="xml2tex:preamble"/>
           <xso:text>&#xa;\begin{document}&#xa;</xso:text>
           <xso:apply-templates mode="#current"/>
@@ -180,7 +188,11 @@
       <xso:template match="*" mode="apply-xpath">
         <xso:apply-templates mode="#current"/>
       </xso:template>
-            
+      
+      <xsl:comment select="'----------- START: imported templates'"/>
+      <xsl:apply-templates select="$imported-templates"/>
+      <xsl:comment select="'----------- END: imported templates'"/>
+      
       <xsl:apply-templates select="xml2tex:* except (xml2tex:ns, xml2tex:preamble)"/>
 
     </xso:stylesheet>
@@ -209,9 +221,9 @@
   <xsl:template match="xml2tex:template">
     <!--  * the priority of a rule is determined by its order. If more than one 
           * rule matches against a particular element, the last rule declaration has a higher priority
-          * and overwrites the rule with a lesser priority.
+          * and overwrites the rule with a lesser priority. Imported templates have always the priority 1.
           * -->
-    <xsl:variable name="template-priority" select="index-of($rule-indexes, generate-id(.))"/>
+    <xsl:variable name="template-priority" select="(index-of($rule-indexes, generate-id(.)), 1)[1]" as="xs:integer"/>
 
     <xso:template match="{@context}" mode="apply-xpath" priority="{$template-priority}">
         <xsl:if test="@mathmode eq 'true'">
@@ -353,14 +365,14 @@
                                                   '([', 
                                                   string-join(
                                                               for $ i 
-                                                              in //xml2tex:char/@character 
+                                                              in (//xml2tex:char/@character)
                                                               return functx:escape-for-regex(normalize-space($i)), 
                                                               ''), 
                                                   '])', 
                                                   '''')}" as="xs:string"/>
     
     <xso:variable name="charmap" as="element(xml2tex:char)+">
-      <xsl:for-each select="xml2tex:char">
+      <xsl:for-each select="//xml2tex:char">
         <xml2tex:char>
           <xsl:copy-of select="@context"/>
           <xml2tex:character><xsl:value-of select="@character"/></xml2tex:character>
@@ -368,7 +380,7 @@
         </xml2tex:char>
       </xsl:for-each>
     </xso:variable>
-        
+    
     <!-- replacement with xpath context -->
     <xso:template match="text()" mode="replace-chars">
       <!-- this function needs to run before any character mapping, because of roots e.g. -->
