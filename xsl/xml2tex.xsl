@@ -128,6 +128,11 @@
         <xso:variable name="content" select="xml2tex:escape-for-tex(replace( ., '\\', '\\textbackslash ' ))" as="xs:string"/>
         <xso:value-of select="$content"/>
       </xso:template>
+      
+      <xso:function name="xml2tex:escape-for-tex" as="xs:string">
+        <xso:param name="string" as="xs:string"/>
+        <xso:value-of select="replace( $string, '(\{{|\}}|%|_|&amp;|\$|#)', '\\$1' )"/>
+      </xso:function>
 
       <!-- apply regex from conf file -->
       <xso:template match="text()" mode="apply-regex">
@@ -538,14 +543,7 @@
           <xso:value-of select="$string"/>
         </xso:otherwise>
       </xso:choose>
-      
     </xso:function>
-    
-    <xso:function name="xml2tex:escape-for-tex" as="xs:string">
-      <xso:param name="string" as="xs:string"/>
-      <xso:value-of select="replace( $string, '(\{{|\}}|%|_|&amp;|\$|#)', '\\$1' )"/>
-    </xso:function>
-    
     
     <xso:template match="text()" mode="char-context"/>
     <xso:template match="*" mode="char-context" as="xs:string?" priority="-1"/>
