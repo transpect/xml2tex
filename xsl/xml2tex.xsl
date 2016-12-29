@@ -20,10 +20,33 @@
   
   <xsl:include href="handle-namespace.xsl"/>
   
-  <xsl:variable name="imported-templates" as="element(xsl:template)*">
+  <!-- handle imported xml2tex configuration files -->
+  
+  <xsl:variable name="imported-preambles" as="element(xml2tex:preamble)*">
     <xsl:for-each select="/xml2tex:set/xml2tex:import">
-      <xsl:variable name="doc" select="doc(@href)" as="document-node(element(xml2tex:set))"/>
-      <xsl:apply-templates select="$doc/xml2tex:set/xml2tex:template"/>
+      <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
+      <xsl:sequence select="$doc/xml2tex:set/xml2tex:preamble"/>
+    </xsl:for-each>
+  </xsl:variable>
+  
+  <xsl:variable name="imported-templates" as="element(xml2tex:template)*">
+    <xsl:for-each select="/xml2tex:set/xml2tex:import">
+      <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
+      <xsl:sequence select="$doc/xml2tex:set/xml2tex:template"/>
+    </xsl:for-each>  
+  </xsl:variable>
+  
+  <xsl:variable name="imported-regex-templates" as="element(xml2tex:regex)*">
+    <xsl:for-each select="/xml2tex:set/xml2tex:import">
+      <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
+      <xsl:sequence select="$doc/xml2tex:set/xml2tex:regex"/>
+    </xsl:for-each>  
+  </xsl:variable>
+  
+  <xsl:variable name="imported-charmap-chars" as="element(xml2tex:char)*">
+    <xsl:for-each select="/xml2tex:set/xml2tex:import">
+      <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
+      <xsl:sequence select="$doc/xml2tex:set/xml2tex:charmap/xml2tex:char"/>
     </xsl:for-each>  
   </xsl:variable>
 
@@ -56,7 +79,7 @@
         <!-- The c:data-section is necessary for XProc text output. -->
         <c:data content-type="text/plain">
           
-          <xsl:apply-templates select="xml2tex:preamble"/>
+          <xsl:apply-templates select="(xml2tex:preamble, $imported-preambles)[1]"/>
           <xso:text>&#xa;\begin{document}&#xa;</xso:text>
           <xso:apply-templates mode="#current"/>
           <xso:text>&#xa;\end{document}&#xa;</xso:text>
@@ -145,7 +168,7 @@
       <!-- apply regex from conf file -->
       <xso:template match="text()" mode="apply-regex">
         <xso:variable name="content" select="." as="xs:string"/>
-        <xsl:for-each select="xml2tex:regex">
+        <xsl:for-each select="xml2tex:regex|$imported-regex-templates">
           <xsl:variable name="opening-delimiter"
             select="if(@type eq 'option') then '[' 
               else if (@type eq 'text') then ''
@@ -194,6 +217,8 @@
       <xsl:comment select="'----------- END: imported templates'"/>
       
       <xsl:apply-templates select="xml2tex:* except (xml2tex:ns, xml2tex:preamble)"/>
+      
+      <xsl:call-template name="replace-chars-mode"/>
 
     </xso:stylesheet>
   </xsl:template>
@@ -358,210 +383,217 @@
   </xsl:function>
 
   <!-- mode replace-chars -->
-
-  <xsl:template match="xml2tex:charmap">
-    
+  
+  <xsl:template name="replace-chars-mode">
+        
     <xso:variable name="texregex" select="{concat('''', 
-                                                  '([', 
-                                                  string-join(
-                                                              for $ i 
-                                                              in (//xml2tex:char/@character)
-                                                              return functx:escape-for-regex(normalize-space($i)), 
-                                                              ''), 
-                                                  '])', 
+                                                  if(/xml2tex:set/xml2tex:charmap//xml2tex:char, $imported-charmap-chars)
+                                                  then concat('([', 
+                                                              string-join(for $ i in (/xml2tex:set/xml2tex:charmap//xml2tex:char, $imported-charmap-chars)
+                                                                          return functx:escape-for-regex(normalize-space($i/@character)),
+                                                                          ''),
+                                                              '])')
+                                                  else '',
                                                   '''')}" as="xs:string"/>
-    
-    <xso:variable name="charmap" as="element(xml2tex:char)+">
-      <xsl:for-each select="//xml2tex:char">
-        <xml2tex:char>
-          <xsl:copy-of select="@context"/>
-          <xml2tex:character><xsl:value-of select="@character"/></xml2tex:character>
-          <xml2tex:string><xsl:value-of select="@string"/></xml2tex:string>
-        </xml2tex:char>
-      </xsl:for-each>
-    </xso:variable>
-    
-    <!-- replacement with xpath context -->
-    <xso:template match="text()" mode="replace-chars">
-      <!-- this function needs to run before any character mapping, because of roots e.g. -->
-      <xso:variable name="simplemath" select="string-join(xml2tex:convert-simplemath(.), '')" as="xs:string"/>
-      <!-- maps unicode to latex -->
-      <xso:variable name="utf2tex" select="if(matches($simplemath, $texregex)) 
-                                           then string-join(xml2tex:utf2tex(.., $simplemath, $charmap, ()), '') 
-                                           else $simplemath" as="xs:string"/>
-      <!-- has to run last because it resolves combined unicode characters -->
-      <xso:variable name="diacrits" select="string-join(xml2tex:convert-diacrits($utf2tex), '')" as="xs:string"/>
-      <xso:value-of select="$diacrits"/>
-    </xso:template>
-    
-    <!-- replace unicode characters with latex from charmap -->
-    
-    <xso:function name="xml2tex:utf2tex" as="xs:string+">
-      <xso:param name="context" as="element(*)"/>
-      <xso:param name="string" as="xs:string"/>
-      <xso:param name="charmap" as="element(xml2tex:char)+"/>
-      <xso:param name="seen" as="xs:string*"/>
-      <xso:analyze-string select="$string" regex="{{$texregex}}">
-        <xso:matching-substring>      
-          <xso:variable name="pattern" select="functx:escape-for-regex(regex-group(1))" as="xs:string"/>
-          <xso:variable name="replacement-candidates" as="xs:string*">
-            <xso:sequence select="for $i in $charmap[matches(xml2tex:character, concat($pattern, '$'))][not(@context)]/xml2tex:string
-                                  return string($i)"/>
-            <!-- Test whether there was a context restriction for the mapping of the current char.
-            The last item is the replacement string that will be output in the most specific context. --> 
-            <xso:apply-templates select="root($context), $context/ancestor-or-self::*" mode="char-context">
-              <xso:with-param name="char-in-doc" select="."/>
-            </xso:apply-templates>
-          </xso:variable>
-          <xso:choose>
-            <xso:when test="empty($replacement-candidates)">
-              <xso:value-of select="."/>
-            </xso:when>
-            <xso:otherwise>
-              <xso:variable name="replacement" select="replace($replacement-candidates[last()], '([\$\\])', '\\$1')" as="xs:string"/>
-              <xso:variable name="result" select="replace(., $pattern, $replacement)" as="xs:string"/>
-              <xso:variable name="seen" select="concat($seen, $pattern)" as="xs:string"/>
-              <xso:choose>
-                <xso:when test="matches($result, $texregex)
-                                and not(($pattern = $seen) or matches($result, '^[a-z0-9A-Z\$\\%_&amp;\{{\}}\[\]#\|]+$'))">
-                  <xso:value-of select="string-join(xml2tex:utf2tex($context, $result, $charmap, ($seen, $pattern)), '')"/>
-                </xso:when>
-                <xso:otherwise>
-                  <xso:value-of select="$result"/>
-                </xso:otherwise>
-              </xso:choose>
-            </xso:otherwise>
-          </xso:choose>
-        </xso:matching-substring>
-        <xso:non-matching-substring>
-          <xso:value-of select="."/>
-        </xso:non-matching-substring>
-      </xso:analyze-string>
-    </xso:function>
-    
-    <!-- convert unicode characters combined with diacritical marks -->
-    
-    <xso:function name="xml2tex:convert-diacrits" as="xs:string+">
-      <xso:param name="string" as="xs:string"/>
-      <xso:variable name="map" as="element(map)">
-        <map>
-          <mark hex="&#x300;" tex="\`"/>          <!-- grave accent -->
-          <mark hex="&#x301;" tex="\'"/>          <!-- acute accent -->
-          <mark hex="&#x302;" tex="\^"/>          <!-- circumflex accent -->
-          <mark hex="&#x303;" tex="\~"/>          <!-- tilde -->
-          <mark hex="&#x304;" tex="\="/>          <!-- macron -->
-          <mark hex="&#x305;" tex="\="/>          <!-- overline -->
-          <mark hex="&#x306;" tex="\u"/>          <!-- breve -->
-          <mark hex="&#x307;" tex="\."/>          <!-- dot above -->
-          <mark hex="&#x308;" tex="\&quot;"/>     <!-- diaeresis -->
-          <mark hex="&#x30a;" tex="\r"/>          <!-- ring above -->
-          <mark hex="&#x30b;" tex="\H"/>          <!-- double acute accent -->
-          <mark hex="&#x30c;" tex="\v"/>          <!-- caron/háček -->
-          <mark hex="&#x30d;" tex="\="/>          <!-- vertical line above, not we misuse the macron for this -->
-          <mark hex="&#x30e;" tex="\v"/>          <!-- double vertical line above -->
-          <mark hex="&#x323;" tex="\d"/>          <!-- dot below -->
-          <mark hex="&#x327;" tex="\c"/>          <!-- cedilla -->
-          <mark hex="&#x328;" tex="\k"/>          <!-- ogonek -->
-          <mark hex="&#x331;" tex="\b"/>          <!-- macron below -->
-          <mark hex="&#x332;" tex="\b"/>          <!-- low line -->
-          <mark hex="&#x324;" tex="\~"/>          <!-- greek perispomeni -->
-          <mark hex="&#x2044;" tex="\frac"/>      <!-- fraction slash -->
-        </map>
+
+      <xso:variable name="charmap" as="element(xml2tex:char)*">
+        <xsl:for-each select="(//xml2tex:char, $imported-charmap-chars)">
+          <xml2tex:char>
+            <xsl:copy-of select="@context"/>
+            <xml2tex:character><xsl:value-of select="@character"/></xml2tex:character>
+            <xml2tex:string><xsl:value-of select="@string"/></xml2tex:string>
+          </xml2tex:char>
+        </xsl:for-each>
       </xso:variable>
-      <xso:variable name="normalize-unicode" select="normalize-unicode($string, 'NFKD')" as="xs:string"/>
-      <xso:variable name="diacritica-regex" select="'([a-zA-Z])([&#x300;-&#x36F;])'" as="xs:string"/>
-      <xso:variable name="fraction-regex" select="'(\d+)([&#x2044;])(\d+)'" as="xs:string"/>
-      <!-- decompose diacritical marks -->
-      <xso:choose>
-        <xso:when test="matches($normalize-unicode, $diacritica-regex)">
-          <xso:analyze-string select="$normalize-unicode" regex="{{$diacritica-regex}}" flags="i">
-            <xso:matching-substring>
-              <xso:variable name="char" select="concat('{{', regex-group(1), '}}')" as="xs:string"/>
-              <xso:variable name="mark" select="regex-group(2)" as="xs:string"/>
-              <xso:variable name="tex-instr" select="$map//mark[@hex eq $mark]/@tex" as="xs:string*"/>
-              <xso:value-of select="if(string-length($tex-instr) gt 0)
-                                    then concat($tex-instr, $char)
-                                    else ."/>
-            </xso:matching-substring>
-            <xso:non-matching-substring>
-              <xso:value-of select="."/>
-            </xso:non-matching-substring>
-          </xso:analyze-string>    
-        </xso:when>
-        <!-- simple fractions -->
-        <xso:when test="matches($normalize-unicode, $fraction-regex)">
-          <xso:analyze-string select="$normalize-unicode" regex="{{$fraction-regex}}" flags="i">
-            <xso:matching-substring>
-              <xso:variable name="args" select="concat('{{', regex-group(1), '}}{{', regex-group(3), '}}')" as="xs:string"/>
-              <xso:variable name="mark" select="'&#x2044;'" as="xs:string"/>
-              <xso:variable name="tex-instr" select="$map//mark[@hex eq $mark]/@tex" as="xs:string*"/>
-              <xso:value-of select="concat('$', $tex-instr, $args, '$')"/>
-            </xso:matching-substring>
-            <xso:non-matching-substring>
-              <xso:value-of select="."/>
-            </xso:non-matching-substring>
-          </xso:analyze-string>
-        </xso:when>
-        <xso:otherwise>
-          <xso:value-of select="$string"/>
-        </xso:otherwise>
-      </xso:choose>
       
-    </xso:function>
+      <!-- replacement with xpath context -->
+      <xso:template match="text()" mode="replace-chars">
+        <!-- this function needs to run before any character mapping, because of roots e.g. -->
+        <xso:variable name="simplemath" select="string-join(xml2tex:convert-simplemath(.), '')" as="xs:string"/>
+        <!-- maps unicode to latex -->
+        <xsl:choose>
+          <xsl:when test="/xml2tex:set/xml2tex:charmap|$imported-charmap-chars">
+            <xso:variable name="utf2tex" select="if(matches($simplemath, $texregex)) 
+                                                 then string-join(xml2tex:utf2tex(.., $simplemath, $charmap, ()), '') 
+                                                 else $simplemath" as="xs:string"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xso:variable name="utf2tex" select="$simplemath" as="xs:string"/>
+          </xsl:otherwise>
+        </xsl:choose>
+        <!-- has to run last because it resolves combined unicode characters -->
+        <xso:variable name="diacrits" select="string-join(xml2tex:convert-diacrits($utf2tex), '')" as="xs:string"/>
+        <xso:value-of select="$diacrits"/>
+      </xso:template>
     
-    <!-- set simple math expressions in math mode -->
+      <!-- replace unicode characters with latex from charmap -->
     
-    <xso:function name="xml2tex:convert-simplemath" as="xs:string+">
-      <xso:param name="string" as="xs:string"/>
-      <xso:variable name="map" as="element(map)">
-        <map>
-          <mark hex="&#x221a;" tex="\sqrt"/>      <!-- radical -->
-          <mark hex="&#x221b;" tex="\sqrt[3]"/>   <!-- cube root -->
-          <mark hex="&#x221c;" tex="\sqrt[4]"/>   <!-- fourth root -->          
-        </map>
-      </xso:variable> 
-      <!--  -->
-      <xso:variable name="root-regex" select="'([&#x221a;&#x221b;&#x221c;])(\d+)'" as="xs:string"/>
-      <xso:variable name="simpleeq-regex" select="'(\p{{L}}|\d+([\.,]\d+)*)((\s*[=\-+/]\s*)+(\p{{L}}|\d+([\.,]\d+)*)){{2,}}'" as="xs:string"/>
-      <xso:choose>
-        <!-- simple root -->
-        <xso:when test="matches($string, $root-regex)">
-          <xso:analyze-string select="$string" regex="{{$root-regex}}" flags="i">
-            <xso:matching-substring>
-              <xso:variable name="args" select="concat('{{', regex-group(2), '}}')" as="xs:string"/>
-              <xso:variable name="mark" select="regex-group(1)" as="xs:string"/>
-              <xso:variable name="tex-instr" select="$map//mark[@hex eq $mark]/@tex" as="xs:string*"/>
-              <xso:value-of select="concat('$', $tex-instr, $args, '$')"/>
-            </xso:matching-substring>
-            <xso:non-matching-substring>
-              <xso:value-of select="."/>
-            </xso:non-matching-substring>
-          </xso:analyze-string>
-        </xso:when>
-        <!-- set simple equations automatically in math mode, e.g. 3 + 2 = a, exclude dates -->
-        <xso:when test="matches($string, concat('(^|\s)', $simpleeq-regex, '($|\s)'))
-                        and not(matches($string, '\d{{4}}(-\d{{2}}){{2}}'))
-                        and not(matches($string, '(\d{{2}}\.\s?){{2}}\d{{4}}'))">
-          <xso:analyze-string select="$string" regex="{{$simpleeq-regex}}" flags="i">
-            <xso:matching-substring>
-              <xso:value-of select="concat(' $', ., '$ ')"/>
-            </xso:matching-substring>
-            <xso:non-matching-substring>
-              <xso:value-of select="."/>
-            </xso:non-matching-substring>
-          </xso:analyze-string>
-        </xso:when>
-        <xso:otherwise>
-          <xso:value-of select="$string"/>
-        </xso:otherwise>
-      </xso:choose>
-    </xso:function>
+      <xso:function name="xml2tex:utf2tex" as="xs:string+">
+        <xso:param name="context" as="element(*)"/>
+        <xso:param name="string" as="xs:string"/>
+        <xso:param name="charmap" as="element(xml2tex:char)+"/>
+        <xso:param name="seen" as="xs:string*"/>
+        <xso:analyze-string select="$string" regex="{{$texregex}}">
+          <xso:matching-substring>      
+            <xso:variable name="pattern" select="functx:escape-for-regex(regex-group(1))" as="xs:string"/>
+            <xso:variable name="replacement-candidates" as="xs:string*">
+              <xso:sequence select="for $i in $charmap[matches(xml2tex:character, concat($pattern, '$'))][not(@context)][1]/xml2tex:string
+                                    return string($i)"/>
+              <!-- Test whether there was a context restriction for the mapping of the current char.
+              The last item is the replacement string that will be output in the most specific context. --> 
+              <xso:apply-templates select="root($context), $context/ancestor-or-self::*" mode="char-context">
+                <xso:with-param name="char-in-doc" select="."/>
+              </xso:apply-templates>
+            </xso:variable>
+            <xso:choose>
+              <xso:when test="empty($replacement-candidates)">
+                <xso:value-of select="."/>
+              </xso:when>
+              <xso:otherwise>
+                <xso:variable name="replacement" select="replace($replacement-candidates[last()], '([\$\\])', '\\$1')" as="xs:string"/>
+                <xso:variable name="result" select="replace(., $pattern, $replacement)" as="xs:string"/>
+                <xso:variable name="seen" select="concat($seen, $pattern)" as="xs:string"/>
+                <xso:choose>
+                  <xso:when test="matches($result, $texregex)
+                                  and not(($pattern = $seen) or matches($result, '^[a-z0-9A-Z\$\\%_&amp;\{{\}}\[\]#\|]+$'))">
+                    <xso:value-of select="string-join(xml2tex:utf2tex($context, $result, $charmap, ($seen, $pattern)), '')"/>
+                  </xso:when>
+                  <xso:otherwise>
+                    <xso:value-of select="$result"/>
+                  </xso:otherwise>
+                </xso:choose>
+              </xso:otherwise>
+            </xso:choose>
+          </xso:matching-substring>
+          <xso:non-matching-substring>
+            <xso:value-of select="."/>
+          </xso:non-matching-substring>
+        </xso:analyze-string>
+      </xso:function>
+    
+      <!-- convert unicode characters combined with diacritical marks -->
+    
+      <xso:function name="xml2tex:convert-diacrits" as="xs:string+">
+        <xso:param name="string" as="xs:string"/>
+        <xso:variable name="map" as="element(map)">
+          <map>
+            <mark hex="&#x300;" tex="\`"/>          <!-- grave accent -->
+            <mark hex="&#x301;" tex="\'"/>          <!-- acute accent -->
+            <mark hex="&#x302;" tex="\^"/>          <!-- circumflex accent -->
+            <mark hex="&#x303;" tex="\~"/>          <!-- tilde -->
+            <mark hex="&#x304;" tex="\="/>          <!-- macron -->
+            <mark hex="&#x305;" tex="\="/>          <!-- overline -->
+            <mark hex="&#x306;" tex="\u"/>          <!-- breve -->
+            <mark hex="&#x307;" tex="\."/>          <!-- dot above -->
+            <mark hex="&#x308;" tex="\&quot;"/>     <!-- diaeresis -->
+            <mark hex="&#x30a;" tex="\r"/>          <!-- ring above -->
+            <mark hex="&#x30b;" tex="\H"/>          <!-- double acute accent -->
+            <mark hex="&#x30c;" tex="\v"/>          <!-- caron/háček -->
+            <mark hex="&#x30d;" tex="\="/>          <!-- vertical line above, not we misuse the macron for this -->
+            <mark hex="&#x30e;" tex="\v"/>          <!-- double vertical line above -->
+            <mark hex="&#x323;" tex="\d"/>          <!-- dot below -->
+            <mark hex="&#x327;" tex="\c"/>          <!-- cedilla -->
+            <mark hex="&#x328;" tex="\k"/>          <!-- ogonek -->
+            <mark hex="&#x331;" tex="\b"/>          <!-- macron below -->
+            <mark hex="&#x332;" tex="\b"/>          <!-- low line -->
+            <mark hex="&#x324;" tex="\~"/>          <!-- greek perispomeni -->
+            <mark hex="&#x2044;" tex="\frac"/>      <!-- fraction slash -->
+          </map>
+        </xso:variable>
+        <xso:variable name="normalize-unicode" select="normalize-unicode($string, 'NFKD')" as="xs:string"/>
+        <xso:variable name="diacritica-regex" select="'([a-zA-Z])([&#x300;-&#x36F;])'" as="xs:string"/>
+        <xso:variable name="fraction-regex" select="'(\d+)([&#x2044;])(\d+)'" as="xs:string"/>
+        <!-- decompose diacritical marks -->
+        <xso:choose>
+          <xso:when test="matches($normalize-unicode, $diacritica-regex)">
+            <xso:analyze-string select="$normalize-unicode" regex="{{$diacritica-regex}}" flags="i">
+              <xso:matching-substring>
+                <xso:variable name="char" select="concat('{{', regex-group(1), '}}')" as="xs:string"/>
+                <xso:variable name="mark" select="regex-group(2)" as="xs:string"/>
+                <xso:variable name="tex-instr" select="$map//mark[@hex eq $mark]/@tex" as="xs:string*"/>
+                <xso:value-of select="if(string-length($tex-instr) gt 0)
+                                      then concat($tex-instr, $char)
+                                      else ."/>
+              </xso:matching-substring>
+              <xso:non-matching-substring>
+                <xso:value-of select="."/>
+              </xso:non-matching-substring>
+            </xso:analyze-string>    
+          </xso:when>
+          <!-- simple fractions -->
+          <xso:when test="matches($normalize-unicode, $fraction-regex)">
+            <xso:analyze-string select="$normalize-unicode" regex="{{$fraction-regex}}" flags="i">
+              <xso:matching-substring>
+                <xso:variable name="args" select="concat('{{', regex-group(1), '}}{{', regex-group(3), '}}')" as="xs:string"/>
+                <xso:variable name="mark" select="'&#x2044;'" as="xs:string"/>
+                <xso:variable name="tex-instr" select="$map//mark[@hex eq $mark]/@tex" as="xs:string*"/>
+                <xso:value-of select="concat('$', $tex-instr, $args, '$')"/>
+              </xso:matching-substring>
+              <xso:non-matching-substring>
+                <xso:value-of select="."/>
+              </xso:non-matching-substring>
+            </xso:analyze-string>
+          </xso:when>
+          <xso:otherwise>
+            <xso:value-of select="$string"/>
+          </xso:otherwise>
+        </xso:choose>
+        
+      </xso:function>
+    
+      <!-- set simple math expressions in math mode -->
+    
+      <xso:function name="xml2tex:convert-simplemath" as="xs:string+">
+        <xso:param name="string" as="xs:string"/>
+        <xso:variable name="map" as="element(map)">
+          <map>
+            <mark hex="&#x221a;" tex="\sqrt"/>      <!-- radical -->
+            <mark hex="&#x221b;" tex="\sqrt[3]"/>   <!-- cube root -->
+            <mark hex="&#x221c;" tex="\sqrt[4]"/>   <!-- fourth root -->          
+          </map>
+        </xso:variable> 
+        <!--  -->
+        <xso:variable name="root-regex" select="'([&#x221a;&#x221b;&#x221c;])(\d+)'" as="xs:string"/>
+        <xso:variable name="simpleeq-regex" select="'(\p{{L}}|\d+([\.,]\d+)*)((\s*[=\-+/]\s*)+(\p{{L}}|\d+([\.,]\d+)*)){{2,}}'" as="xs:string"/>
+        <xso:choose>
+          <!-- simple root -->
+          <xso:when test="matches($string, $root-regex)">
+            <xso:analyze-string select="$string" regex="{{$root-regex}}" flags="i">
+              <xso:matching-substring>
+                <xso:variable name="args" select="concat('{{', regex-group(2), '}}')" as="xs:string"/>
+                <xso:variable name="mark" select="regex-group(1)" as="xs:string"/>
+                <xso:variable name="tex-instr" select="$map//mark[@hex eq $mark]/@tex" as="xs:string*"/>
+                <xso:value-of select="concat('$', $tex-instr, $args, '$')"/>
+              </xso:matching-substring>
+              <xso:non-matching-substring>
+                <xso:value-of select="."/>
+              </xso:non-matching-substring>
+            </xso:analyze-string>
+          </xso:when>
+          <!-- set simple equations automatically in math mode, e.g. 3 + 2 = a, exclude dates -->
+          <xso:when test="matches($string, concat('(^|\s)', $simpleeq-regex, '($|\s)'))
+                          and not(matches($string, '\d{{4}}(-\d{{2}}){{2}}'))
+                          and not(matches($string, '(\d{{2}}\.\s?){{2}}\d{{4}}'))">
+            <xso:analyze-string select="$string" regex="{{$simpleeq-regex}}" flags="i">
+              <xso:matching-substring>
+                <xso:value-of select="concat(' $', ., '$ ')"/>
+              </xso:matching-substring>
+              <xso:non-matching-substring>
+                <xso:value-of select="."/>
+              </xso:non-matching-substring>
+            </xso:analyze-string>
+          </xso:when>
+          <xso:otherwise>
+            <xso:value-of select="$string"/>
+          </xso:otherwise>
+        </xso:choose>
+      </xso:function>
     
     <xso:template match="text()" mode="char-context"/>
     <xso:template match="*" mode="char-context" as="xs:string?" priority="-1"/>
     <xso:template match="/" mode="char-context" as="xs:string?" priority="-1"/>
     
-    <xsl:for-each-group select="xml2tex:char[normalize-space(@context)]" group-by="@context">
+    <xsl:for-each-group select="/xml2tex:set/xml2tex:charmap//xml2tex:char[normalize-space(@context)]|$imported-charmap-chars[normalize-space(@context)]" group-by="@context">
       <xso:template match="{@context}" mode="char-context" as="xs:string?"><!-- priority="{xml2tex:index-of(../xml2tex:char, .)}" -->
         <xso:param name="char-in-doc" as="xs:string?"/>
         <xso:choose>
@@ -573,6 +605,7 @@
         </xso:choose>
       </xso:template>
     </xsl:for-each-group>
+    
   </xsl:template>
   
   <xsl:function name="xml2tex:index-of" as="xs:integer">
