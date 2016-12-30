@@ -361,7 +361,9 @@
                 * text/option/param tag contains static text
                 * -->
           <xsl:when test="text()">
+            <xso:value-of select="$opening-delimiter"/>
             <xso:value-of select="{concat('''', text(), '''')}"/>
+            <xso:value-of select="$closing-delimiter"/>
           </xsl:when>
           <!--  *
                 * fallback for anything
