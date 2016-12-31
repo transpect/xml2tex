@@ -22,10 +22,24 @@
   
   <!-- handle imported xml2tex configuration files -->
   
+  <xsl:variable name="imported-top-level-xsl" as="element()*">
+    <xsl:for-each select="/xml2tex:set/xml2tex:import">
+      <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
+      <xsl:sequence select="$doc/xml2tex:set/xsl:*"/>
+    </xsl:for-each>
+  </xsl:variable>
+  
   <xsl:variable name="imported-preambles" as="element(xml2tex:preamble)*">
     <xsl:for-each select="/xml2tex:set/xml2tex:import">
       <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
       <xsl:sequence select="$doc/xml2tex:set/xml2tex:preamble"/>
+    </xsl:for-each>
+  </xsl:variable>
+  
+  <xsl:variable name="imported-ns-declarations" as="element(xml2tex:ns)*">
+    <xsl:for-each select="/xml2tex:set/xml2tex:import">
+      <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
+      <xsl:sequence select="$doc/xml2tex:set/xml2tex:ns"/>
     </xsl:for-each>
   </xsl:variable>
   
@@ -63,13 +77,13 @@
       xmlns:c="http://www.w3.org/ns/xproc-step"
       xmlns:xso="tobereplaced">
       
-      <xsl:apply-templates select="xml2tex:ns"/>
+      <xsl:apply-templates select="xml2tex:ns, $imported-ns-declarations"/>
       
       <xsl:attribute name="version">2.0</xsl:attribute>
 
       <xso:import href="http://transpect.io/xslt-util/functx/xsl/functx.xsl"/>
 
-      <xsl:apply-templates select="xsl:import"/>
+      <xsl:apply-templates select="xsl:import, $imported-top-level-xsl"/>
 
       <xso:output method="text" media-type="text/plain" encoding="UTF8"/>
 

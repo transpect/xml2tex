@@ -244,9 +244,9 @@
       <ref name="xml2tex.import"/>
     </zeroOrMore>
     <interleave>
-      <oneOrMore>
+      <zeroOrMore>
         <ref name="xml2tex.preamble"/>
-      </oneOrMore>
+      </zeroOrMore>
       <zeroOrMore>
         <ref name="xml2tex.ns"/>  
       </zeroOrMore>
