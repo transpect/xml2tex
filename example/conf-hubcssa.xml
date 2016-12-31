@@ -28,6 +28,7 @@
     \usepackage{upgreek}
     \usepackage{enumerate}
     \usepackage{tensor}
+    \usepackage{pifont}
     <xsl:choose>
       <xsl:when test="/dbk:hub/@xml:lang eq 'de'">
         <xsl:text>\usepackage[ngerman]{babel}</xsl:text>
@@ -75,6 +76,7 @@
     <xsl:variable name="colors" 
                   select="distinct-values(//@css:color[not(. eq '#000000' 
                                                            or parent::*[(@role, @name) = ('ZFinlineequation', 'ZFequation')]
+                                                           or ancestor::dbk:para/dbk:phrase[@role = ('ZFinlineequation', 'ZFequation', 'Hyperlink')]
                                                            or ancestor-or-self::dbk:link
                                                            or parent::*[@native-name eq 'Hyperlink']
                                                            )])" as="xs:string*"/>
@@ -176,6 +178,12 @@
                            else '')"/>
       <text/>
       <text select="concat('}', if(not(@css:font-style eq 'italic') or @css:font-weight eq 'bold') then '}' else '')"/>
+    </rule>
+  </template>
+  
+  <template context="dbk:superscript[matches(., '^\{\\(textregistered|texttrademark)\}$')]">
+    <rule name="textsuperscript" type="cmd">
+      <text/>
     </rule>
   </template>
   
@@ -294,7 +302,9 @@
   <!-- text styles -->
   
   <template context="dbk:phrase[not(@css:color eq '#000000'
-                                    or @role = ('ZFinlineequation', 'ZFequation')
+                                    or @role = ('ZFinlineequation', 'ZFequation', 'Hyperlink')
+                                    or preceding-sibling::*[@role = ('ZFinlineequation', 'ZFequation')]
+                                    or following-sibling::*[@role = ('ZFinlineequation', 'ZFequation')]
                                     or ancestor-or-self::dbk:link)
                                 and (@css:color 
                                 or exists(for $i in ./@role 
@@ -302,7 +312,7 @@
     <rule name="textcolor" type="cmd">
       <param select="for $i in (@css:color, for $j in @role return /dbk:hub/dbk:info/css:rules/css:rule[$j eq @name]/@css:color)[1] 
                      return concat('color-', index-of(distinct-values(//@css:color[not(. eq '#000000' 
-                                                                                   or parent::*[(@role, @name) = ('ZFinlineequation', 'ZFequation')]
+                                                                                   or parent::*[(@role, @name) = ('ZFinlineequation', 'ZFequation', 'Hyperlink')]
                                                                                    or ancestor-or-self::dbk:link
                                                                                    or parent::*[@native-name eq 'Hyperlink']
                                                                                    )]), $i))"/><!-- xpath must be equivalent to preamble color definition -->
@@ -466,11 +476,19 @@
 
   <!-- indexterms -->
 
-  <template context="dbk:indexterm">
+  <template context="dbk:indexterm[not(@type)]">
     <rule name="index" type="cmd">
       <param/>
     </rule>
   </template>
+
+  <template context="dbk:indexterm[@type]">
+    <rule name="index" type="cmd">
+      <option select="@type"/>
+      <param/>
+    </rule>
+  </template>
+
 
   <template context="dbk:secondary|dbk:secondary|dbk:tertiary|dbk:see|dbk:seealso">
     <rule>
@@ -1738,6 +1756,8 @@
     <char character="&#x235d;" string="${\APLcomment}$"/>
     <!--APL FUNCTIONAL SYMBOL QUOTE QUAD-->
     <char character="&#x235e;" string="${\APLinput}$"/>
+    <!-- APL FUNCTIONAL SYMBOL ALPHA -->
+    <char character="&#x237a;" string="${\upalpha}$"/>
     <!--APL FUNCTIONAL SYMBOL CIRCLE STAR-->
     <char character="&#x235f;" string="${\APLlog}$"/>
     <!--= \wideparen (yhmath mathabx fourier), TOP PARENTHESIS (mathematical use)-->
@@ -1757,6 +1777,331 @@
     <char character="&#x2423;" string="{\textvisiblespace}"/>
     
     <!--  *
+          * ENCLOSED ALPHANUMERICS
+          *-->
+
+    <!-- CIRCLED DIGIT ONE -->
+    <char character="&#x2460;" string="\ding{172}"/>
+    <!-- CIRCLED DIGIT TWO -->
+    <char character="&#x2461;" string="\ding{173}"/>
+    <!-- CIRCLED DIGIT THREE -->
+    <char character="&#x2462;" string="\ding{174}"/>
+    <!-- CIRCLED DIGIT FOUR -->
+    <char character="&#x2463;" string="\ding{175}"/>
+    <!-- CIRCLED DIGIT FIVE -->
+    <char character="&#x2464;" string="\ding{176}"/>
+    <!-- CIRCLED DIGIT SIX -->
+    <char character="&#x2465;" string="\ding{177}"/>
+    <!-- CIRCLED DIGIT SEVEN -->
+    <char character="&#x2466;" string="\ding{178}"/>
+    <!-- CIRCLED DIGIT EIGHT -->
+    <char character="&#x2467;" string="\ding{179}"/>
+    <!-- CIRCLED DIGIT NINE -->
+    <char character="&#x2468;" string="\ding{180}"/>
+    <!-- CIRCLED DIGIT TEN -->
+    <char character="&#x2469;" string="\ding{181}"/>
+    <!-- CIRCLED DIGIT ELEVEN -->
+    <char character="&#x246a;" string="\ding{172}\ding{172}"/>
+    <!-- CIRCLED DIGIT TWELVE -->
+    <char character="&#x246b;" string="\ding{172}\ding{173}"/>
+    <!-- CIRCLED DIGIT THIRTEEN -->
+    <char character="&#x246c;" string="\ding{172}\ding{174}"/>
+    <!-- CIRCLED DIGIT FOURTEEN -->
+    <char character="&#x246d;" string="\ding{172}\ding{175}"/>
+    <!-- CIRCLED DIGIT FIVTEEN -->
+    <char character="&#x246e;" string="\ding{172}\ding{176}"/>
+    <!-- CIRCLED DIGIT SIXTEEN -->
+    <char character="&#x246f;" string="\ding{172}\ding{177}"/>
+    <!-- CIRCLED DIGIT SEVENTEEN -->
+    <char character="&#x2470;" string="\ding{172}\ding{178}"/>
+    <!-- CIRCLED DIGIT EIGHTEEN -->
+    <char character="&#x2471;" string="\ding{172}\ding{179}"/>
+    <!-- CIRCLED DIGIT NINETEEN -->
+    <char character="&#x2472;" string="\ding{172}\ding{180}"/>
+    <!-- CIRCLED DIGIT TWENTY -->
+    <char character="&#x2473;" string="\ding{173}\ding{173}"/>
+    <!-- PARENTHESIZED DIGIT ONE -->
+    <char character="&#x2474;" string="(1)"/>
+    <!-- PARENTHESIZED DIGIT TWO -->
+    <char character="&#x2475;" string="(2)"/>
+    <!-- PARENTHESIZED DIGIT THREE -->
+    <char character="&#x2476;" string="(3)"/>
+    <!-- PARENTHESIZED DIGIT FOUR -->
+    <char character="&#x2477;" string="(4)"/>
+    <!-- PARENTHESIZED DIGIT FIVE -->
+    <char character="&#x2478;" string="(5)"/>
+    <!-- PARENTHESIZED DIGIT SIX -->
+    <char character="&#x2479;" string="(6)"/>
+    <!-- PARENTHESIZED DIGIT SEVEN -->
+    <char character="&#x247a;" string="(7)"/>
+    <!-- PARENTHESIZED DIGIT EIGHT -->
+    <char character="&#x247b;" string="(8)"/>
+    <!-- PARENTHESIZED DIGIT NINE -->
+    <char character="&#x247c;" string="(9)"/>
+    <!-- PARENTHESIZED NUMBER TEN -->
+    <char character="&#x247d;" string="(10)"/>
+    <!-- PARENTHESIZED NUMBER ELEVEN -->
+    <char character="&#x247e;" string="(11)"/>
+    <!-- PARENTHESIZED NUMBER TWELVE -->
+    <char character="&#x247f;" string="(12)"/>
+    <!-- PARENTHESIZED NUMBER THIRTEEN -->
+    <char character="&#x2480;" string="(13)"/>
+    <!-- PARENTHESIZED NUMBER FOURTEEN -->
+    <char character="&#x2481;" string="(14)"/>
+    <!-- PARENTHESIZED NUMBER FIVTEEN -->
+    <char character="&#x2482;" string="(15)"/>
+    <!-- PARENTHESIZED NUMBER SIXTEEN -->
+    <char character="&#x2483;" string="(16)"/>
+    <!-- PARENTHESIZED NUMBER SEVENTEEN -->
+    <char character="&#x2484;" string="(17)"/>
+    <!-- PARENTHESIZED NUMBER EIGHTEEN -->
+    <char character="&#x2485;" string="(18)"/>
+    <!-- PARENTHESIZED NUMBER NINETEEN -->
+    <char character="&#x2486;" string="(19)"/>
+    <!-- PARENTHESIZED NUMBER TWENTY -->
+    <char character="&#x2487;" string="(20)"/>
+    <!--DIGIT ONE FULL STOP (U+2488)-->
+    <char character="&#x2488;" string="1."/>
+    <!--DIGIT TWO FULL STOP (U+2489)-->
+    <char character="&#x2489;" string="2."/>
+    <!--DIGIT THREE FULL STOP (U+248A)-->
+    <char character="&#x248a;" string="3."/>
+    <!--DIGIT FOUR FULL STOP (U+248B)-->
+    <char character="&#x248b;" string="4."/>
+    <!--DIGIT FIVE FULL STOP (U+248C)-->
+    <char character="&#x248c;" string="5."/>
+    <!--DIGIT SIX FULL STOP (U+248D)-->
+    <char character="&#x248d;" string="6."/>
+    <!--DIGIT SEVEN FULL STOP (U+248E)-->
+    <char character="&#x248e;" string="7."/>
+    <!--DIGIT EIGHT FULL STOP (U+248F)-->
+    <char character="&#x248f;" string="8."/>
+    <!--DIGIT NINE FULL STOP (U+2490)-->
+    <char character="&#x2490;" string="9."/>
+    <!--NUMBER TEN FULL STOP (U+2491)-->
+    <char character="&#x2491;" string="10."/>
+    <!--NUMBER ELEVEN FULL STOP (U+2492)-->
+    <char character="&#x2492;" string="11."/>
+    <!--NUMBER TWELVE FULL STOP (U+2493)-->
+    <char character="&#x2493;" string="12."/>
+    <!--NUMBER THIRTEEN FULL STOP (U+2494)-->
+    <char character="&#x2494;" string="13."/>
+    <!--NUMBER FOURTEEN FULL STOP (U+2495)-->
+    <char character="&#x2495;" string="14."/>
+    <!--NUMBER FIFTEEN FULL STOP (U+2496)-->
+    <char character="&#x2496;" string="15."/>
+    <!--NUMBER SIXTEEN FULL STOP (U+2497)-->
+    <char character="&#x2497;" string="16."/>
+    <!--NUMBER SEVENTEEN FULL STOP (U+2498)-->
+    <char character="&#x2498;" string="17."/>
+    <!--NUMBER EIGHTEEN FULL STOP (U+2499)-->
+    <char character="&#x2499;" string="18."/>
+    <!--NUMBER NINETEEN FULL STOP (U+249A)-->
+    <char character="&#x249a;" string="19."/>
+    <!--NUMBER TWENTY FULL STOP (U+249B)-->
+    <char character="&#x249b;" string="20."/>
+    <!--PARENTHESIZED LATIN SMALL LETTER A (U+249C)-->
+    <char character="&#x249c;" string="(a)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER B (U+249D)-->
+    <char character="&#x249d;" string="(b)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER C (U+249E)-->
+    <char character="&#x249e;" string="(c)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER D (U+249F)-->
+    <char character="&#x249f;" string="(d)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER E (U+24A0)-->
+    <char character="&#x24a0;" string="(e)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER F (U+24A1)-->
+    <char character="&#x24a1;" string="(f)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER G (U+24A2)-->
+    <char character="&#x24a2;" string="(g)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER H (U+24A3)-->
+    <char character="&#x24a3;" string="(h)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER I (U+24A4)-->
+    <char character="&#x24a4;" string="(i)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER J (U+24A5)-->
+    <char character="&#x24a5;" string="(j)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER K (U+24A6)-->
+    <char character="&#x24a6;" string="(k)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER L (U+24A7)-->
+    <char character="&#x24a7;" string="(l)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER M (U+24A8)-->
+    <char character="&#x24a8;" string="(m)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER N (U+24A9)-->
+    <char character="&#x24a9;" string="(n)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER O (U+24AA)-->
+    <char character="&#x24aa;" string="(o)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER P (U+24AB)-->
+    <char character="&#x24ab;" string="(p)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER Q (U+24AC)-->
+    <char character="&#x24ac;" string="(q)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER R (U+24AD)-->
+    <char character="&#x24ad;" string="(r)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER S (U+24AE)-->
+    <char character="&#x24ae;" string="(s)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER T (U+24AF)-->
+    <char character="&#x24af;" string="(t)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER U (U+24B0)-->
+    <char character="&#x24b0;" string="(u)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER V (U+24B1)-->
+    <char character="&#x24b1;" string="(v)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER W (U+24B2)-->
+    <char character="&#x24b2;" string="(w)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER X (U+24B3)-->
+    <char character="&#x24b3;" string="(x)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER Y (U+24B4)-->
+    <char character="&#x24b4;" string="(y)"/>
+    <!--PARENTHESIZED LATIN SMALL LETTER Z (U+24B5)-->
+    <char character="&#x24b5;" string="(z)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER A (U+24B6)-->
+    <char character="&#x24b6;" string="\textcircled(A)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER B (U+24B7)-->
+    <char character="&#x24b7;" string="\textcircled(B)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER C (U+24B8)-->
+    <char character="&#x24b8;" string="\textcircled(C)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER D (U+24B9)-->
+    <char character="&#x24b9;" string="\textcircled(D)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER E (U+24BA)-->
+    <char character="&#x24ba;" string="\textcircled(E)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER F (U+24BB)-->
+    <char character="&#x24bb;" string="\textcircled(F)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER G (U+24BC)-->
+    <char character="&#x24bc;" string="\textcircled(G)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER H (U+24BD)-->
+    <char character="&#x24bd;" string="\textcircled(H)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER I (U+24BE)-->
+    <char character="&#x24be;" string="\textcircled(I)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER J (U+24BF)-->
+    <char character="&#x24bf;" string="\textcircled(J)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER K (U+24C0)-->
+    <char character="&#x24c0;" string="\textcircled(K)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER L (U+24C1)-->
+    <char character="&#x24c1;" string="\textcircled(L)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER M (U+24C2)-->
+    <char character="&#x24c2;" string="\textcircled(M)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER N (U+24C3)-->
+    <char character="&#x24c3;" string="\textcircled(N)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER O (U+24C4)-->
+    <char character="&#x24c4;" string="\textcircled(O)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER P (U+24C5)-->
+    <char character="&#x24c5;" string="\textcircled(P)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER Q (U+24C6)-->
+    <char character="&#x24c6;" string="\textcircled(Q)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER R (U+24C7)-->
+    <char character="&#x24c7;" string="\textcircled(R)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER S (U+24C8)-->
+    <char character="&#x24c8;" string="\textcircled(S)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER T (U+24C9)-->
+    <char character="&#x24c9;" string="\textcircled(T)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER U (U+24CA)-->
+    <char character="&#x24ca;" string="\textcircled(U)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER V (U+24CB)-->
+    <char character="&#x24cb;" string="\textcircled(V)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER W (U+24CC)-->
+    <char character="&#x24cc;" string="\textcircled(W)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER X (U+24CD)-->
+    <char character="&#x24cd;" string="\textcircled(X)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER Y (U+24CE)-->
+    <char character="&#x24ce;" string="\textcircled(Y)"/>
+    <!--CIRCLED LATIN CAPITAL LETTER Z (U+24CF)-->
+    <char character="&#x24cf;" string="\textcircled(Z)"/>
+    <!--CIRCLED LATIN SMALL LETTER A (U+24D0)-->
+    <char character="&#x24d0;" string="\textcircled(a)"/>
+    <!--CIRCLED LATIN SMALL LETTER B (U+24D1)-->
+    <char character="&#x24d1;" string="\textcircled(b)"/>
+    <!--CIRCLED LATIN SMALL LETTER C (U+24D2)-->
+    <char character="&#x24d2;" string="\textcircled(c)"/>
+    <!--CIRCLED LATIN SMALL LETTER D (U+24D3)-->
+    <char character="&#x24d3;" string="\textcircled(d)"/>
+    <!--CIRCLED LATIN SMALL LETTER E (U+24D4)-->
+    <char character="&#x24d4;" string="\textcircled(e)"/>
+    <!--CIRCLED LATIN SMALL LETTER F (U+24D5)-->
+    <char character="&#x24d5;" string="\textcircled(f)"/>
+    <!--CIRCLED LATIN SMALL LETTER G (U+24D6)-->
+    <char character="&#x24d6;" string="\textcircled(g)"/>
+    <!--CIRCLED LATIN SMALL LETTER H (U+24D7)-->
+    <char character="&#x24d7;" string="\textcircled(h)"/>
+    <!--CIRCLED LATIN SMALL LETTER I (U+24D8)-->
+    <char character="&#x24d8;" string="\textcircled(i)"/>
+    <!--CIRCLED LATIN SMALL LETTER J (U+24D9)-->
+    <char character="&#x24d9;" string="\textcircled(j)"/>
+    <!--CIRCLED LATIN SMALL LETTER K (U+24DA)-->
+    <char character="&#x24da;" string="\textcircled(k)"/>
+    <!--CIRCLED LATIN SMALL LETTER L (U+24DB)-->
+    <char character="&#x24db;" string="\textcircled(l)"/>
+    <!--CIRCLED LATIN SMALL LETTER M (U+24DC)-->
+    <char character="&#x24dc;" string="\textcircled(m)"/>
+    <!--CIRCLED LATIN SMALL LETTER N (U+24DD)-->
+    <char character="&#x24dd;" string="\textcircled(b)"/>
+    <!--CIRCLED LATIN SMALL LETTER O (U+24DE)-->
+    <char character="&#x24de;" string="\textcircled(o)"/>
+    <!--CIRCLED LATIN SMALL LETTER P (U+24DF)-->
+    <char character="&#x24df;" string="\textcircled(p)"/>
+    <!--CIRCLED LATIN SMALL LETTER Q (U+24E0)-->
+    <char character="&#x24e0;" string="\textcircled(q)"/>
+    <!--CIRCLED LATIN SMALL LETTER R (U+24E1)-->
+    <char character="&#x24e1;" string="\textcircled(r)"/>
+    <!--CIRCLED LATIN SMALL LETTER S (U+24E2)-->
+    <char character="&#x24e2;" string="\textcircled(s)"/>
+    <!--CIRCLED LATIN SMALL LETTER T (U+24E3)-->
+    <char character="&#x24e3;" string="\textcircled(t)"/>
+    <!--CIRCLED LATIN SMALL LETTER U (U+24E4)-->
+    <char character="&#x24e4;" string="\textcircled(u)"/>
+    <!--CIRCLED LATIN SMALL LETTER V (U+24E5)-->
+    <char character="&#x24e5;" string="\textcircled(v)"/>
+    <!--CIRCLED LATIN SMALL LETTER W (U+24E6)-->
+    <char character="&#x24e6;" string="\textcircled(w)"/>
+    <!--CIRCLED LATIN SMALL LETTER X (U+24E7)-->
+    <char character="&#x24e7;" string="\textcircled(x)"/>
+    <!--CIRCLED LATIN SMALL LETTER Y (U+24E8)-->
+    <char character="&#x24e8;" string="\textcircled(y)"/>
+    <!--CIRCLED LATIN SMALL LETTER Z (U+24E9)-->
+    <char character="&#x24e9;" string="\textcircled(z)"/>
+    <!--CIRCLED DIGIT ZERO (U+24EA)-->
+    <char character="&#x24ea;" string="\textcircled(0)"/>
+    <!--NEGATIVE CIRCLED NUMBER ELEVEN (U+24EB)-->
+    <char character="&#x24eb;" string="\ding{182}\ding{182}"/>
+    <!--NEGATIVE CIRCLED NUMBER TWELVE (U+24EC)-->
+    <char character="&#x24ec;" string="\ding{182}\ding{183}"/>
+    <!--NEGATIVE CIRCLED NUMBER THIRTEEN (U+24ED)-->
+    <char character="&#x24ed;" string="\ding{182}\ding{184}"/>
+    <!--NEGATIVE CIRCLED NUMBER FOURTEEN (U+24EE)-->
+    <char character="&#x24ee;" string="\ding{182}\ding{185}"/>
+    <!--NEGATIVE CIRCLED NUMBER FIFTEEN (U+24EF)-->
+    <char character="&#x24ef;" string="\ding{182}\ding{186}"/>
+    <!--NEGATIVE CIRCLED NUMBER SIXTEEN (U+24F0)-->
+    <char character="&#x24f0;" string="\ding{182}\ding{187}"/>
+    <!--NEGATIVE CIRCLED NUMBER SEVENTEEN (U+24F1)-->
+    <char character="&#x24f1;" string="\ding{182}\ding{188}"/>
+    <!--NEGATIVE CIRCLED NUMBER EIGHTEEN (U+24F2)-->
+    <char character="&#x24f2;" string="\ding{182}\ding{189}"/>
+    <!--NEGATIVE CIRCLED NUMBER NINETEEN (U+24F3)-->
+    <char character="&#x24f3;" string="\ding{182}\ding{190}"/>
+    <!--NEGATIVE CIRCLED NUMBER TWENTY (U+24F4)-->
+    <char character="&#x24f4;" string="\ding{183}\ding{183}"/>
+    <!--DOUBLE CIRCLED DIGIT ONE (U+24F5)-->
+    <char character="&#x24f5;" string="\ding{172}"/>
+    <!--DOUBLE CIRCLED DIGIT TWO (U+24F6)-->
+    <char character="&#x24f6;" string="\ding{173}"/>
+    <!--DOUBLE CIRCLED DIGIT THREE (U+24F7)-->
+    <char character="&#x24f7;" string="\ding{174}"/>
+    <!--DOUBLE CIRCLED DIGIT FOUR (U+24F8)-->
+    <char character="&#x24f8;" string="\ding{175}"/>
+    <!--DOUBLE CIRCLED DIGIT FIVE (U+24F9)-->
+    <char character="&#x24f9;" string="\ding{176}"/>
+    <!--DOUBLE CIRCLED DIGIT SIX (U+24FA)-->
+    <char character="&#x24fa;" string="\ding{177}"/>
+    <!--DOUBLE CIRCLED DIGIT SEVEN (U+24FB)-->
+    <char character="&#x24fb;" string="\ding{178}"/>
+    <!--DOUBLE CIRCLED DIGIT EIGHT (U+24FC)-->
+    <char character="&#x24fc;" string="\ding{179}"/>
+    <!--DOUBLE CIRCLED DIGIT NINE (U+24FD)-->
+    <char character="&#x24fd;" string="\ding{180}"/>
+    <!--DOUBLE CIRCLED NUMBER TEN (U+24FE)-->
+    <char character="&#x24fe;" string="\ding{181}"/>
+    <!--NEGATIVE CIRCLED DIGIT ZERO (U+24FF)-->
+    <char character="&#x24ff;" string="\textcircled{0}"/>
+    
+    <!--  *
           * Box Drawing 
           * -->
     
@@ -1772,7 +2117,7 @@
     <!-- WHITE SQUARE -->
     <char character="&#x25a1;" string="${\square}$"/>
     <!-- BLACK SMALL SQUARE -->
-    <char character="&#x25aa;" string="${\centerdot}$"/>
+    <char character="&#x25aa;" string="${\blacksquare}$"/>
     
     
     <!--= \triangle (amsfonts), # \vartriangle (amssymb), big up triangle, open-->   
@@ -1836,9 +2181,9 @@
     <!--SUN-->
     <char character="&#x2609;" string="${\Sun}$"/>
     <!--BLACK TELEPHONE -->
-    <char character="&#x260e;" string="${\phone}$"/>
+    <char character="&#x260e;" string="\ding{37}"/>
     <!--WHITE TELEPHONE -->
-    <char character="&#x260f;" string="${\phone}$"/>
+    <char character="&#x260f;" string="\ding{37}"/>
     <!--BALLOT BOX-->
     <char character="&#x2610;" string="${\Square}$"/>
     <!--t \Checkedbox (marvosym), BALLOT BOX WITH CHECK-->
@@ -1958,16 +2303,386 @@
          * Dingbats
          * -->
     
-    <!--LOWER RIGHT PENCIL-->   
-    <char character="&#x270e;" string="${\pencil}$"/>
-    <!--= \ballotcheck (arevmath), tick, CHECK MARK-->
-    <char character="&#x2713;" string="${\checkmark}$"/>
-    <!--BALLOT X-->
-    <char character="&#x2717;" string="${\ballotx}$"/>
-    <!--MALTESE CROSS-->
-    <char character="&#x2720;" string="${\maltese}$"/>
-    <!--THREE-D TOP-LIGHTED RIGHTWARDS ARROWHEAD-->
-    <char character="&#x27a2;" string="${\arrowbullet}$"/>
+    <!-- BLACK SAFETY SCISSORS -->
+    <char character="&#x2700;" string="\ding{34}"/>
+    <!-- UPPER BLADE SCISSORS -->
+    <char character="&#x2701;" string="\ding{33}"/>
+    <!-- BLACK SCISSORS -->
+    <char character="&#x2702;" string="\ding{34}"/>
+    <!-- LOWER BLADE SCISSORS -->
+    <char character="&#x2703;" string="\ding{35}"/>
+    <!-- WHITE SCISSORS -->
+    <char character="&#x2704;" string="\ding{36}"/>
+    <!-- WHITE HEAVY CHECK MARK -->
+    <char character="&#x2705;" string="\ding{52}"/>
+    <!-- TELEPHONE LOCATION SIGN -->
+    <char character="&#x2706;" string="\ding{38}"/>
+    <!-- TAPE DRIVE -->
+    <char character="&#x2707;" string="\ding{39}"/>
+    <!-- AIRPLANE -->
+    <char character="&#x2708;" string="\ding{40}"/>
+    <!-- ENVELOPE -->
+    <char character="&#x2709;" string="\ding{41}"/>
+    <!-- RAISED FIST -->
+    <char character="&#x270a;" string="\ding{42}"/>
+    <!-- RAISED HAND -->
+    <char character="&#x270b;" string="\ding{43}"/>
+    <!-- VICTORY HAND -->
+    <char character="&#x270c;" string="\ding{44}"/>
+    <!-- WRITING HAND -->
+    <char character="&#x270d;" string="\ding{45}"/>
+    <!-- LOWER RIGHT PENCIL -->
+    <char character="&#x270e;" string="\ding{46}"/>
+    <!-- PENCIL -->
+    <char character="&#x270f;" string="\ding{47}"/>
+    <!-- UPPER RIGHT PENCIL -->
+    <char character="&#x2710;" string="\ding{48}"/>
+    <!-- WHITE NIB -->
+    <char character="&#x2711;" string="\ding{49}"/>
+    <!-- BLACK NIB -->
+    <char character="&#x2712;" string="\ding{50}"/>
+    <!-- CHECK MARK -->
+    <char character="&#x2713;" string="\ding{51}"/>
+    <!-- HEAVY CHECK MARK -->
+    <char character="&#x2714;" string="\ding{52}"/>
+    <!-- MULTIPLICATION X -->
+    <char character="&#x2715;" string="\ding{53}"/>
+    <!-- HEAVY MULTIPLICATION X -->
+    <char character="&#x2716;" string="\ding{54}"/>
+    <!-- BALLOT X -->
+    <char character="&#x2717;" string="\ding{55}"/>
+    <!-- HEAVY BALLOT X -->
+    <char character="&#x2718;" string="\ding{56}"/>
+    <!-- OUTLINED GREEK CROSS -->
+    <char character="&#x2719;" string="\ding{57}"/>
+    <!-- HEAVY GREEK CROSS -->
+    <char character="&#x271a;" string="\ding{58}"/>
+    <!-- OPEN CENTRE CROSS -->
+    <char character="&#x271b;" string="\ding{59}"/>
+    <!-- HEAVY OPEN CENTRE CROSS -->
+    <char character="&#x271c;" string="\ding{60}"/>
+    <!-- LATIN CROSS -->
+    <char character="&#x271d;" string="\ding{61}"/>
+    <!-- SHADOWED WHITE LATIN CROSS -->
+    <char character="&#x271e;" string="\ding{62}"/>
+    <!-- OUTLINED LATIN CROSS -->
+    <char character="&#x271f;" string="\ding{63}"/>
+    <!-- MALTESE CROSS -->
+    <char character="&#x2720;" string="\ding{64}"/>
+    <!-- STAR OF DAVID -->
+    <char character="&#x2721;" string="\ding{65}"/>
+    <!-- FOUR TEARDROP-SPOKED ASTERISK -->
+    <char character="&#x2722;" string="\ding{66}"/>
+    <!-- FOUR BALLOON-SPOKED ASTERISK -->
+    <char character="&#x2723;" string="\ding{67}"/>
+    <!-- HEAVY FOUR BALLOON-SPOKED ASTERISK -->
+    <char character="&#x2724;" string="\ding{68}"/>
+    <!-- BLACK FOUR POINTED STAR -->
+    <char character="&#x2725;" string="\ding{69}"/>
+    <!-- WHITE FOUR POINTED STAR -->
+    <char character="&#x2726;" string="\ding{70}"/>
+    <!-- WHITE FOUR POINTED STAR -->
+    <char character="&#x2727;" string="\ding{71}"/>
+    <!-- SPARKLES -->
+    <char character="&#x2728;" string="\ding{72}"/>
+    <!-- STRESS OUTLINED WHITE STAR -->
+    <char character="&#x2729;" string="\ding{73}"/>
+    <!-- CIRCLED WHITE STAR -->
+    <char character="&#x272a;" string="\ding{74}"/>
+    <!-- OPEN CENTRE BLACK STAR -->
+    <char character="&#x272b;" string="\ding{75}"/>
+    <!-- BLACK CENTRE WHITE STAR -->
+    <char character="&#x272c;" string="\ding{76}"/>
+    <!-- OUTLINED BLACK STAR -->
+    <char character="&#x272d;" string="\ding{77}"/>
+    <!-- HEAVY OUTLINED BLACK STAR -->
+    <char character="&#x272e;" string="\ding{78}"/>
+    <!-- PINWHEEL STAR -->
+    <char character="&#x272f;" string="\ding{79}"/>
+    <!-- SHADOWED WHITE STAR -->
+    <char character="&#x2730;" string="\ding{80}"/>
+    <!-- HEAVY ASTERISK -->
+    <char character="&#x2731;" string="\ding{81}"/>
+    <!-- OPEN CENTRE ASTERISK -->
+    <char character="&#x2732;" string="\ding{82}"/>
+    <!-- EIGHT SPOKED ASTERISK -->
+    <char character="&#x2733;" string="\ding{83}"/>
+    <!-- EIGHT POINTED BLACK STAR -->
+    <char character="&#x2734;" string="\ding{84}"/>
+    <!-- EIGHT POINTED PINWHEEL STAR -->
+    <char character="&#x2735;" string="\ding{85}"/>
+    <!-- SIX POINTED BLACK STAR -->
+    <char character="&#x2736;" string="\ding{86}"/>
+    <!-- EIGHT POINTED RECTILINEAR BLACK STAR -->
+    <char character="&#x2737;" string="\ding{87}"/>
+    <!-- HEAVY EIGHT POINTED RECTILINEAR BLACK STAR -->
+    <char character="&#x2738;" string="\ding{88}"/>
+    <!-- TWELVE POINTED BLACK STAR -->
+    <char character="&#x2739;" string="\ding{89}"/>
+    <!-- SIXTEEN POINTED ASTERISK -->
+    <char character="&#x273a;" string="\ding{90}"/>
+    <!-- TEARDROP-SPOKED ASTERISK -->
+    <char character="&#x273b;" string="\ding{91}"/>
+    <!-- OPEN CENTRE TEARDROP-SPOKED ASTERISK -->
+    <char character="&#x273c;" string="\ding{92}"/>
+    <!-- HEAVY TEARDROP-SPOKED ASTERISK -->
+    <char character="&#x273d;" string="\ding{93}"/>
+    <!-- SIX PETALLED BLACK AND WHITE FLORETTE -->
+    <char character="&#x273e;" string="\ding{94}"/>
+    <!-- BLACK FLORETTE -->
+    <char character="&#x273f;" string="\ding{95}"/>
+    <!-- WHITE FLORETTE -->
+    <char character="&#x2740;" string="\ding{96}"/>
+    <!-- EIGHT PETALLED OUTLINED BLACK FLORETTE -->
+    <char character="&#x2741;" string="\ding{97}"/>
+    <!-- CIRCLED OPEN CENTRE EIGHT POINTED STAR -->
+    <char character="&#x2742;" string="\ding{98}"/>
+    <!-- HEAVY TEARDROP-SPOKED PINWHEEL ASTERISK -->
+    <char character="&#x2743;" string="\ding{99}"/>
+    <!-- SNOWFLAKE -->
+    <char character="&#x2744;" string="\ding{100}"/>
+    <!-- TIGHT TRIFOLIATE SNOWFLAKE -->
+    <char character="&#x2745;" string="\ding{101}"/>
+    <!-- HEAVY CHEVRON SNOWFLAKE -->
+    <char character="&#x2746;" string="\ding{102}"/>
+    <!-- SPARKLE -->
+    <char character="&#x2747;" string="\ding{103}"/>
+    <!-- HEAVY SPARKLE -->
+    <char character="&#x2748;" string="\ding{104}"/>
+    <!-- BALLOON-SPOKED ASTERISK -->
+    <char character="&#x2749;" string="\ding{105}"/>
+    <!-- EIGHT TEARDROP-SPOKED PROPELLER ASTERISK -->
+    <char character="&#x274a;" string="\ding{106}"/>
+    <!-- HEAVY EIGHT TEARDROP-SPOKED PROPELLER ASTERISK -->
+    <char character="&#x274b;" string="\ding{107}"/>
+    <!-- CROSS MARK -->
+    <char character="&#x274c;" string="\ding{53}"/>
+    <!-- SHADOWED WHITE CIRCLE -->
+    <char character="&#x274d;" string="\ding{109}"/>
+    <!-- NEGATIVE SQUARED CROSS MARK -->
+    <char character="&#x274e;" string="\ding{53}"/>
+    <!-- LOWER RIGHT DROP-SHADOWED WHITE SQUARE -->
+    <char character="&#x274f;" string="\ding{111}"/>
+    <!-- UPPER RIGHT DROP-SHADOWED WHITE SQUARE -->
+    <char character="&#x2750;" string="\ding{112}"/>
+    <!-- LOWER RIGHT SHADOWED WHITE SQUARE -->
+    <char character="&#x2751;" string="\ding{113}"/>
+    <!-- UPPER RIGHT SHADOWED WHITE SQUARE -->
+    <char character="&#x2752;" string="\ding{114}"/>
+    <!-- BLACK QUESTION MARK ORNAMENT -->
+    <char character="&#x2753;" string="?"/>
+    <!-- WHITE QUESTION MARK ORNAMENT -->
+    <char character="&#x2754;" string="?"/>
+    <!-- WHITE EXCLAMATION MARK ORNAMENT -->
+    <char character="&#x2755;" string="!"/>
+    <!-- BLACK DIAMOND MINUS WHITE X -->
+    <char character="&#x2756;" string="\ding{118}"/>
+    <!-- HEAVY EXCLAMATION MARK SYMBOL -->
+    <char character="&#x2757;" string="!"/>
+    <!-- LIGHT VERTICAL BAR -->
+    <char character="&#x2758;" string="\ding{120}"/>
+    <!-- MEDIUM VERTICAL BAR -->
+    <char character="&#x2759;" string="\ding{121}"/>
+    <!-- HEAVY VERTICAL BAR -->
+    <char character="&#x275a;" string="\ding{122}"/>
+    <!-- HEAVY SINGLE TURNED COMMA QUOTATION MARK ORNAMENT -->
+    <char character="&#x275b;" string="\ding{123}"/>
+    <!-- HEAVY SINGLE COMMA QUOTATION MARK ORNAMENT -->
+    <char character="&#x275c;" string="\ding{124}"/>
+    <!-- HEAVY DOUBLE TURNED COMMA QUOTATION MARK ORNAMENT -->
+    <char character="&#x275d;" string="\ding{125}"/>
+    <!-- HEAVY DOUBLE COMMA QUOTATION MARK ORNAMENT -->
+    <char character="&#x275e;" string="\ding{126}"/>
+    <!-- HEAVY LOW SINGLE COMMA QUOTATION MARK ORNAMENT -->
+    <char character="&#x275f;" string="\raisebox{-1ex}{\ding{124}}"/>
+    <!-- HEAVY LOW DOUBLE COMMA QUOTATION MARK ORNAMENT -->
+    <char character="&#x2760;" string="\raisebox{-1ex}{\ding{126}}"/>
+    <!-- CURVED STEM PARAGRAPH SIGN ORNAMENT -->
+    <char character="&#x2761;" string="\ding{161}"/>
+    <!-- HEAVY EXCLAMATION MARK ORNAMENT -->
+    <char character="&#x2762;" string="\ding{162}"/>
+    <!-- HEAVY HEART EXCLAMATION MARK ORNAMENT -->
+    <char character="&#x2763;" string="\ding{163}"/>
+    <!-- HEAVY BLACK HEART -->
+    <char character="&#x2764;" string="\ding{164}"/>
+    <!-- ROTATED HEAVY BLACK HEART BULLET -->
+    <char character="&#x2765;" string="\ding{165}"/>    
+    <!-- FLORAL HEART -->
+    <char character="&#x2766;" string="\ding{166}"/>
+    <!-- ROTATED FLORAL HEART BULLET -->
+    <char character="&#x2767;" string="\ding{167}"/>
+    <!-- MEDIUM LEFT PARENTHESIS ORNAMENT -->
+    <char character="&#x2768;" string="\("/>
+    <!-- MEDIUM RIGHT PARENTHESIS ORNAMENT -->
+    <char character="&#x2769;" string="\)"/>
+    <!-- MEDIUM FLATTENED LEFT PARENTHESIS ORNAMENT -->
+    <char character="&#x276a;" string="\("/>
+    <!-- MEDIUM FLATTENED RIGHT PARENTHESIS ORNAMENT -->
+    <char character="&#x276b;" string="\)"/>
+    <!-- MEDIUM LEFT-POINTING ANGLE BRACKET ORNAMENT -->
+    <char character="&#x276c;" string="\("/>
+    <!-- MEDIUM RIGHT-POINTING ANGLE BRACKET ORNAMENT -->
+    <char character="&#x276d;" string="\)"/>
+    <!-- HEAVY LEFT-POINTING ANGLE QUOTATION MARK ORNAMENT -->
+    <char character="&#x276e;" string="{\flqq}"/>
+    <!-- HEAVY RIGHT-POINTING ANGLE QUOTATION MARK ORNAMENT -->
+    <char character="&#x276f;" string="{\frqq}"/>
+    <!-- HEAVY LEFT-POINTING ANGLE BRACKET ORNAMENT -->
+    <char character="&#x2770;" string="{\flq}"/>
+    <!-- HEAVY RIGHT-POINTING ANGLE BRACKET ORNAMENT -->
+    <char character="&#x2771;" string="{\frq}"/>
+    <!-- LIGHT LEFT TORTOISE SHELL BRACKET ORNAMENT -->
+    <char character="&#x2772;" string="\["/>
+    <!-- LIGHT RIGHT TORTOISE SHELL BRACKET ORNAMENT -->
+    <char character="&#x2773;" string="\]"/>
+    <!-- MEDIUM LEFT CURLY BRACKET ORNAMENT -->
+    <char character="&#x2774;" string="\{"/>
+    <!-- MEDIUM RIGHT CURLY BRACKET ORNAMENT -->
+    <char character="&#x2775;" string="\}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED DIGIT ONE -->    
+    <char character="&#x2776;" string="\ding{182}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED DIGIT TWO -->
+    <char character="&#x2777;" string="\ding{183}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED DIGIT THREE -->
+    <char character="&#x2778;" string="\ding{184}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED DIGIT FOUR -->
+    <char character="&#x2779;" string="\ding{185}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED DIGIT FIVE -->
+    <char character="&#x277a;" string="\ding{186}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED DIGIT SIX -->
+    <char character="&#x277b;" string="\ding{187}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED DIGIT SEVEN -->
+    <char character="&#x277c;" string="\ding{188}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED DIGIT EIGHT -->
+    <char character="&#x277d;" string="\ding{189}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED DIGIT NINE -->
+    <char character="&#x277e;" string="\ding{190}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED DIGIT TEN -->
+    <char character="&#x277f;" string="\ding{191}"/>
+    <!-- DINGBAT CIRCLED SANS-SERIF DIGIT ONE -->
+    <char character="&#x2780;" string="\ding{192}"/>
+    <!-- DINGBAT CIRCLED SANS-SERIF DIGIT TWO -->
+    <char character="&#x2781;" string="\ding{193}"/>
+    <!-- DINGBAT CIRCLED SANS-SERIF DIGIT THREE -->
+    <char character="&#x2782;" string="\ding{194}"/>
+    <!-- DINGBAT CIRCLED SANS-SERIF DIGIT FOUR -->
+    <char character="&#x2783;" string="\ding{195}"/>
+    <!-- DINGBAT CIRCLED SANS-SERIF DIGIT FIVE -->
+    <char character="&#x2784;" string="\ding{196}"/>
+    <!-- DINGBAT CIRCLED SANS-SERIF DIGIT SIX -->
+    <char character="&#x2785;" string="\ding{197}"/>
+    <!-- DINGBAT CIRCLED SANS-SERIF DIGIT SEVEN -->
+    <char character="&#x2786;" string="\ding{198}"/>
+    <!-- DINGBAT CIRCLED SANS-SERIF DIGIT EIGHT -->
+    <char character="&#x2787;" string="\ding{199}"/>
+    <!-- DINGBAT CIRCLED SANS-SERIF DIGIT NINE -->
+    <char character="&#x2788;" string="\ding{200}"/>
+    <!-- DINGBAT CIRCLED SANS-SERIF DIGIT TEN -->
+    <char character="&#x2789;" string="\ding{201}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT ONE -->
+    <char character="&#x278a;" string="\ding{202}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT TWO -->
+    <char character="&#x278b;" string="\ding{203}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT THREE -->
+    <char character="&#x278c;" string="\ding{204}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT FOUR -->
+    <char character="&#x278d;" string="\ding{205}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT FIVE -->
+    <char character="&#x278e;" string="\ding{206}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT SIX -->
+    <char character="&#x278f;" string="\ding{207}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT SEVEN -->
+    <char character="&#x2790;" string="\ding{208}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT EIGHT -->
+    <char character="&#x2791;" string="\ding{209}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT NINE -->
+    <char character="&#x2792;" string="\ding{210}"/>
+    <!-- DINGBAT NEGATIVE CIRCLED SANS-SERIF DIGIT TEN -->
+    <char character="&#x2793;" string="\ding{211}"/>
+    <!-- HEAVY WIDE-HEADED RIGHTWARDS ARROW -->
+    <char character="&#x2794;" string="\ding{212}"/>
+    <!-- HEAVY PLUS SIGN -->
+    <char character="&#x2795;" string="$+$"/>
+    <!-- HEAVY MINUS SIGN -->
+    <char character="&#x2796;" string="$-$"/>
+    <!-- HEAVY DIVISION SIGN -->
+    <char character="&#x2797;" string="$\div$"/>
+    <!-- HEAVY SOUTH EAST ARROW -->
+    <char character="&#x2798;" string="\ding{216}"/>
+    <!-- HEAVY RIGHTWARDS ARROW -->
+    <char character="&#x2799;" string="\ding{217}"/>
+    <!-- HEAVY NORTH EAST ARROW -->
+    <char character="&#x279a;" string="\ding{218}"/>
+    <!-- DRAFTING POINT RIGHTWARDS ARROW -->
+    <char character="&#x279b;" string="\ding{219}"/>
+    <!-- HEAVY ROUND-TIPPED RIGHTWARDS ARROW -->
+    <char character="&#x279c;" string="\ding{220}"/>
+    <!-- TRIANGLE-HEADED RIGHTWARDS ARROW -->
+    <char character="&#x279d;" string="\ding{221}"/>
+    <!-- HEAVY TRIANGLE-HEADED RIGHTWARDS ARROW -->
+    <char character="&#x279e;" string="\ding{222}"/>
+    <!-- DASHED TRIANGLE-HEADED RIGHTWARDS ARROW -->
+    <char character="&#x279f;" string="\ding{223}"/>
+    <!-- HEAVY DASHED TRIANGLE-HEADED RIGHTWARDS ARROW -->
+    <char character="&#x27a0;" string="\ding{224}"/>
+    <!-- BLACK RIGHTWARDS ARROW -->
+    <char character="&#x27a1;" string="\ding{225}"/>
+    <!-- THREE-D TOP-LIGHTED RIGHTWARDS ARROWHEAD -->
+    <char character="&#x27a2;" string="\ding{226}"/>
+    <!-- THREE-D BOTTOM-LIGHTED RIGHTWARDS ARROWHEAD -->
+    <char character="&#x27a3;" string="\ding{227}"/>
+    <!-- BLACK RIGHTWARDS ARROWHEAD -->
+    <char character="&#x27a4;" string="\ding{228}"/>
+    <!-- HEAVY BLACK CURVED DOWNWARDS AND RIGHTWARDS ARROW -->
+    <char character="&#x27a5;" string="\ding{229}"/>
+    <!-- HEAVY BLACK CURVED UPWARDS AND RIGHTWARDS ARROW -->
+    <char character="&#x27a6;" string="\ding{230}"/>
+    <!-- SQUAT BLACK RIGHTWARDS ARROW -->
+    <char character="&#x27a7;" string="\ding{231}"/>
+    <!-- HEAVY CONCAVE-POINTED BLACK RIGHTWARDS ARROW -->
+    <char character="&#x27a8;" string="\ding{232}"/>
+    <!-- RIGHT-SHADED WHITE RIGHTWARDS ARROW -->
+    <char character="&#x27a9;" string="\ding{233}"/>
+    <!-- LEFT-SHADED WHITE RIGHTWARDS ARROW -->
+    <char character="&#x27aa;" string="\ding{234}"/>
+    <!-- BACK-TILTED SHADOWED WHITE RIGHTWARDS ARROW -->
+    <char character="&#x27ab;" string="\ding{235}"/>
+    <!-- FRONT-TILTED SHADOWED WHITE RIGHTWARDS ARROW -->
+    <char character="&#x27ac;" string="\ding{236}"/>
+    <!-- HEAVY LOWER RIGHT-SHADOWED WHITE RIGHTWARDS ARROW -->
+    <char character="&#x27ad;" string="\ding{237}"/>
+    <!-- HEAVY UPPER RIGHT-SHADOWED WHITE RIGHTWARDS ARROW -->
+    <char character="&#x27ae;" string="\ding{238}"/>
+    <!-- NOTCHED LOWER RIGHT-SHADOWED WHITE RIGHTWARDS ARROW -->
+    <char character="&#x27af;" string="\ding{239}"/>
+    <!-- NOTCHED UPPER RIGHT-SHADOWED WHITE RIGHTWARDS ARROW -->
+    <char character="&#x27b1;" string="\ding{241}"/>
+    <!-- CIRCLED HEAVY WHITE RIGHTWARDS ARROW -->
+    <char character="&#x27b2;" string="\ding{242}"/>
+    <!-- WHITE-FEATHERED RIGHTWARDS ARROW -->
+    <char character="&#x27b3;" string="\ding{243}"/>
+    <!-- BLACK-FEATHERED SOUTH EAST ARROW -->
+    <char character="&#x27b4;" string="\ding{244}"/>
+    <!-- BLACK-FEATHERED RIGHTWARDS ARROW -->
+    <char character="&#x27b5;" string="\ding{245}"/>
+    <!-- BLACK-FEATHERED NORTH EAST ARROW -->
+    <char character="&#x27b6;" string="\ding{246}"/>
+    <!-- HEAVY BLACK-FEATHERED SOUTH EAST ARROW -->
+    <char character="&#x27b7;" string="\ding{247}"/>
+    <!-- HEAVY BLACK-FEATHERED RIGHTWARDS ARROW -->
+    <char character="&#x27b8;" string="\ding{248}"/>
+    <!-- HEAVY BLACK-FEATHERED NORTH EAST ARROW -->
+    <char character="&#x27b9;" string="\ding{249}"/>
+    <!-- TEARDROP-BARBED RIGHTWARDS ARROW -->
+    <char character="&#x27ba;" string="\ding{250}"/>
+    <!-- HEAVY TEARDROP-SHANKED RIGHTWARDS ARROW -->
+    <char character="&#x27bb;" string="\ding{251}"/>
+    <!-- WEDGE-TAILED RIGHTWARDS ARROW -->
+    <char character="&#x27bc;" string="\ding{252}"/>
+    <!-- HEAVY WEDGE-TAILED RIGHTWARDS ARROW -->
+    <char character="&#x27bd;" string="\ding{253}"/>
+    <!-- OPEN-OUTLINED RIGHTWARDS ARROW -->
+    <char character="&#x27be;" string="\ding{254}"/>
     
     <!-- *
          * Miscellaneous Mathematical Symbols-A
@@ -2295,7 +3010,7 @@
     <!--WHITE LARGE SQUARE-->
     <char character="&#x2b1c;" string="${\square}$"/>
     <!-- BLACK VERY SMALL SQUARE -->
-    <char character="&#x2b1d;" string="${\centerdot}"/>
+    <char character="&#x2b1d;" string="${\blacksquare}"/>
     <!-- BLACK MEDIUM LOZENGE -->
     <char character="&#x2b27;" string="${\blacklozenge}"/>
     <!-- WHITE MEDIUM LOZENGE -->
