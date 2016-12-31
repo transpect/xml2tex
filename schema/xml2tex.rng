@@ -250,12 +250,12 @@
       <zeroOrMore>
         <ref name="xml2tex.ns"/>  
       </zeroOrMore>
-      <oneOrMore>
+      <zeroOrMore>
         <choice>
           <ref name="xml2tex.template"/>
           <ref name="xml2tex.regex"/>
         </choice>
-      </oneOrMore>
+      </zeroOrMore>
       <optional>
         <ref name="xml2tex.charmap"/>  
       </optional>
