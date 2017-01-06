@@ -255,7 +255,7 @@
     <xsl:apply-templates select="node() except text()" mode="#current"/>
   </xsl:template>
   
-  <xsl:variable name="rule-indexes" select="for $i in //xml2tex:template return generate-id($i)" as="xs:string*"/>
+  <xsl:variable name="rule-indexes" select="for $i in ($imported-templates, //xml2tex:template) return generate-id($i)" as="xs:string*"/>
   
   <xsl:template match="xml2tex:template">
     <!--  * the priority of a rule is determined by its order. If more than one 
