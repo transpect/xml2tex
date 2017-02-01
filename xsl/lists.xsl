@@ -61,7 +61,9 @@
     <xsl:param name="list-type" as="xs:string"/>
     <xsl:variable name="counter"
 		  select="tokenize(
-                                   replace(replace($override, '[\s\(\)\]\[\{\}&#xa0;\p{P}]', '', 'i'), '\.$', ''),
+		                   replace(
+		                           replace($override, '[\s\(\)\]\[\{\}&#xa0;]', '', 'i'), 
+		                           '\p{P}$', ''),
                                    '\.')[last()]" as="xs:string"/>
     <xsl:choose>
       <xsl:when test="$list-type = ('upperroman', 'lowerroman')">
