@@ -162,8 +162,7 @@ In most cases it's more applicable to import an existing configuration than to w
 
 
 ```xml
-<set xmlns="http://transpect.io/xml2tex"
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<set xmlns="http://transpect.io/xml2tex">
 
   <import href="../conf/default.xml"/>
   <!-- (...) -->
