@@ -156,6 +156,21 @@ A character map is wrapped by a `charmap` element. It can contain multiple chara
   <char character="ß" string="\ss{}" />
 </charmap>
 ```
+### Import other configurations
+
+In most cases it's more applicable to import an existing configuration than to write a new one from scratch or fork an existing one. There is a convenient method for importing other configurations. You just have to add at the top of your configuration an import statement which points to the location of the imported configuration. Here is an example:
+
+
+```xml
+<set xmlns="http://transpect.io/xml2tex"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+  <import href="../conf/default.xml"/>
+  <!-- (...) -->
+</set>
+```
+
+Naturally, the configuration with the import statement has always precedence before the imported configuration. Please note that in case of character maps, you can selectively overwrite single `char` mappings.
 
 ### Inline XSLT
 
