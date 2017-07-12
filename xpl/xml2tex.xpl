@@ -83,6 +83,8 @@
     </p:documentation>
   </p:option>
   
+  <p:import href="load-config.xpl"/>
+  
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
   <p:import href="http://transpect.io/mml2tex/xpl/mml2tex.xpl"/>
   <p:import href="http://transpect.io/xslt-util/calstable/xpl/normalize.xpl"/>
@@ -92,14 +94,28 @@
   <p:import href="http://transpect.io/xproc-util/xslt-mode/xpl/xslt-mode.xpl"/>
   
   <!--  *
+        * load config(s) (recursively).
+        * -->
+  
+  <xml2tex:load-config name="load-config">
+    <p:input port="source">
+      <p:pipe port="conf" step="xml2tex"/>
+    </p:input>    
+    <p:with-option name="fail-on-error" select="$fail-on-error"/>
+  </xml2tex:load-config>
+  
+  <tr:store-debug name="store-config">
+    <p:with-option name="pipeline-step" select="concat($prefix, '0.loaded-config')"/>
+    <p:with-option name="active" select="$debug"/>
+    <p:with-option name="base-uri" select="$debug-dir-uri"/>
+  </tr:store-debug>
+  
+  <!--  *
         * validate the configuration file.
         * -->
   <p:validate-with-relax-ng name="validate" assert-valid="true">
     <p:input port="schema">
       <p:document href="../schema/xml2tex.rng"/>
-    </p:input>
-    <p:input port="source">
-      <p:pipe port="conf" step="xml2tex"/>
     </p:input>
   </p:validate-with-relax-ng>
   
@@ -122,7 +138,7 @@
       <p:document href="../xsl/xml2tex.xsl"/>
     </p:input>
     <p:input port="source">
-      <p:pipe port="conf" step="xml2tex"/>
+      <p:pipe port="result" step="load-config"/>
     </p:input>
     <p:with-param name="debug" select="$debug"/>
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
