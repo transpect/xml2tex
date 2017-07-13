@@ -44,10 +44,10 @@
   <p:choose>
     <p:when test="//xml2tex:import">
       
-      <p:viewport match="//xml2tex:import">
+      <p:viewport match="xml2tex:import">
         
         <tr:load>
-          <p:with-option name="href" select="xml2tex:import/@href"/>
+          <p:with-option name="href" select="resolve-uri(xml2tex:import/@href, xml2tex:import/base-uri())"/>
           <p:with-option name="fail-on-error" select="$fail-on-error"/>
         </tr:load>
         
