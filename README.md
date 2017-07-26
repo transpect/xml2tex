@@ -1,8 +1,6 @@
 # xml2tex
 Converts XML to LaTeX
 
-Authors: Martin Kraetke, Lars Wittmar
-
 ## configuration
 
 xml2tex can be configured for any kind of XML format. A sample XML configuration file is stored in the `example` directory.
