@@ -214,15 +214,12 @@
       
       <!-- dissolve pis created by calstable-normalize -->
       <xso:template match="processing-instruction('cals2tabular')
-                          |processing-instruction('mml2tex')
-                          |processing-instruction('latex')" mode="dissolve-pi">
+                           |processing-instruction('mml2tex')
+                           |processing-instruction('latex')
+	   		   |processing-instruction('mathtype')" mode="dissolve-pi">
         <xso:value-of select="replace(., '[\p{{Zs}}\p{{Zs}}]+', ' ')"/>
       </xso:template>
-      
-      <xso:template match="processing-instruction('mathtype')" mode="dissolve-pi">
-        <xso:value-of select="replace(., '[\p{{Zs}}\n]+', ' ')"/>
-      </xso:template>
-      
+            
       <!-- dissolve elements which are not matched by other templates -->
       
       <xso:template match="*" mode="apply-xpath">
