@@ -34,7 +34,7 @@ Here is an example for a very basic configuration:
   </template>
   
   <charmap>
-  	<char character="&#xad;" string="&quot;-"/>
+    <char character="&#xad;" string="&quot;-"/>
     <char character="Ä" string="\&#34;A" context="dbk:phrase, dbk:section|dbk:para, dbk:entry"/>
     <char character="ä" string="\&#34;a"/>
     <char character="Ö" string="\&#34;O"/>
