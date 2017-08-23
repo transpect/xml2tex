@@ -183,24 +183,25 @@
       <xso:template match="text()" mode="apply-regex">
         <xso:variable name="content" select="." as="xs:string"/>
         <xsl:for-each select="xml2tex:regex|$imported-regex-templates">
-          <xsl:variable name="opening-delimiter"
-            select="if(@type eq 'option') then '[' 
-              else if (@type eq 'text') then ''
-              else '{'"/>
           <xsl:variable name="pattern" select="concat('''', @regex, '''')" as="xs:string"/>
-          <xsl:variable name="regex-groups" 
-            select="string-join(
-                            for $i in xml2tex:rule/* return concat(
-                            if($i/local-name() eq 'option') then '[' else if ($i/local-name() eq 'text') then '' else'{' ,
-                                '$',
-                                $i/@regex-group,
-                                if($i/local-name() eq 'option') then ']' else if ($i/local-name() eq 'text') then '' else'}' 
-                            ),
-                            '')" as="xs:string"/>
-          <xsl:variable name="replace" select="concat('''', '\\', xml2tex:rule/@name , $regex-groups, '''')" as="xs:string"/>
-          <xso:variable name="content" select="replace( $content, {$pattern}, {$replace} )" as="xs:string"/>
+          <xsl:variable name="delimiters"
+            select="if(xml2tex:rule/@type eq 'cmd') then (concat('\', xml2tex:rule/@name), '')
+               else if(xml2tex:rule/@type eq 'env') then (concat('\begin{', xml2tex:rule/@name, '}'), 
+                                                          concat('\end{',   xml2tex:rule/@name, '}'))
+               else                                       ''" as="xs:string*"/>
+          <xsl:variable name="replace" select="string-join(('''',
+                                                            for $i in xml2tex:rule/* 
+                                                            return (if($i/@name) then concat('''\\', $i/@name) else '',
+                                                                    xml2tex:get-delimiter($i/local-name(), true()),
+                                                                    if($i/@regex-group) 
+                                                                    then concat('$', $i/@regex-group)
+                                                                    else (replace($i/@select, '^['']?(.+?)['']?$', '$1'), $i/text())[1],
+                                                                    xml2tex:get-delimiter($i/local-name(), false())),
+                                                            ''''), '')" as="xs:string*"/>
+          <xso:variable name="content" select="replace($content, 
+                                                       {$pattern}, 
+                                                       {replace($replace, '([\\$])', '\\$1')})" as="xs:string"/>
         </xsl:for-each>
-        <!-- replace multiple breaks -->
         <xso:value-of select="$content"/>
       </xso:template>
       
@@ -327,16 +328,8 @@
     <xsl:param name="elements" as="node()*"/>
     <xsl:for-each select="$elements">
       <!-- types: text | param | option -->
-      <xsl:variable name="type" select="local-name()"/>
-      <xso:variable name="type" select="{concat('''', $type, '''')}"/>
-        <xsl:variable name="opening-delimiter" select="if($type eq 'option') then '[' 
-                                                       else if ($type eq 'text') then '' 
-                                                       else '{'"/>
-        <xsl:variable name="closing-delimiter" select="if($type eq 'option') then ']' 
-                                                       else if ($type eq 'text') then ''  
-                                                       else '}'"/>
-        <xso:variable name="opening-delimiter" select="{concat('''', $opening-delimiter, '''')}"/>
-        <xso:variable name="closing-delimiter" select="{concat('''', $closing-delimiter, '''')}"/>
+      <xso:variable name="opening-delimiter" select="{concat('''', xml2tex:get-delimiter(local-name(), true()), '''')}"/>
+      <xso:variable name="closing-delimiter" select="{concat('''', xml2tex:get-delimiter(local-name(), false()), '''')}"/>
         <xsl:choose>
           <!--  *
                 * select attribute exists either in text/option/param tag
@@ -625,11 +618,22 @@
     
   </xsl:template>
   
+  <xsl:function name="xml2tex:get-delimiter" as="xs:string">
+    <xsl:param name="type" as="xs:string"/>
+    <xsl:param name="start" as="xs:boolean"/>
+    <xsl:variable name="open"  select="     if($type eq 'param')  then '{'
+                                       else if($type eq 'option') then '['
+                                       else ''" as="xs:string"/>
+    <xsl:variable name="close" select="     if($type eq 'param')  then '}'
+                                       else if($type eq 'option') then ']'
+                                       else ''" as="xs:string"/>
+    <xsl:value-of select="if($start) then $open else $close"/>
+  </xsl:function>
+  
   <xsl:function name="xml2tex:index-of" as="xs:integer">
     <xsl:param name="seq" as="node()*"/>
     <xsl:param name="node" as="node()?"/>
     <xsl:sequence select="index-of(for $n in $seq return generate-id($n), $node/generate-id())"/>
   </xsl:function>
-  
 
 </xsl:stylesheet>
