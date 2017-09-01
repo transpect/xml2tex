@@ -67,10 +67,10 @@
                                       xml2tex:import, $imports/xml2tex:import,
                                       (xml2tex:preamble, $imports/xml2tex:preamble)[1],
                                       xml2tex:ns, $imports/xml2tex:ns,
-                                      xml2tex:import, $imports/xml2tex:import,
-                                      xml2tex:template,
+                                      $imports/xml2tex:template,
+                                      $imports/xml2tex:regex, 
+                                      xml2tex:template, 
                                       xml2tex:regex"/>
-                  <xsl:copy-of select="$imports/xml2tex:template, $imports/xml2tex:regex"/>
                     <xsl:choose>
                       <xsl:when test="xml2tex:charmap">
                         <xsl:apply-templates select="xml2tex:charmap"/>
