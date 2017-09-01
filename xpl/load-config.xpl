@@ -56,7 +56,10 @@
       <p:xslt>
         <p:input port="stylesheet">
           <p:inline>
-            <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="2.0">
+            <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+              xmlns="http://transpect.io/xml2tex"
+              version="2.0" 
+              exclude-result-prefixes="#all">
               
               <xsl:variable name="imports" select="/xml2tex:set/xml2tex:set" as="element(xml2tex:set)+"/>
               
@@ -71,23 +74,9 @@
                                       $imports/xml2tex:regex, 
                                       xml2tex:template, 
                                       xml2tex:regex"/>
-                    <xsl:choose>
-                      <xsl:when test="xml2tex:charmap">
-                        <xsl:apply-templates select="xml2tex:charmap"/>
-                      </xsl:when>
-                      <xsl:when test="$imports/xml2tex:charmap">
-                        <xsl:copy-of select="$imports/xml2tex:charmap/xml2tex:char[not(some $i in following-sibling::* 
-                                                                                       satisfies $i/@character eq ./@character)]"/>
-                      </xsl:when>
-                    </xsl:choose>
-                </xsl:copy>
-              </xsl:template>
-              
-              <xsl:template match="xml2tex:charmap">
-                <xsl:variable name="chars" select="xml2tex:char" as="element(xml2tex:char)+"/>
-                <xsl:copy>
-                  <xsl:copy-of select="$chars, 
-                                       $imports/xml2tex:charmap/xml2tex:char[not(@character = $chars/@character)]"/>                  
+                  <charmap>
+                    <xsl:copy-of select="$imports/xml2tex:charmap/xml2tex:char, xml2tex:charmap/xml2tex:char"/>
+                  </charmap>
                 </xsl:copy>
               </xsl:template>
               
