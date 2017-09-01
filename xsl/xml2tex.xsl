@@ -514,16 +514,15 @@
         <xso:variable name="fraction-regex" select="'(\d+)([&#x2044;])(\d+)'" as="xs:string"/>
         <!-- decompose diacritical marks -->
         <xso:choose>
-          <xso:when test="matches($normalize-unicode, $diacritica-regex) and 
-                          not(matches($string, $texregex)) (: do not replace characters with an existing mapping :)">
+          <xso:when test="matches($normalize-unicode, $diacritica-regex)">
             <xso:analyze-string select="$normalize-unicode" regex="{{$diacritica-regex}}" flags="i">
               <xso:matching-substring>
                 <xso:variable name="char" select="concat('{{', regex-group(1), '}}')" as="xs:string"/>
                 <xso:variable name="mark" select="regex-group(2)" as="xs:string"/>
                 <xso:variable name="tex-instr" select="$map//mark[@hex eq $mark]/@tex" as="xs:string*"/>
-                <xso:value-of select="if(string-length($tex-instr) gt 0)
+                <xso:value-of select="if(string-length($tex-instr) gt 0 and not(matches(normalize-unicode(.), $texregex)))
                                       then concat($tex-instr, $char)
-                                      else ."/>
+                                      else normalize-unicode(.)"/>
               </xso:matching-substring>
               <xso:non-matching-substring>
                 <xso:value-of select="."/>
