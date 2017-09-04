@@ -29,6 +29,9 @@
     \usepackage{enumerate}
     \usepackage{tensor}
     \usepackage{pifont}
+    <xsl:if test="//dbk:div[@role eq 'hub:index'][1]">
+      <xsl:text>\usepackage{makeidx}&#xa;\makeindex&#xa;</xsl:text>
+    </xsl:if>
     <xsl:choose>
       <xsl:when test="/dbk:hub/@xml:lang eq 'de'">
         <xsl:text>\usepackage[ngerman]{babel}</xsl:text>
@@ -74,24 +77,23 @@
       </xsl:when>
     </xsl:choose>
     <xsl:variable name="colors" 
-                  select="distinct-values(//@css:color[not(. eq '#000000' 
+                  select="distinct-values((//@css:background-color,
+                                           //@css:color[not(. eq '#000000' 
                                                            or parent::*[(@role, @name) = ('ZFinlineequation', 'ZFequation')]
                                                            or ancestor::dbk:para/dbk:phrase[@role = ('ZFinlineequation', 'ZFequation', 'Hyperlink')]
                                                            or ancestor-or-self::dbk:link
                                                            or parent::*[@native-name eq 'Hyperlink']
-                                                           )])" as="xs:string*"/>
+                                                           )]))" as="xs:string*"/>
     <!-- iterate over colors and generate global color declaration -->
     <xsl:for-each select="$colors">
       <xsl:text>&#xa;</xsl:text>
       <xsl:value-of select="concat('\definecolor{',
-                                   for $i in . 
-                                   return concat('color-', index-of($colors, $i)),
+                                   for $i in . return concat('color-', index-of($colors, $i)),
                                    '}{rgb}{',
                                    string-join(for $i in tr:hex-rgb-color-to-ints(.) 
                                                return xs:string(round-half-to-even($i div 255, 2)),
                                                ','),
-                                   '}'
-                                   )"/>
+                                   '}')"/>
     </xsl:for-each>
   </preamble>
 
@@ -99,11 +101,20 @@
 
   <ns prefix="dbk" uri="http://docbook.org/ns/docbook"/>
   <ns prefix="css" uri="http://www.w3.org/1996/css"/>
+  <ns prefix="docx2tex" uri="http://transpect.io/docx2tex"/>
   <ns prefix="tr" uri="http://transpect.io"/>
 
   <!-- drop metadata -->
 
   <template context="/dbk:hub/dbk:info"/>
+
+  <!-- toc -->
+  
+  <template context="dbk:div[@role eq 'hub:toc']">
+    <rule break-after="2">
+      <text>\tableofcontents</text>
+    </rule>
+  </template>
 
   <!-- regular paras -->
 
@@ -142,13 +153,19 @@
     </rule>
   </template>
   
-  <template context="dbk:para[@css:font-style eq 'italic'][not(parent::dbk:entry)][not(parent::dbk:footnote)]">
+  <template context="dbk:para[not(parent::dbk:entry)][not(parent::dbk:footnote)]
+                             [@css:font-style eq 'italic'
+                              or exists(for $i in ./@role 
+                                        return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@css:font-style eq 'italic'])]">
     <rule name="textit" type="cmd" break-after="2">
       <param/>
     </rule>
   </template>
   
-  <template context="dbk:para[@css:font-weight eq 'bold'][not(parent::dbk:entry)][not(parent::dbk:footnote)]">
+  <template context="dbk:para[not(parent::dbk:entry)][not(parent::dbk:footnote)]
+                             [@css:font-weight eq 'bold'
+                              or exists(for $i in ./@role 
+                                        return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@css:font-weight eq 'bold'])]">
     <rule name="textbf" type="cmd" break-after="2">
       <param/>
     </rule>
@@ -169,15 +186,28 @@
   
   <!-- regular superscript and subscripts -->
   
-  <template context="dbk:superscript|dbk:subscript" mathmode="true">
+  <template context="dbk:superscript[not(dbk:footnote)]
+                     |dbk:subscript
+                     |dbk:phrase[not(dbk:footnote)]
+                                [exists(for $i in ./@role 
+                                        return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@remap = ('superscript', 'subscript')])]" mathmode="true">
     <rule>
-      <text select="concat(if(local-name() eq 'subscript') then '_' else '^' ,'{', 
-                           if(not(@css:font-style eq 'italic') and not(@css:font-weight eq 'bold')) then '\mathrm{'
+      <text select="concat(if(local-name() eq 'subscript'
+                           or exists(for $i in ./@role 
+                           return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@remap = ('subscript')])
+                           )
+                           then '_'
+                           else '^',
+                           '{',
+                           if(not(@css:font-style eq 'italic') and not(@css:font-weight eq 'bold') and matches(., '^[-\+&#x2212;\d\s{}]+$')) then ''
+                           else if(not(@css:font-style eq 'italic') and not(@css:font-weight eq 'bold')) then '\mathrm{'
                            else if(@css:font-weight eq 'bold' and not(@css:font-style eq 'italic')) then '\mathbf{'
                            else if(@css:font-weight eq 'bold') then '\mathbfit{'
                            else '')"/>
       <text/>
-      <text select="concat('}', if(not(@css:font-style eq 'italic') or @css:font-weight eq 'bold') then '}' else '')"/>
+      <text select="concat('}', 
+        if(not(@css:font-style eq 'italic') and not(@css:font-weight eq 'bold') and matches(., '^[-\+&#x2212;\d\s{}]+$')) then ''
+        else if(not(@css:font-style eq 'italic') or @css:font-weight eq 'bold') then '}' else '')"/>
     </rule>
   </template>
   
@@ -287,12 +317,6 @@
     </rule>
   </template>
   
-  <!--<template context="dbk:listitem[parent::dbk:varlistentry]">
-    <rule>
-      <text/>
-    </rule>
-  </template>-->
-  
   <template context="dbk:term[parent::dbk:varlistentry]">
     <rule name="item" type="cmd">
       <option/>
@@ -308,14 +332,38 @@
                                     or ancestor-or-self::dbk:link)
                                 and (@css:color 
                                 or exists(for $i in ./@role 
-                                return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@css:color and not(@css:color eq '#000000') ]))]">
+                                return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@css:color and not(@css:color eq '#000000') ]))]/text()">
     <rule name="textcolor" type="cmd">
-      <param select="for $i in (@css:color, for $j in @role return /dbk:hub/dbk:info/css:rules/css:rule[$j eq @name]/@css:color)[1] 
-                     return concat('color-', index-of(distinct-values(//@css:color[not(. eq '#000000' 
-                                                                                   or parent::*[(@role, @name) = ('ZFinlineequation', 'ZFequation', 'Hyperlink')]
-                                                                                   or ancestor-or-self::dbk:link
-                                                                                   or parent::*[@native-name eq 'Hyperlink']
-                                                                                   )]), $i))"/><!-- xpath must be equivalent to preamble color definition -->
+      <param select="for $i in (parent::*/@css:color, for $j in parent::*/@role return /dbk:hub/dbk:info/css:rules/css:rule[$j eq @name]/@css:color)[1] 
+                     return concat('color-', index-of(distinct-values((//@css:background-color,
+                                                                       //@css:color[not(. eq '#000000' 
+                                                                                        or parent::*[(@role, @name) = ('ZFinlineequation', 'ZFequation', 'Hyperlink')]
+                                                                                        or ancestor-or-self::dbk:link
+                                                                                        or parent::*[@native-name eq 'Hyperlink']
+                                                                                        )
+                                                                                     ]
+                                                                        )),
+                                                      $i)
+                                   )"/><!-- xpath must be equivalent to preamble color definition -->
+      <param/>
+    </rule>
+  </template>
+  
+  <template context="dbk:phrase[not(@css:background-color eq '#FFFFFF')
+                                and (@css:background-color or exists(for $i in ./@role 
+                                                                     return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@css:background-color and not(@css:background-color eq '#FFFFFF') ]))]">
+    <rule name="colorbox" type="cmd">
+      <param select="for $i in (@css:background-color, for $j in @role return /dbk:hub/dbk:info/css:rules/css:rule[$j eq @name]/@css:background-color)[1] 
+                     return concat('color-', index-of(distinct-values((//@css:background-color,
+                                                                       //@css:color[not(. eq '#000000' 
+                                                                                        or parent::*[(@role, @name) = ('ZFinlineequation', 'ZFequation', 'Hyperlink')]
+                                                                                        or ancestor-or-self::dbk:link
+                                                                                        or parent::*[@native-name eq 'Hyperlink']
+                                                                                        )
+                                                                                     ]
+                                                                     )), 
+                                                      $i)
+                                  )"/>
       <param/>
     </rule>
   </template>
@@ -371,9 +419,16 @@
     </rule>
   </template>
 
+  <!-- no formatting for phrases which contain math environments -->
+  <template context="dbk:phrase[starts-with(., '$') and ends-with(., '$')]">
+    <rule>
+      <text/>
+    </rule>
+  </template>
+
   <!-- headlines -->
   
-  <template context="dbk:para/dbk:phrase[@role = ('hub:identifier', 'docx2tex:identifier')]">
+  <template context="dbk:para[@docx2tex:config eq 'headline']/dbk:phrase[@role eq 'docx2tex:identifier']">
     <rule>
       <text/>
       <text select="' '"/>
@@ -429,6 +484,14 @@
       <text/>
     </rule>
   </template>
+  
+  <template context="dbk:footnote//dbk:tab[@role eq 'hub:separator']"/>
+
+  <template context="dbk:footnote//dbk:phrase[@role eq 'hub:identifier']/node()[not(descendant-or-self::dbk:anchor or descendant-or-self::processing-instruction())]"/>
+  
+  <template context="dbk:footnote//text()[string-length(normalize-space(.)) eq 0][1]"/>
+  
+  <template context="dbk:footnote/dbk:para/*[1][local-name() eq 'superscript'][matches(., '\d+')]"/>
 
   <!-- equations -->
 
@@ -440,22 +503,15 @@
     </rule>
   </template>
 
-  <template context="dbk:equation[@role eq 'numbered'][not(ancestor::dbk:table or ancestor::dbk:informaltable)]">
+  <template context="dbk:equation[@condition eq 'numbered'][not(ancestor::dbk:table or ancestor::dbk:informaltable)]">
     <rule name="equation" type="env" break-after="1">
       <text/>
     </rule>
   </template>
   
-  <template context="dbk:equation[not(@role eq 'numbered')][not(ancestor::dbk:table or ancestor::dbk:informaltable)]">
+  <template context="dbk:equation[not(@condition eq 'numbered')][not(ancestor::dbk:table or ancestor::dbk:informaltable)]">
     <rule name="equation*" type="env" break-after="1">
       <text/>
-    </rule>
-  </template>
-
-  <!-- drop leading numbers, tex will do this for us -->
-  <template context="dbk:footnote//dbk:phrase[@role = ('hub:identifier', 'docx2tex:identifier')]">
-    <rule>
-      <text select="*"/><!-- process only elements -->
     </rule>
   </template>
   
@@ -493,6 +549,18 @@
   <template context="dbk:secondary|dbk:secondary|dbk:tertiary|dbk:see|dbk:seealso">
     <rule>
       <text select="concat('!', .)"/>
+    </rule>
+  </template>
+  
+  <!-- index listing -->
+  
+  <template context="dbk:para[@role eq 'Index_Heading']"/>
+  
+  <template context="dbk:div[@role eq 'hub:index']">
+    <rule break-after="2">
+      <text select="if(//dbk:para[@role eq 'Index_Heading'][string-length() gt 0]) 
+        then concat('\renewcommand{\indexname}{', //dbk:para[@role eq 'Index_Heading'][string-length() gt 0][1], '}&#xa;\printindex')
+        else '\printindex'"/>
     </rule>
   </template>
   
@@ -798,6 +866,8 @@
     
     <!--EM QUAD -->   
     <char character="&#x2001;" string="{\quad}"/>
+    <!-- EN SPACE -->
+    <char character="&#x2002;" string="{\enspace}"/>
     <!--EM SPACE -->
     <char character="&#x2003;" string="{\quad}"/>
     <!--THREE-PER-EM SPACE -->
@@ -862,16 +932,18 @@
     <char character="&#x2026;" string="{\ldots}"/>
     <!-- HYPHENATION POINT -->
     <char character="&#x2027;" string="{\textbullet}"/>
+    <!-- NARROW NO-BREAK SPACE -->
+    <char character="&#x202f;" string="\,"/>
     <!-- PER MILLE SIGN -->
     <char character="&#x2030;" string="{\textperthousand}"/>
     <!-- PER TEN THOUSAND SIGN -->
     <char character="&#x2031;" string="{\textpertenthousand}"/>
     <!--PRIME or minute, not superscripted-->
-    <char character="&#x2032;" string="${\prime}$"/>
+    <char character="&#x2032;" string="$^{\prime}$"/>
     <!--DOUBLE PRIME or second, not superscripted-->
-    <char character="&#x2033;" string="${\second}$"/>
+    <char character="&#x2033;" string="$^{\prime\prime}$"/>
     <!--TRIPLE PRIME (not superscripted)-->
-    <char character="&#x2034;" string="${\third}$"/>
+    <char character="&#x2034;" string="$^{\prime\prime\prime}$"/>
     <!--reverse prime, not superscripted-->
     <char character="&#x2035;" string="${\backprime}$"/>
     <!-- SINGLE LEFT-POINTING ANGLE QUOTATION MARK -->
