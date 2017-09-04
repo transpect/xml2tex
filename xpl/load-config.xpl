@@ -45,9 +45,11 @@
     <p:when test="//xml2tex:import">
       
       <p:viewport match="xml2tex:import">
+        <p:variable name="resolved-uri" 
+                    select="resolve-uri(xml2tex:import/@href, xml2tex:import/base-uri())"/>
         
         <tr:load>
-          <p:with-option name="href" select="resolve-uri(xml2tex:import/@href, xml2tex:import/base-uri())"/>
+          <p:with-option name="href" select="$resolved-uri"/>
           <p:with-option name="fail-on-error" select="$fail-on-error"/>
         </tr:load>
         
