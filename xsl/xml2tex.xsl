@@ -418,7 +418,7 @@
       <!-- replacement with xpath context -->
       <xso:template match="text()" mode="replace-chars">
         <!-- this function needs to run before any character mapping, because of roots e.g. -->
-        <xso:variable name="simplemath" select="string-join(xml2tex:convert-simplemath(.), '')" as="xs:string"/>
+        <xso:variable name="simplemath" select="normalize-unicode(string-join(xml2tex:convert-simplemath(.), ''))" as="xs:string"/>
         <!-- maps unicode to latex -->
         <xsl:choose>
           <xsl:when test="/xml2tex:set/xml2tex:charmap|$imported-charmap-chars">
