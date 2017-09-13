@@ -77,7 +77,8 @@
                                       xml2tex:template, 
                                       xml2tex:regex"/>
                   <charmap>
-                    <xsl:copy-of select="$imports/xml2tex:charmap/xml2tex:char, xml2tex:charmap/xml2tex:char"/>
+                    <xsl:copy-of select="xml2tex:charmap/xml2tex:char,
+                                         $imports/xml2tex:charmap/xml2tex:char[not(@character = /xml2tex:set/xml2tex:charmap/xml2tex:char/@character)]"/>
                   </charmap>
                 </xsl:copy>
               </xsl:template>
