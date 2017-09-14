@@ -67,9 +67,14 @@
               
               <xsl:template match="/xml2tex:set">
                 <xsl:copy>
-                  <xsl:copy-of select="@*, 
-                                      xsl:import, $imports/xsl:import,
-                                      xml2tex:import, $imports/xml2tex:import,
+                  <xsl:copy-of select="@*"/>
+                  <xsl:for-each select="xml2tex:import, $imports/xml2tex:import">
+                    <xsl:copy>
+                      <xsl:attribute name="href" select="resolve-uri(@href, base-uri())"/>
+                      <xsl:copy-of select="@* except @href, node()"/>
+                    </xsl:copy>
+                  </xsl:for-each>
+                  <xsl:copy-of select="xsl:import, $imports/xsl:import,
                                       (xml2tex:preamble, $imports/xml2tex:preamble)[1],
                                       xml2tex:ns, $imports/xml2tex:ns,
                                       $imports/xml2tex:template,
@@ -90,6 +95,10 @@
           <p:empty/>
         </p:input>
       </p:xslt>
+      
+      <xml2tex:load-config>
+        <p:with-option name="fail-on-error" select="$fail-on-error"/>
+      </xml2tex:load-config>
       
     </p:when>
     <p:otherwise>
