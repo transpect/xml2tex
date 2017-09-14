@@ -75,12 +75,12 @@
                     </xsl:copy>
                   </xsl:for-each>
                   <xsl:copy-of select="xsl:import, $imports/xsl:import,
-                                      (xml2tex:preamble, $imports/xml2tex:preamble)[1],
-                                      xml2tex:ns, $imports/xml2tex:ns,
-                                      $imports/xml2tex:template,
-                                      $imports/xml2tex:regex, 
-                                      xml2tex:template, 
-                                      xml2tex:regex"/>
+                                       (xml2tex:preamble, $imports/xml2tex:preamble)[1],
+                                       xml2tex:ns, $imports/xml2tex:ns,
+                                       $imports/xml2tex:template,
+                                       $imports/xml2tex:regex, 
+                                       xml2tex:template, 
+                                       xml2tex:regex"/>
                   <charmap>
                     <xsl:copy-of select="xml2tex:charmap/xml2tex:char,
                                          $imports/xml2tex:charmap/xml2tex:char[not(@character = /xml2tex:set/xml2tex:charmap/xml2tex:char/@character)]"/>
