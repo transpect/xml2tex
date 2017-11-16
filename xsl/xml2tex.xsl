@@ -582,7 +582,8 @@
           <!-- set simple equations automatically in math mode, e.g. 3 + 2 = a, exclude dates -->
           <xso:when test="matches($string, concat('(^|\s)', $simpleeq-regex, '($|\s)'))
                           and not(matches($string, '\d{{4}}(-\d{{2}}){{2}}'))
-                          and not(matches($string, '(\d{{2}}\.\s?){{2}}\d{{4}}'))">
+                          and not(matches($string, '(\d{{2}}\.\s?){{2}}\d{{4}}'))
+                          and matches($string, '=')">
             <xso:analyze-string select="$string" regex="{{$simpleeq-regex}}" flags="i">
               <xso:matching-substring>
                 <xso:value-of select="concat(' $', ., '$ ')"/>
