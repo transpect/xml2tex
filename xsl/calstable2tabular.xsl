@@ -55,14 +55,33 @@
     <xsl:variable name="entry-id" select="@xml:id" as="xs:string"/>
     <!-- count following rows which contain an entry with a linkend att that is equal to the xml:id of the current entry-->
     <xsl:variable name="rowspan" 
-      select="count(for $i in parent::*:row/following-sibling::*:row[*:entry[@linkend][$entry-id eq @linkend]] return $i)" as="xs:integer"/>
+      select="count(for $i in parent::*:row/following-sibling::*:row[*:entry[@linkend][$entry-id eq @linkend]] 
+                    return $i) + 1" as="xs:integer"/>
     <xsl:copy>
       <xsl:choose>
-        <xsl:when test="$rowspan gt 0">
+        <xsl:when test="$rowspan gt 1">
           <xsl:apply-templates select="@*" mode="#current"/>
-          <xsl:processing-instruction name="cals2tabular" select="concat('\multirow{', $rowspan, '}{*}{' )"/>
-          <xsl:apply-templates select="node()" mode="#current"/>
-          <xsl:processing-instruction name="cals2tabular" select="'}'"/>
+          <xsl:processing-instruction name="cals2tabular" 
+                                      select="concat('\multirow{', $rowspan, '}{*}{' )"/>
+          <xsl:choose>
+            <xsl:when test="count(*:para) lt 2">
+              <xsl:apply-templates mode="#current"/>    
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:processing-instruction name="cals2tabular" 
+                                          select="'\parbox{\textwidth}{'"/>
+              <xsl:for-each select="*:para">
+                <xsl:copy>
+                  <xsl:apply-templates select="@*, node()" mode="#current"/>  
+                </xsl:copy>                
+                <xsl:processing-instruction name="cals2tabular" 
+                                            select="if(position() ne last()) then ' \\ ' else ''"/>
+              </xsl:for-each>
+              <xsl:processing-instruction name="cals2tabular" 
+                                          select="'}'"/>
+            </xsl:otherwise>
+          </xsl:choose>
+          <xsl:processing-instruction name="cals2tabular" select="'} '"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates select="@*, node()" mode="#current"/>    
@@ -75,7 +94,7 @@
     <xsl:variable name="entry-idref" select="@linkend" as="xs:string"/>
     <!-- check if preceding rows contains entries with a corresponding xml:id -->
     <xsl:variable name="is-rowspan-ref" 
-      select="boolean(parent::*:row/preceding-sibling::*:row[*:entry[@xml:id][$entry-idref eq @xml:id]])" as="xs:boolean"/>
+                  select="boolean(parent::*:row/preceding-sibling::*:row[*:entry[@xml:id][$entry-idref eq @xml:id]])" as="xs:boolean"/>
     <xsl:variable name="is-last" select="position() eq last()" as="xs:boolean"/>
     <xsl:copy>
       <xsl:choose>
@@ -129,8 +148,7 @@
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
     <xsl:if test="not($is-last)">
-      <xsl:text>&#x20;</xsl:text>
-      <xsl:processing-instruction name="cals2tabular" select="'&amp;&#x20;'"/>
+      <xsl:processing-instruction name="cals2tabular" select="'&#x20;&amp;&#x20;'"/>
     </xsl:if>
   </xsl:template>
   
@@ -163,7 +181,7 @@
     </xsl:copy>
     <xsl:if test="($is-rowspan-ref and not($is-last)) or ($is-last-colspan-ref and not($is-last))">
       <xsl:text>&#x20;</xsl:text>
-      <xsl:processing-instruction name="cals2tabular" select="'&amp;&#x20;'"/>
+      <xsl:processing-instruction name="cals2tabular" select="'&#x20;&amp;&#x20;'"/>
     </xsl:if>
   </xsl:template>  
   
@@ -171,15 +189,17 @@
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
-    <xsl:text>&#x20;</xsl:text>
-    <xsl:processing-instruction name="cals2tabular" select="'\\'"/>    
+    <xsl:if test="position() ne last()">
+      <xsl:processing-instruction name="cals2tabular" select="'&#x20;\\'"/>  
+    </xsl:if>        
     <xsl:text>&#xa;</xsl:text>
     <!-- test if a rowspan by @xml:id with reference to next row or an @linkend with reference to an @xml:id in previous row-->
     <xsl:variable name="rowspan-previous-row" 
-      select="for $i in *:entry[@linkend] return $i[parent::*:row/preceding-sibling::*:row[*:entry[@xml:id][$i/@linkend eq @xml:id]] ]
-      "/>
+                  select="for $i in *:entry[@linkend] 
+                          return $i[parent::*:row/preceding-sibling::*:row[*:entry[@xml:id][$i/@linkend eq @xml:id]]]"/>
     <xsl:variable name="rowspan-exists" 
-      select="exists(for $i in *:entry[@xml:id or @linkend] return $i[parent::*:row/following-sibling::*:row[*:entry[(@xml:id, @linkend)[1]][$i/(@xml:id, @linkend)[1] eq @linkend]] ])"/>
+                  select="exists(for $i in *:entry[@xml:id or @linkend] 
+                                 return $i[parent::*:row/following-sibling::*:row[*:entry[(@xml:id, @linkend)[1]][$i/(@xml:id, @linkend)[1] eq @linkend]]])"/>
     <xsl:choose>
       <xsl:when test="$rowspan-exists">
         <xsl:for-each select="*:entry">
@@ -222,9 +242,7 @@
       <xsl:processing-instruction name="cals2tabular" select="concat('\begin{', if($table-model eq 'tabular') then 'tabular' else 'tabularx}{\textwidth', '}{', $col-declaration, '}', $top-separator)"/>
       <xsl:text>&#xa;</xsl:text>
       <xsl:apply-templates mode="#current"/>
-      <xsl:text>&#xa;</xsl:text>
       <xsl:processing-instruction name="cals2tabular" select="concat('\end{', if($table-model eq 'tabular') then 'tabular' else 'tabularx' ,'}')"/>
-      <xsl:text>&#xa;&#xa;</xsl:text>
     </xsl:copy>
   </xsl:template>
   
