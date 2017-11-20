@@ -189,9 +189,7 @@
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
-    <xsl:if test="position() ne last()">
-      <xsl:processing-instruction name="cals2tabular" select="'&#x20;\\'"/>  
-    </xsl:if>        
+    <xsl:processing-instruction name="cals2tabular" select="'&#x20;\\'"/>         
     <xsl:text>&#xa;</xsl:text>
     <!-- test if a rowspan by @xml:id with reference to next row or an @linkend with reference to an @xml:id in previous row-->
     <xsl:variable name="rowspan-previous-row" 
@@ -206,12 +204,14 @@
           <xsl:variable name="id" select="(@xml:id, @linkend)[1]" as="xs:string?"/>
           <xsl:variable name="pos" select="position()" as="xs:integer"/>
           <xsl:if test="not(parent::*:row/following-sibling::*:row[*:entry[@linkend][$id eq @linkend]])">
-            <xsl:processing-instruction name="cals2tabular" select="concat('&#x20;\cline{', $pos, '-', $pos, '}')"/>
+            <xsl:processing-instruction name="cals2tabular" 
+                                        select="if($table-grid eq 'yes') then concat('&#x20;\cline{', $pos, '-', $pos, '}') else ''"/>
           </xsl:if>
         </xsl:for-each>    
       </xsl:when>
       <xsl:otherwise>
-        <xsl:processing-instruction name="cals2tabular" select="if($table-grid eq 'yes') then '\hline&#x20;&#xa;' else ''"/>
+        <xsl:processing-instruction name="cals2tabular" 
+                                    select="if($table-grid eq 'yes') then '\hline&#x20;&#xa;' else ''"/>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
