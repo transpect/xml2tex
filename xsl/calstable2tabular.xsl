@@ -114,8 +114,12 @@
     <xsl:variable name="entry-id" select="@xml:id" as="xs:string"/>
     <!-- count sibling entries with a corresponding id reference -->
     <xsl:variable name="colspan" select="count(following-sibling::*:entry[$entry-id eq @linkend]) + 1" as="xs:integer"/>
-    <xsl:variable name="cell-declaration" select="concat(
-      $line-separator, 'l', $line-separator)" as="xs:string"/>
+    <xsl:variable name="cell-declaration" 
+                  select="concat(if(position() eq 1 or following-sibling::*:entry[@xml:id ne $entry-id][for $i in @xml:id 
+                                                                                                        return following-sibling::*:entry[@linkend eq $i]]) 
+                                 then $line-separator else '',
+                                 'l',
+                                 $line-separator)" as="xs:string"/>
     <xsl:copy>
       <xsl:choose>
         <xsl:when test="$colspan gt 1">
