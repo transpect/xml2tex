@@ -147,18 +147,17 @@
   <!-- MODE cals2tabular:final -->
   
   <xsl:template match="*:entry[not(@linkend or @xml:id)]" mode="cals2tabular:final">
-    <xsl:variable name="is-last" select="position() eq last()" as="xs:boolean"/>
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
-    <xsl:if test="not($is-last)">
-      <xsl:processing-instruction name="cals2tabular" select="'&#x20;&amp;&#x20;'"/>
+    <xsl:if test="position() ne last()">
+      <xsl:text>&#x20;</xsl:text>
+      <xsl:processing-instruction name="cals2tabular" select="'&amp;&#x20;'"/>
     </xsl:if>
   </xsl:template>
   
   <xsl:template match="*:entry[@xml:id]" mode="cals2tabular:final">
     <xsl:variable name="entry-id" select="@xml:id" as="xs:string"/>
-    <xsl:variable name="is-last" select="position() eq last()" as="xs:boolean"/>
     <xsl:variable name="is-colspan" 
       select="boolean(following-sibling::*:entry[$entry-id eq @linkend])" as="xs:boolean"/>
     <xsl:variable name="is-rowspan" 
@@ -166,8 +165,9 @@
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
-    <xsl:if test="not($is-last or $is-colspan)">
-      <xsl:processing-instruction name="cals2tabular" select="'&#x20;&amp;&#x20;'"/>
+    <xsl:if test="not(position() eq last() or $is-colspan)">
+      <xsl:text>&#x20;</xsl:text>
+      <xsl:processing-instruction name="cals2tabular" select="'&amp;&#x20;'"/>
     </xsl:if>
   </xsl:template>
   
@@ -185,7 +185,7 @@
     </xsl:copy>
     <xsl:if test="($is-rowspan-ref and not($is-last)) or ($is-last-colspan-ref and not($is-last))">
       <xsl:text>&#x20;</xsl:text>
-      <xsl:processing-instruction name="cals2tabular" select="'&#x20;&amp;&#x20;'"/>
+      <xsl:processing-instruction name="cals2tabular" select="'&amp;&#x20;'"/>
     </xsl:if>
   </xsl:template>  
   
