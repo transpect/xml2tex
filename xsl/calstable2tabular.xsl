@@ -75,7 +75,7 @@
                   <xsl:apply-templates select="@*, node()" mode="#current"/>  
                 </xsl:copy>                
                 <xsl:processing-instruction name="cals2tabular" 
-                                            select="if(position() ne last()) then ' \\ ' else ''"/>
+                                            select="if(position() ne last()) then ' \\' else ''"/>
               </xsl:for-each>
               <xsl:processing-instruction name="cals2tabular" 
                                           select="'}'"/>
@@ -193,7 +193,8 @@
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
-    <xsl:processing-instruction name="cals2tabular" select="'&#x20;\\'"/>         
+    <xsl:text>&#x20;</xsl:text>
+    <xsl:processing-instruction name="cals2tabular" select="'\\'"/>         
     <xsl:text>&#xa;</xsl:text>
     <!-- test if a rowspan by @xml:id with reference to next row or an @linkend with reference to an @xml:id in previous row-->
     <xsl:variable name="rowspan-previous-row" 
