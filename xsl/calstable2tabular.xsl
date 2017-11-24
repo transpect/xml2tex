@@ -75,7 +75,7 @@
                   <xsl:apply-templates select="@*, node()" mode="#current"/>  
                 </xsl:copy>                
                 <xsl:processing-instruction name="cals2tabular" 
-                                            select="if(position() ne last()) then ' \\' else ''"/>
+                                            select="if(position() ne last()) then ' \\ ' else ''"/>
               </xsl:for-each>
               <xsl:processing-instruction name="cals2tabular" 
                                           select="'}'"/>
