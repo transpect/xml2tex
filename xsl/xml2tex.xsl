@@ -266,34 +266,36 @@
     <xsl:variable name="template-priority" select="(index-of($rule-indexes, generate-id(.)), 1)[1]" as="xs:integer"/>
 
     <xso:template match="{@context}" mode="apply-xpath" priority="{$template-priority}">
-        <xsl:if test="@mathmode eq 'true'">
-          <xso:text>$</xso:text>
-        </xsl:if>
-        <!-- if no tex child is present, then matched node will be discarded -->
-          <xsl:for-each select="xml2tex:rule">
-            <!-- three types: 
-                env   ==> environment, eg. e.g. begin{bla} ... end{bla}
-                cmd   ==> commands, e.g. \bla ...
-                none  ==> no tex markup, needed for simple paras or other stuff you want to simply tunnel through the process -->
-            <xsl:variable name="opening-tag" 
-                          select="concat(if(@break-before) then string-join(for $i in (1 to @break-before) return '&#xa;', '') else '',
-                                  if(@type eq 'env' and matches(@name, 'table|tabular|figure')) 
-                                    then concat('&#xa;\begin{',@name,'}')
-                                  else if(@type eq 'env' and not(matches(@name, 'table|tabular|figure'))) 
-                                    then concat('&#xa;\begin{',@name,'}&#xa;')
-                                  else if(not(@type)) 
-                                    then ''
-                                  else concat( '\', @name ))" as="xs:string"/>
-            <xsl:variable name="closing-tag"
-                          select="concat(if(@type eq 'env') then concat('&#xa;\end{',@name,'}&#xa;') else '',
-                                         if(@break-after) then string-join(for $i in (1 to @break-after) return '&#xa;', '') else ''
-                                         )" as="xs:string"/>
-            <xso:variable name="opening-tag" select="{concat('''', $opening-tag, '''')}"/>
-            <xso:variable name="closing-tag" select="{concat('''', $closing-tag, '''')}"/>
-            <xso:value-of select="$opening-tag"/>
-            <xsl:sequence select="xml2tex:generate-content(*)"/>
-            <xso:value-of select="$closing-tag"/>
-          </xsl:for-each>
+      <xsl:if test="@mathmode eq 'true'">
+        <xso:text>$</xso:text>
+      </xsl:if>
+      <xsl:apply-templates select="xsl:*"/>
+      <!-- if no tex child is present, then matched node will be discarded -->
+      <xsl:for-each select="xml2tex:rule">
+        <xsl:apply-templates select="xsl:*"/>
+        <!-- three types: 
+            env   ==> environment, eg. e.g. begin{bla} ... end{bla}
+            cmd   ==> commands, e.g. \bla ...
+            none  ==> no tex markup, needed for simple paras or other stuff you want to simply tunnel through the process -->
+        <xsl:variable name="opening-tag" 
+                      select="concat(if(@break-before) then string-join(for $i in (1 to @break-before) return '&#xa;', '') else '',
+                              if(@type eq 'env' and matches(@name, 'table|tabular|figure')) 
+                                then concat('&#xa;\begin{',@name,'}')
+                              else if(@type eq 'env' and not(matches(@name, 'table|tabular|figure'))) 
+                                then concat('&#xa;\begin{',@name,'}&#xa;')
+                              else if(not(@type)) 
+                                then ''
+                              else concat( '\', @name ))" as="xs:string"/>
+        <xsl:variable name="closing-tag"
+                      select="concat(if(@type eq 'env') then concat('&#xa;\end{',@name,'}&#xa;') else '',
+                                     if(@break-after) then string-join(for $i in (1 to @break-after) return '&#xa;', '') else ''
+                                     )" as="xs:string"/>
+        <xso:variable name="opening-tag" select="{concat('''', $opening-tag, '''')}"/>
+        <xso:variable name="closing-tag" select="{concat('''', $closing-tag, '''')}"/>
+        <xso:value-of select="$opening-tag"/>
+        <xsl:sequence select="xml2tex:generate-content(*)"/>
+        <xso:value-of select="$closing-tag"/>
+      </xsl:for-each>
         <xsl:if test="@mathmode eq 'true'">
           <xso:text>$</xso:text>
         </xsl:if>
