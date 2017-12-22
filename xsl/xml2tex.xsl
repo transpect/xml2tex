@@ -246,14 +246,21 @@
   </xsl:template>
 
   <xsl:template match="xml2tex:preamble">
-    <xsl:variable name="split-lines" select="tokenize(
-                                                      string-join(/xml2tex:set/xml2tex:preamble/text(), ''), 
-                                                      '&#xa;')" as="xs:string*"/>
-    <xsl:for-each select="$split-lines[not(matches(., '^[\s\n]$'))]">
+    <xsl:apply-templates mode="preamble"/>
+  </xsl:template>
+  
+  <xsl:template match="*" mode="preamble">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#default"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="text()" mode="preamble">
+    <xsl:variable name="split-lines" select="tokenize(., '&#xa;')" as="xs:string*"/>
+    <xsl:for-each select="$split-lines[normalize-space(.)]">
       <xso:text><xsl:value-of select="replace(., '\s*(.+)', '$1'), '&#xa;'"/></xso:text>
     </xsl:for-each>
     <xsl:text>&#xa;</xsl:text>
-    <xsl:apply-templates select="node() except text()" mode="#current"/>
   </xsl:template>
   
   <xsl:variable name="rule-indexes" select="for $i in ($imported-templates, //xml2tex:template) return generate-id($i)" as="xs:string*"/>
