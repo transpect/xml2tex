@@ -288,8 +288,10 @@
                       select="concat(if(@break-before) then string-join(for $i in (1 to @break-before) return '&#xa;', '') else '',
                               if(@type eq 'env' and matches(@name, 'table|tabular|figure')) 
                                 then concat('&#xa;\begin{',@name,'}')
+                              else if(@type eq 'env' and not(matches(@name, 'table|tabular|figure')) and *[1][self::xml2tex:text]) 
+                                then concat('&#xa;\begin{',@name,'}&#xa;')  
                               else if(@type eq 'env' and not(matches(@name, 'table|tabular|figure'))) 
-                                then concat('&#xa;\begin{',@name,'}&#xa;')
+                                then concat('&#xa;\begin{',@name,'}')
                               else if(not(@type)) 
                                 then ''
                               else concat( '\', @name ))" as="xs:string"/>
