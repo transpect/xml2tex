@@ -279,6 +279,7 @@
       <xsl:apply-templates select="xsl:*"/>
       <!-- if no tex child is present, then matched node will be discarded -->
       <xsl:for-each select="xml2tex:rule">
+        <xsl:variable name="rule" select="." as="element(xml2tex:rule)"/>
         <xsl:for-each select="*">
           <xsl:choose>
             <xsl:when test="namespace-uri(.) eq 'http://www.w3.org/1999/XSL/Transform'">
@@ -290,24 +291,24 @@
                       cmd   ==> commands, e.g. \bla ...
                       none  ==> no tex markup, needed for simple paras or other stuff you want to simply tunnel through the process -->
               <xsl:variable name="opening-tag" 
-                            select="concat(if(@break-before) then string-join(for $i in (1 to @break-before) return '&#xa;', '') else '',
-                                           if(@type eq 'env' and matches(@name, 'table|tabular|figure')) 
-                                             then concat('&#xa;\begin{',@name,'}')
-                                           else if(@type eq 'env' and not(matches(@name, 'table|tabular|figure')) and *[1][self::xml2tex:text]) 
-                                             then concat('&#xa;\begin{',@name,'}&#xa;')  
-                                           else if(@type eq 'env' and not(matches(@name, 'table|tabular|figure'))) 
-                                             then concat('&#xa;\begin{',@name,'}')
-                                           else if(not(@type)) 
+                            select="concat(if($rule/@break-before) then string-join(for $i in (1 to $rule/@break-before) return '&#xa;', '') else '',
+                                           if($rule/@type eq 'env' and matches($rule/@name, 'table|tabular|figure')) 
+                                             then concat('&#xa;\begin{',$rule/@name,'}')
+                                      else if($rule/@type eq 'env' and not(matches($rule/@name, 'table|tabular|figure')) and *[1][self::xml2tex:text]) 
+                                             then concat('&#xa;\begin{',$rule/@name,'}&#xa;')  
+                                      else if($rule/@type eq 'env' and not(matches($rule/@name, 'table|tabular|figure'))) 
+                                             then concat('&#xa;\begin{',$rule/@name,'}')
+                                      else if(not($rule/@type)) 
                                              then ''
-                                           else concat( '\', @name ))" as="xs:string"/>
+                                      else        concat( '\', $rule/@name ))" as="xs:string"/>
               <xsl:variable name="closing-tag"
-                            select="concat(if(@type eq 'env') then concat('&#xa;\end{',@name,'}&#xa;') else '',
-                                           if(@break-after) then string-join(for $i in (1 to @break-after) return '&#xa;', '') else ''
-                                          )" as="xs:string"/>
+                            select="concat(if($rule/@type eq 'env') then concat('&#xa;\end{',$rule/@name,'}&#xa;') else '',
+                                           if($rule/@break-after) then string-join(for $i in (1 to $rule/@break-after) return '&#xa;', '') else ''
+                                                      )" as="xs:string"/>
               <xso:variable name="opening-tag" select="{concat('''', $opening-tag, '''')}"/>
               <xso:variable name="closing-tag" select="{concat('''', $closing-tag, '''')}"/>
               <xso:value-of select="$opening-tag"/>
-              <xsl:sequence select="xml2tex:generate-content(*)"/>
+              <xsl:sequence select="xml2tex:generate-content(.)"/>
               <xso:value-of select="$closing-tag"/>
             </xsl:otherwise>
           </xsl:choose>
