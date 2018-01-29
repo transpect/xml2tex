@@ -176,7 +176,10 @@
       
       <xso:function name="xml2tex:escape-for-tex" as="xs:string">
         <xso:param name="string" as="xs:string"/>
-        <xso:value-of select="replace( $string, '(\{{|\}}|%|_|&amp;|\$|#)', '\\$1' )"/>
+        <xso:variable name="general-replace" select="replace( $string, '([\{{\}}%_&amp;\$#])', '\\$1' )"/>
+        <!-- escape square brackets because they might be interpreted as options after tex makros -->
+        <xso:variable name="escape-lbracket" select="replace( $general-replace, '(\[)', '{{$1' )"/>
+        <xso:value-of select="replace( $escape-lbracket, '(\])', '$1}}' )"/>
       </xso:function>
 
       <!-- apply regex from conf file -->
