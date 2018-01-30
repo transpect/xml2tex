@@ -279,7 +279,6 @@
       <xsl:if test="@mathmode eq 'true'">
         <xso:text>$</xso:text>
       </xsl:if>
-      <xsl:apply-templates select="xsl:*"/>
       <!-- if no tex child is present, then matched node will be discarded -->
       <xsl:apply-templates/>
       <xsl:if test="@mathmode eq 'true'">
@@ -306,7 +305,9 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template match="xml2tex:rule">
+  <xsl:template match="xml2tex:regex/xml2tex:rule"/>
+
+  <xsl:template match="xml2tex:template/xml2tex:rule">
     <xsl:variable name="rule" select="." as="element(xml2tex:rule)"/>
       <!-- three types: 
             env   ==> environment, eg. e.g. begin{bla} ... end{bla}
