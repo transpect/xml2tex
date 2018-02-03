@@ -36,6 +36,20 @@
     </xsl:for-each>
   </xsl:variable>
   
+  <xsl:variable name="imported-frontmatters" as="element(xml2tex:front)*">
+    <xsl:for-each select="/xml2tex:set/xml2tex:import">
+      <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
+      <xsl:sequence select="$doc/xml2tex:set/xml2tex:front"/>
+    </xsl:for-each>
+  </xsl:variable>
+  
+  <xsl:variable name="imported-backmatters" as="element(xml2tex:back)*">
+    <xsl:for-each select="/xml2tex:set/xml2tex:import">
+      <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
+      <xsl:sequence select="$doc/xml2tex:set/xml2tex:back"/>
+    </xsl:for-each>
+  </xsl:variable>
+  
   <xsl:variable name="imported-ns-declarations" as="element(xml2tex:ns)*">
     <xsl:for-each select="/xml2tex:set/xml2tex:import">
       <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
@@ -95,7 +109,9 @@
           
           <xsl:apply-templates select="(xml2tex:preamble, $imported-preambles)[1]"/>
           <xso:text>&#xa;\begin{document}&#xa;</xso:text>
+          <xsl:apply-templates select="(xml2tex:front, $imported-frontmatters)[1]"/>
           <xso:apply-templates mode="#current"/>
+          <xsl:apply-templates select="(xml2tex:back, $imported-backmatters)[1]"/>
           <xso:text>&#xa;\end{document}&#xa;</xso:text>
         </c:data>
       </xso:template>
@@ -234,7 +250,7 @@
       <xsl:apply-templates select="$imported-templates"/>
       <xsl:comment select="'----------- END: imported templates'"/>
       
-      <xsl:apply-templates select="xml2tex:* except (xml2tex:ns, xml2tex:preamble)"/>
+      <xsl:apply-templates select="xml2tex:* except (xml2tex:ns, xml2tex:preamble, xml2tex:front, xml2tex:back)"/>
       
       <xsl:call-template name="replace-chars-mode"/>
 
@@ -248,17 +264,19 @@
     <xsl:call-template name="handle-namespace"/>
   </xsl:template>
 
-  <xsl:template match="xml2tex:preamble">
-    <xsl:apply-templates mode="preamble"/>
+  <xsl:template match="xml2tex:preamble|xml2tex:front|xml2tex:back">
+    <xsl:apply-templates mode="fixed-sections"/>
   </xsl:template>
   
-  <xsl:template match="*" mode="preamble">
+  <xsl:template match="*" mode="fixed-sections">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#default"/>
     </xsl:copy>
   </xsl:template>
   
-  <xsl:template match="text()" mode="preamble">
+  <!-- replace leading whitespace in fixed sections -->
+  
+  <xsl:template match="text()" mode="fixed-sections">
     <xsl:variable name="split-lines" select="tokenize(., '&#xa;')" as="xs:string*"/>
     <xsl:for-each select="$split-lines[normalize-space(.)]">
       <xso:text><xsl:value-of select="replace(., '\s*(.+)', '$1'), '&#xa;'"/></xso:text>

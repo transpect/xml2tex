@@ -76,6 +76,8 @@
                   </xsl:for-each>
                   <xsl:copy-of select="xsl:import, $imports/xsl:import,
                                        (xml2tex:preamble, $imports/xml2tex:preamble)[1],
+                                       (xml2tex:front, $imports/xml2tex:front)[1],
+                                       (xml2tex:back, $imports/xml2tex:back)[1],
                                        xml2tex:ns, $imports/xml2tex:ns,
                                        $imports/xsl:* except $imports/xsl:import,
                                        $imports/xml2tex:template,
