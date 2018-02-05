@@ -12,15 +12,23 @@ Here is an example for a very basic configuration:
 ```xml
 <set xmlns="http://transpect.io/xml2tex">
 
+  <ns prefix="dbk" uri="http://docbook.org/ns/docbook"/>
+
   <preamble>
     \documentclass{scrbook}
     \usepackage{graphicx}
     \usepackage{hyperref}
     \usepackage{multirow}
   </preamble>
-  
-  <ns prefix="dbk" uri="http://docbook.org/ns/docbook"/>
-  
+
+  <front>
+    \maketitle
+  </front>
+
+  <back>
+    \printindex
+  </back>
+
   <template context="dbk:para[not(parent::dbk:entry)][not(parent::dbk:footnote)]">
     <rule break-after="2">
       <text/>
@@ -46,7 +54,7 @@ Here is an example for a very basic configuration:
   </charmap>
 </set>
 ```
-### preamble
+### Preamble
 The LaTeX preamble is constructed with the `preamble` element. Enter static text such as document class name, package
 declarations and other stuff you may need.
 ```xml
@@ -58,6 +66,30 @@ declarations and other stuff you may need.
     \usepackage{amsmath}
     \usepackage{amssymb}
 </preamble>
+```
+
+### Frontmatter
+
+If you want to put content after `\begin{document}` but before the XML is inserted, you can do this with the `front` element.
+Typical use cases might be the creation of a frontmatter. If you do not want to add static content, you can help yourself
+with a few bits of XSLT as shown below:
+
+```xml
+<front>
+    \title{<xsl:value-of select="title"/>}
+    \date{<xsl:value-of select="info/date"/>}
+    \author{info/author}
+</front>
+```
+
+### Backmatter
+
+If you want to put content right before \end{document}, you can use the `back` element for this purpose.
+
+```xml
+<back>
+    \printindex
+</back>
 ```
 
 ### XML namespaces
