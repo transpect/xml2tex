@@ -78,7 +78,7 @@ with a few bits of XSLT as shown below:
 <front>
     \title{<xsl:value-of select="title"/>}
     \date{<xsl:value-of select="info/date"/>}
-    \author{info/author}
+    \author{<xsl:value-of select="info/author"/>}
 </front>
 ```
 
