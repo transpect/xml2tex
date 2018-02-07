@@ -37,8 +37,7 @@
     <element name="xml2tex:preamble">
       <zeroOrMore>
         <choice>
-          <text />
-          <ref name="xslt2.template.model"/>
+          <text/>
         </choice>
       </zeroOrMore>
     </element>
@@ -233,15 +232,11 @@
   
   <define name="xml2tex.set.content">
     <zeroOrMore>
-      <group>
-        <zeroOrMore>
-          <ref name="xslt2.import.element"/>
-        </zeroOrMore>
-        <ref name="xslt2.top-level-elements.model"/>
-      </group>
-    </zeroOrMore>
-    <zeroOrMore>
-      <ref name="xml2tex.import"/>
+      <choice>
+        <ref name="xslt2.import.element"/>
+        <ref name="xslt2.function.element"/>
+        <ref name="xml2tex.import"/>
+      </choice>
     </zeroOrMore>
     <interleave>
       <zeroOrMore>
@@ -257,7 +252,7 @@
         </choice>
       </zeroOrMore>
       <optional>
-        <ref name="xml2tex.charmap"/>  
+        <ref name="xml2tex.charmap"/>
       </optional>
     </interleave>
   </define>
@@ -267,9 +262,12 @@
   </define>
   
   <define name="xml2tex.templatemodel.content">
-    <optional>
-      <ref name="xml2tex.rule"/>
-    </optional>
+    <oneOrMore>
+      <choice>
+        <ref name="xml2tex.rule"/>
+        <ref name="xslt2.instruction.category"/>        
+      </choice>
+    </oneOrMore>
   </define>
   
   <define name="xml2tex.charmap.content">
@@ -284,16 +282,17 @@
         <ref name="xml2tex.text"/>
         <ref name="xml2tex.param"/>
         <ref name="xml2tex.option"/>
+        <ref name="xslt2.instruction.category"/>
       </choice>
     </zeroOrMore>
   </define>
   
   <define name="xml2tex.atom.content">
-    <oneOrMore>
-      <text/>
-    </oneOrMore>
     <zeroOrMore>
-      <ref name="xslt2.template.model"/>
+      <choice>
+        <text/>
+        <ref name="xslt2.instruction.category"/>
+      </choice>
     </zeroOrMore>
   </define>
   
