@@ -15,7 +15,7 @@
   </p:documentation>
   
   <p:input port="source" primary="true">
-    <p:empty/>
+    <p:document href="../example/example.xml"/>
   </p:input>
   <p:input port="conf" primary="false">
     <p:document href="../example/conf-hubcssa.xml"/>

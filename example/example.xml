@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hub xmlns="http://docbook.org/ns/docbook" version="5.0">
+  <!-- example for conf-hubcssa.xml configuration -->
+  <para>Hello world</para>
+  <equation>
+    <mml:math xmlns:mml="http://www.w3.org/1998/Math/MathML" display="block">
+      <mml:mfrac linethickness="0pt">
+        <mml:mrow>
+          <mml:mi>n</mml:mi>
+        </mml:mrow>
+        <mml:mrow>
+          <mml:mi>k</mml:mi>
+        </mml:mrow>
+      </mml:mfrac>
+    </mml:math>
+  </equation>
+</hub>
