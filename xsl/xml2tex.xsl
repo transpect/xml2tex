@@ -297,11 +297,11 @@
       <!-- if no tex child is present, then matched node will be discarded -->
       <xsl:apply-templates/>
     </xso:template>
-        
+
     <!--  *
           * set '$' around content and remove dollar characters within to prevent nested math mode sections 
           * -->
-    <xsl:if test="@mathmode eq 'true'">
+    <xsl:if test="xml2tex:rule/@mathmode eq 'true'">
       <xso:template match="{string-join(for $i in tokenize(@context, '\|') 
                                         return concat($i, '/text()'),
                                         '|')}" mode="dissolve-pi" priority="{$template-priority}">
@@ -315,6 +315,7 @@
         </xso:analyze-string>
       </xso:template>
     </xsl:if>
+
   </xsl:template>
 
   <xsl:template match="xml2tex:regex/xml2tex:rule"/>
