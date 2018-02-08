@@ -1,5 +1,5 @@
 # xml2tex
-11;rgb:1313/1515/1a1aConverts XML to LaTeX
+Converts XML to LaTeX
 
 ## configuration
 
