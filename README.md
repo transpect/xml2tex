@@ -6,10 +6,10 @@
 xml2tex can be configured for any kind of XML format.
 A sample XML configuration file is stored in the `example` directory.
 
-A RelaxNG schema is located in the `schema` directory. You can use
-the schema to check if your configuration file is valid. You can also
-use this schema in XML editors such as oXygen to have code completion and
-tool tips.
+A [RelaxNG schema](https://raw.githubusercontent.com/transpect/xml2tex/master/schema/xml2tex.rng) 
+is located in the `schema` directory. You can use
+the schema to check if your configuration file is valid and some editors which 
+support RelaxNG will provide code completion and tool tips.
 
 Here is an example for a very basic configuration:
 
