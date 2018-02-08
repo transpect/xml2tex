@@ -294,14 +294,8 @@
     <xsl:variable name="template-priority" select="(index-of($rule-indexes, generate-id(.)), 1)[1]" as="xs:integer"/>
 
     <xso:template match="{@context}" mode="apply-xpath" priority="{$template-priority}">
-      <xsl:if test="@mathmode eq 'true'">
-        <xso:text>$</xso:text>
-      </xsl:if>
       <!-- if no tex child is present, then matched node will be discarded -->
       <xsl:apply-templates/>
-      <xsl:if test="@mathmode eq 'true'">
-        <xso:text>$</xso:text>
-      </xsl:if>
     </xso:template>
         
     <!--  *
@@ -341,8 +335,11 @@
                                    then concat('&#xa;\begin{',$rule/@name,'}')
                             else if(not($rule/@type)) 
                                    then ''
-                            else        concat( '\', $rule/@name ))" as="xs:string"/>
-    <xsl:variable name="closing-tag" select="concat(if($rule/@type eq 'env') then concat('&#xa;\end{',$rule/@name,'}&#xa;') else '',
+                            else        concat('\', $rule/@name),
+                                 if($rule/@mathmode eq 'true') then '$' else ''
+                                 )" as="xs:string"/>
+    <xsl:variable name="closing-tag" select="concat(if($rule/@mathmode eq 'true') then '$' else '',
+                                                    if($rule/@type eq 'env') then concat('&#xa;\end{',$rule/@name,'}&#xa;') else '',
                                                     if($rule/@break-after) then string-join(for $i in (1 to $rule/@break-after) return '&#xa;', '') else ''
                                                     )" as="xs:string"/>
     <xso:variable name="opening-tag" select="{concat('''', $opening-tag, '''')}"/>
