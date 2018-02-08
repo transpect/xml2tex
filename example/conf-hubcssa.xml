@@ -1,5 +1,5 @@
-<?xml-model href="http://transpect.io/xml2tex/schema/xml2tex.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
-<?xml-model href="http://transpect.io/xml2tex/schema/xml2tex.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<?xml-model href="../schema/xml2tex.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="../schema/xml2tex.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
 <set xmlns="http://transpect.io/xml2tex" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   
   <xsl:import href="http://transpect.io/xslt-util/colors/xsl/colors.xsl"/>
@@ -78,7 +78,7 @@
     </xsl:choose>
     <xsl:variable name="colors" 
                   select="distinct-values((//@css:background-color,
-                                           //@css:color[not(. eq '#000000' 
+                                           //@css:color[not(every $i in  tr:hex-rgb-color-to-ints(.) satisfies $i &lt; 35  
                                                            or parent::*[(@role, @name) = ('ZFinlineequation', 'ZFequation')]
                                                            or ancestor::dbk:para/dbk:phrase[@role = ('ZFinlineequation', 'ZFequation', 'Hyperlink')]
                                                            or ancestor-or-self::dbk:link
@@ -128,20 +128,32 @@
     <rule name="newline" type="cmd" break-after="1"/>
   </template>
   
-  <template context="dbk:br[every $precedent in ancestor::dbk:para[1]//node()[. &lt;&lt; current()] 
-                            satisfies (not(normalize-space($precedent)))]">
+  <template context="dbk:entry//dbk:br">
     <rule>
-      <text>\leavevmode\newline
-</text>  
+      <text> \newline </text>
     </rule>
   </template>
   
-  <!-- paras in tables, use only 1 break -->
+  <template context="dbk:entry[not(@*:morerows) or @*:morerows eq '0']/dbk:para[not(parent::dbk:footnote)]
+                                                                               [following-sibling::dbk:para]//dbk:br">
+    <rule>
+      <text> \par </text>
+    </rule>
+  </template>
   
-  <template context="dbk:para[parent::dbk:entry][not(parent::dbk:footnote)][position() ne last()]">
+  <template context="dbk:entry[not(@*:morerows) or @*:morerows eq '0']/dbk:para[not(parent::dbk:footnote)]
+                                                                               [following-sibling::dbk:para]">
     <rule>
       <text/>
-      <text>\par </text>
+      <text> \par </text>
+    </rule>
+  </template>
+  
+  <template context="dbk:entry//dbk:br[every $precedent in ancestor::dbk:para[1]//node()[. &lt;&lt; current()] 
+                            satisfies (not(normalize-space($precedent)))]">
+    <rule>
+      <text>\leavemode\newline
+</text>  
     </rule>
   </template>
   
@@ -174,40 +186,7 @@
       <text>}</text>
       <param/>
     </rule>
-  </template>
-  
-  <!-- regular superscript and subscripts -->
-  
-  <template context="dbk:superscript[not(dbk:footnote)]
-                     |dbk:subscript
-                     |dbk:phrase[not(dbk:footnote)]
-                                [exists(for $i in ./@role 
-                                        return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@remap = ('superscript', 'subscript')])]" mathmode="true">
-    <rule>
-      <text select="concat(if(local-name() eq 'subscript'
-                           or exists(for $i in ./@role 
-                           return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@remap = ('subscript')])
-                           )
-                           then '_'
-                           else '^',
-                           '{',
-                           if(not(@css:font-style eq 'italic') and not(@css:font-weight eq 'bold') and matches(., '^[-\+&#x2212;\d\s{}]+$')) then ''
-                           else if(not(@css:font-style eq 'italic') and not(@css:font-weight eq 'bold')) then '\mathrm{'
-                           else if(@css:font-weight eq 'bold' and not(@css:font-style eq 'italic')) then '\mathbf{'
-                           else if(@css:font-weight eq 'bold') then '\mathbfit{'
-                           else '')"/>
-      <text/>
-      <text select="concat('}', 
-        if(not(@css:font-style eq 'italic') and not(@css:font-weight eq 'bold') and matches(., '^[-\+&#x2212;\d\s{}]+$')) then ''
-        else if(not(@css:font-style eq 'italic') or @css:font-weight eq 'bold') then '}' else '')"/>
-    </rule>
-  </template>
-  
-  <template context="dbk:superscript[matches(., '^\{\\(textregistered|texttrademark)\}$')]">
-    <rule name="textsuperscript" type="cmd">
-      <text/>
-    </rule>
-  </template>
+  </template>  
   
   <!-- tabs -->
   
@@ -257,9 +236,9 @@
   
   <!-- links -->
   
-  <template context="dbk:link[@xlink:href][matches(@xlink:href, '^(https?|ftp):')]">
+  <template context="dbk:link[@xlink:href][matches(@xlink:href, '^(https?|ftp):')]|dbk:ulink">
     <rule name="href" type="cmd">
-      <param select="@xlink:href"/>
+      <param select="replace((@xlink:href, @url)[1], '([%#])', '\\$1')"/>
       <param/>
     </rule>
   </template>
@@ -267,12 +246,6 @@
   <template context="dbk:link[@xlink:href][matches(@xlink:href, '^mailto:')]">
     <rule>
       <text/>
-    </rule>
-  </template>
-  
-  <template context="dbk:link[@xlink:href][matches(@xlink:href, '^(https?|ftp):')][matches(dbk:phrase, '^(https?|ftp)')]">
-    <rule name="url" type="cmd">
-      <param/>
     </rule>
   </template>
 
@@ -317,18 +290,22 @@
 
   <!-- text styles -->
   
-  <template context="dbk:phrase[not(@css:color eq '#000000'
+  <template context="dbk:phrase[not(every $i in  tr:hex-rgb-color-to-ints(@css:color) satisfies $i &lt; 35  
                                     or @role = ('ZFinlineequation', 'ZFequation', 'Hyperlink')
                                     or preceding-sibling::*[@role = ('ZFinlineequation', 'ZFequation')]
                                     or following-sibling::*[@role = ('ZFinlineequation', 'ZFequation')]
                                     or ancestor-or-self::dbk:link)
                                 and (@css:color 
                                 or exists(for $i in ./@role 
-                                return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@css:color and not(@css:color eq '#000000') ]))]/text()">
+                                return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]
+                                                                           [@css:color 
+                                                                            and not(every $i in  tr:hex-rgb-color-to-ints(@css:color) 
+                                                                                    satisfies $i &lt; 35) ]))]/text()">
     <rule name="textcolor" type="cmd">
       <param select="for $i in (parent::*/@css:color, for $j in parent::*/@role return /dbk:hub/dbk:info/css:rules/css:rule[$j eq @name]/@css:color)[1] 
                      return concat('color-', index-of(distinct-values((//@css:background-color,
-                                                                       //@css:color[not(. eq '#000000' 
+                                                                       //@css:color[not(every $i in tr:hex-rgb-color-to-ints(.) 
+                                                                                        satisfies $i &lt; 35
                                                                                         or parent::*[(@role, @name) = ('ZFinlineequation', 'ZFequation', 'Hyperlink')]
                                                                                         or ancestor-or-self::dbk:link
                                                                                         or parent::*[@native-name eq 'Hyperlink']
@@ -418,6 +395,43 @@
     </rule>
   </template>
 
+  <!-- regular superscript and subscripts -->
+  
+  <template context="dbk:superscript[not(dbk:footnote)]
+                    |dbk:subscript
+                    |dbk:phrase[not(dbk:footnote)][exists(for $i in ./@role 
+                                                          return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@remap = ('superscript', 'subscript')])]">
+    <rule mathmode="true">
+      <text select="concat(if(local-name() eq 'subscript'
+                           or exists(for $i in ./@role 
+                                     return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@remap = ('subscript')])
+                                     )
+                           then '_'
+                           else '^',
+                           '{',
+                           if(not(@css:font-style eq 'italic') and not(@css:font-weight eq 'bold') and matches(., '^[-\+&#x2212;\d\s{}]+$'))
+                             then ''
+                           else if(not(@css:font-style eq 'italic') and not(@css:font-weight eq 'bold')) 
+                             then '\mathrm{'
+                           else if(@css:font-weight eq 'bold' and not(@css:font-style eq 'italic')) 
+                             then '\mathbf{'
+                           else if(@css:font-weight eq 'bold') 
+                             then '\mathbfit{'
+                           else '')"/>
+      <text/>
+      <text select="concat('}', 
+                          if(not(@css:font-style eq 'italic') and not(@css:font-weight eq 'bold') and matches(., '^[-\+&#x2212;\d\s{}]+$')) then ''
+                          else if(not(@css:font-style eq 'italic') or @css:font-weight eq 'bold') then '}' else '')"/>
+    </rule>
+  </template>
+  
+  <template context="dbk:superscript[matches(., '^\{\\(textregistered|texttrademark)\}$')]">
+    <rule name="textsuperscript" type="cmd">
+      <text/>
+    </rule>
+  </template>
+  
+
   <!-- headlines -->
   
   <template context="dbk:para[@docx2tex:config eq 'headline']/dbk:phrase[@role eq 'docx2tex:identifier']">
@@ -427,36 +441,31 @@
     </rule>
   </template>
 
-  <template context="dbk:para[@role = ('berschrift1', 'headline1', 'heading1', 'Heading1')]
-                    |dbk:section/dbk:title[@role = ('berschrift1', 'headline1', 'heading1', 'Heading1')]">
+  <template context="dbk:para[@role = ('berschrift1', 'headline1', 'heading1', 'Heading1')]">
     <rule break-after="2" name="chapter" type="cmd">
       <param/>
     </rule>
   </template>
 
-  <template context="dbk:para[@role = ('berschrift2', 'headline2', 'heading2', 'Heading2')]
-                    |dbk:section/dbk:title[@role = ('berschrift2', 'headline2', 'heading2', 'Heading2')]">
+  <template context="dbk:para[@role = ('berschrift2', 'headline2', 'heading2', 'Heading2')]">
     <rule break-after="2" name="section" type="cmd">
       <param/>
     </rule>
   </template>
 
-  <template context="dbk:para[@role = ('berschrift3', 'headline3', 'heading3', 'Heading3')]
-                    |dbk:section/dbk:title[@role = ('berschrift3', 'headline3', 'heading3', 'Heading3')]">
+  <template context="dbk:para[@role = ('berschrift3', 'headline3', 'heading3', 'Heading3')]">
     <rule break-after="2" name="subsection" type="cmd">
       <param/>
     </rule>
   </template>
 
-  <template context="dbk:para[@role = ('berschrift4', 'headline4', 'heading4', 'Heading4')]
-                    |dbk:section/dbk:title[@role = ('berschrift4', 'headline4', 'heading4', 'Heading4')]">
+  <template context="dbk:para[@role = ('berschrift4', 'headline4', 'heading4', 'Heading4')]">
     <rule break-after="2" name="subsubsection" type="cmd">
       <param/>
     </rule>
   </template>
 
-  <template context="dbk:para[@role = ('berschrift5', 'headline5', 'heading5', 'Heading5')]
-                    |dbk:section/dbk:title[@role = ('berschrift5', 'headline5', 'heading5', 'Heading5')]">
+  <template context="dbk:para[@role = ('berschrift5', 'headline5', 'heading5', 'Heading5')]">
     <rule break-after="2" name="paragraph" type="cmd">
       <param/>
     </rule>
@@ -476,17 +485,33 @@
     </rule>
   </template>
 
-  <template context="dbk:footnote/dbk:para">
+  <template context="dbk:footnote/dbk:para[following-sibling::dbk:para]">
     <rule break-after="1">
       <text/>
     </rule>
   </template>
   
+  <template context="dbk:footnote/dbk:para[not(following-sibling::dbk:para)]">
+    <rule>
+      <text/>
+    </rule>
+  </template>
+  
+  <!-- remove whitespace at the beginning of footnotes -->
+  
+  <template context="dbk:footnote//text()[starts-with(., ' ')][1]">
+    <rule>
+      <text select="replace(., '^\s', '')"/> 
+    </rule>
+  </template>
+  
+  <!-- remove footnote numbers and whitespace -->
+  
+  <template context="dbk:footnote//dbk:phrase[@role eq 'hub:separator']"/>
+  
   <template context="dbk:footnote//dbk:tab[@role eq 'hub:separator']"/>
 
   <template context="dbk:footnote//dbk:phrase[@role eq 'hub:identifier']/node()[not(descendant-or-self::dbk:anchor or descendant-or-self::processing-instruction())]"/>
-  
-  <template context="dbk:footnote//text()[string-length(normalize-space(.)) eq 0][1]"/>
   
   <template context="dbk:footnote/dbk:para/*[1][local-name() eq 'superscript'][matches(., '\d+')]"/>
 
@@ -512,6 +537,21 @@
     </rule>
   </template>
   
+  <template context="dbk:equation[@condition eq 'numbered'][not(ancestor::dbk:table or ancestor::dbk:informaltable)]
+                                 [contains(., '\\')]">
+    <rule name="align" type="env" break-after="1">
+      <text/>
+    </rule>
+  </template>
+  
+  <template context="dbk:equation[not(@condition eq 'numbered')]
+                                 [not(ancestor::dbk:table or ancestor::dbk:informaltable)]
+                                 [contains(., '\\')]">
+    <rule name="align*" type="env" break-after="1">
+      <text/>
+    </rule>
+  </template>
+  
   <!-- tagged private use area -->
   <template context="dbk:phrase[@role eq 'unicode-private-use']">
     <rule name="privateuse" type="cmd">
@@ -523,7 +563,11 @@
 
   <template context="dbk:annotation">
     <rule break-after="1">
-      <text select="concat('%', string-join(.//node(), ' '))"/>
+      <text select="concat(if(parent::*/following-sibling::node()[1][self::text()][matches(., '^\s')])
+                           then ' '
+                           else '',
+                           '%', string-join(.//node(), 
+                           ' '))"/>
     </rule>
   </template>
 
@@ -556,11 +600,19 @@
     </rule>
   </template>
   
-  <template context="dbk:secondary|dbk:secondary|dbk:tertiary|dbk:see|dbk:seealso">
+  <template context="dbk:secondary|dbk:tertiary">
     <rule>
-      <text select="concat('!', .)"/>
+      <text>!</text>
+      <text/>
     </rule>
   </template>
+
+  <template context="dbk:see|dbk:seealso">
+    <rule>
+      <text select="concat('|', replace(., '^(see|voir|véase|vedi|ver|siehe|请参阅|ראה|انظر|참조)\s+(.+)$', 'see{$2}', 'i'))"/>
+    </rule>
+  </template>
+
   
   <!-- index listing -->
   
@@ -581,6 +633,21 @@
       <text>\fbox{\begin{minipage}[t]{0.8\textwidth}</text>
       <text/>
       <text>\end{minipage}}</text>
+    </rule>
+  </template>
+  
+  <template context="dbk:bibliography">
+    <rule name="thebibliography" type="env" break-after="2" break-before="1">
+      <param>0</param>
+      <text/>
+    </rule>
+  </template>
+  
+  <template context="dbk:bibliomixed">
+    <rule name="bibitem" type="cmd" break-before="1">
+      <option>aaa(000)</option>
+      <param select="@xreflabel"/>
+      <text/>
     </rule>
   </template>
 
@@ -628,7 +695,7 @@
     <!--= \lnot, NOT SIGN-->
     <char character="&#xac;" string="${\neg}$"/>
     <!--SOFT HYPHEN -->
-    <char character="&#xad;" string="&quot;-"/>
+    <char character="&#xad;" string="\-"/>
     <!--REGISTERED SIGN-->
     <char character="&#xae;" string="{\textregistered}"/>
     <!--DEGREE SIGN -->
@@ -4707,8 +4774,27 @@
     <char character="&#x1d7fe;" string="${\mathtt{8}}$"/>
     <!--mathematical monospace digit 9-->
     <char character="&#x1d7ff;" string="${\mathtt{9}}$"/>
+    
+    <!--  *
+          * Miscellaneous Symbols and Pictographs
+          * -->
+    
     <!--BELL -->
     <char character="&#x1f514;" string="${\bell}$"/>
+    
+    <!--  *
+          * Supplemental Arrows-C
+          * -->
+    
+    <!-- WIDE-HEADED LEFTWARDS BARB ARROW (U+1F868) -->
+    <char character="&#x1f868;" string="${\leftarrow}$"/>
+    <!-- WIDE-HEADED UPWARDS BARB ARROW (U+1F869) -->
+    <char character="&#x1f869;" string="${\uparrow}$"/>
+    <!--WIDE-HEADED RIGHTWARDS BARB ARROW (U+1F86A)-->
+    <char character="&#x1f86a;" string="${\rightarrow}$"/>
+    <!-- WIDE-HEADED DOWNWARDS BARB ARROW (U+1F86B) -->
+    <char character="&#x1f86b;" string="${\downarrow}$"/>
+    
   </charmap>
 
 </set>
