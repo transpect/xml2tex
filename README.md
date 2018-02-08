@@ -1,15 +1,22 @@
 # xml2tex
-Converts XML to LaTeX
+11;rgb:1313/1515/1a1aConverts XML to LaTeX
 
 ## configuration
 
-xml2tex can be configured for any kind of XML format. A sample XML configuration file is stored in the `example` directory.
+xml2tex can be configured for any kind of XML format.
+A sample XML configuration file is stored in the `example` directory.
 
-A RelaxNG schema is located in the `schema` directory. You can use the RelaxNG schema to check if your configuration file is valid.
+A RelaxNG schema is located in the `schema` directory. You can use
+the schema to check if your configuration file is valid. You can also
+use this schema in XML editors such as oXygen to have code completion and
+tool tips.
 
 Here is an example for a very basic configuration:
 
 ```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="../schema/xml2tex.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="../schema/xml2tex.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
 <set xmlns="http://transpect.io/xml2tex">
 
   <ns prefix="dbk" uri="http://docbook.org/ns/docbook"/>
@@ -215,7 +222,9 @@ You are allowed to use XSLT elements \(XSLT template model\) inside of the xml2t
 ```
 
 ## MathML
+
 Equations specified in MathML syntax are automatically converted with the module [mml2tex](https://github.com/transpect/mml2tex).
 
 ## Tables
+
 CALS tables are converted automatically converted to tabular tables. A XSLT stylesheet which converts also HTML tables is considered for a later release.
