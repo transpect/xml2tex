@@ -21,9 +21,9 @@
     <p:document href="../example/conf-hubcssa.xml"/>
   </p:input>
 
-  <p:input port="lists-xsl">
+  <!--<p:input port="lists-xsl">
     <p:document href="../xsl/lists.xsl"/>
-  </p:input>
+  </p:input>-->
 
   <p:output port="result" primary="true"/>
   
@@ -232,7 +232,7 @@
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
     
-  <p:xslt name="lists">
+  <!--<p:xslt name="lists">
     <p:documentation>
       Ordered lists are converted to enumerate environment.
       Supports various list numbering styles and individual start values.
@@ -242,13 +242,13 @@
     </p:input>
     <p:with-param name="debug" select="$debug"/>
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
-  </p:xslt>
+  </p:xslt>-->
   
-  <tr:store-debug name="debug-lists">
+  <!--<tr:store-debug name="debug-lists">
     <p:with-option name="pipeline-step" select="concat($prefix, '5.lists')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
-  </tr:store-debug>
+  </tr:store-debug>-->
   
   <tr:simple-progress-msg file="xml2tex-convert-xml.txt" name="msg-4">
     <p:input port="msgs">
