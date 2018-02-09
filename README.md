@@ -1,7 +1,46 @@
 # xml2tex
-Converts XML to LaTeX
 
-## configuration
+An XProc module to convert XML to LaTeX
+
+## setup and run xml2tex
+
+xml2tex is not a standalone tool but an XProc library which also depends on other modules.
+So you need a little setup to run it. First start with creating a project directory and 
+cloning the modules from GitHub:
+
+```bash
+$ mkdir asyoulike && cd asyoulike
+$ git clone --recursive https://github.com/transpect/calabash-frontend.git
+$ git clone https://github.com/transpect/mml2tex.git
+$ git clone https://github.com/transpect/mml2tex.git
+$ git clone https://github.com/transpect/mml-normalize.git
+$ git clone https://github.com/transpect/xproc-util.git
+$ git clone https://github.com/transpect/xslt-util.git
+$ git clone https://github.com/transpect/xml2tex.git
+```
+
+Now we add an XML catalog to resolve the import URIs of the XProc modules.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  <nextCatalog catalog="../mml2tex/xmlcatalog/catalog.xml"/>
+  <nextCatalog catalog="../mml-normalize/xmlcatalog/catalog.xml"/>
+  <nextCatalog catalog="../xproc-util/xmlcatalog/catalog.xml"/>
+  <nextCatalog catalog="../xslt-util/xmlcatalog/catalog.xml"/>  
+  <nextCatalog catalog="../xml2tex/xmlcatalog/catalog.xml"/>
+</catalog>
+```
+
+Store this XML catalog file to `xmlcatalog/catalog.xml`.
+
+Now you just have to run calabash.
+
+```
+$ calabash/calabash.sh -i source=xml2tex/example/example.xml -i conf=xml2tex/example/conf-hubcssa.xml xml2tex/xpl/xml2tex.xpl
+```
+
+## Configuration
 
 xml2tex can be configured for any kind of XML format.
 A sample XML configuration file is stored in the `example` directory.
@@ -100,6 +139,7 @@ If you want to put content right before \end{document}, you can use the `back` e
 ```
 
 ### XML namespaces
+
 If your XML input document use XML namespaces, it's necessary to declare each namespace with a corresponding `ns` element.
 ```xml
 <ns prefix="dbk" uri="http://docbook.org/ns/docbook"/>
@@ -136,6 +176,7 @@ Given this XML element…
 ```
 
 #### Rules
+
 A rule is declared as child element named `rule` and is used to specify the LaTeX instruction.
 
 ```xml
@@ -151,6 +192,7 @@ The `@name` attribute describes the name of the LaTeX instruction.
 `@break-after` is used to control the line breaks after the element. This attribute is necessary to control the whitespace after regular paragraphs.
 
 #### Parameters, Options and Text
+
 A rule can contain three child elements: `text`, `param`, `option`, which define how the content of the current XML node is wrapped. The `param` element specifies that the contents of the current context XML node is wrapped with curly braces `{}`. `option` is used to wrap the content with brackets `[]`, hence `text` process it without any wrapper.
 
 Each of these elements can contain a `@select` attribute. This attribute is optional and can be used to select a specific XML node within the current XML context. The example below shows how to use the `@select` attribute to construct the parameters of a LaTeX link instruction.
@@ -164,6 +206,7 @@ Each of these elements can contain a `@select` attribute. This attribute is opti
 ```
 
 ### Regular Expressions
+
 Insted of templates, you can also use regular expressions to construct a LaTeX instruction. Therefore, you can use the element `regex` and specify a regular expressions with the `@regex` attribute.
 
 If you want to use groups in your matching pattern, you can specify the optional attribute`regex-group` to select a specific  group. The example below shows how to construct a date makro with regular expressions.
@@ -178,6 +221,7 @@ If you want to use groups in your matching pattern, you can specify the optional
 ```
 
 ### Character Maps
+
 Some LaTeX processors are only able to handle constrained character sets. Therefore it is recommended to include a character map in your configuration and map certain characters to LaTeX instructions. 
 
 A character map is wrapped by a `charmap` element. It can contain multiple character mapping entries, each specified with a `char` element. The attribute `@character` contains the character to be replaced with the value of `@string`. An optional `@context` attribute can be used to restrict the replacement to a certain XML context.
@@ -206,11 +250,16 @@ In most cases it's more applicable to import an existing configuration than to w
 </set>
 ```
 
-Naturally, the configuration with the import statement has always precedence before the imported configuration. Please note that in case of character maps, you can selectively overwrite single `char` mappings.
+Naturally, the configuration with the import statement has always
+precedence before the imported configuration. Please note that in
+case of character maps, you can selectively overwrite single `char` mappings.
 
 ### Inline XSLT
 
-You are allowed to use XSLT elements \(XSLT template model\) inside of the xml2tex configuration elements `preamble`, `text`, `option`, `param` elements. This might be useful if you want to apply other markup based on dynamic evaluations of the processed content.
+You can use XSLT everywhere in the configuration. This may be useful if
+you need more programming features than the xml2tex configuration provides. So
+you even can write your own XSLT functions include other XSLT stylesheets
+or make use of variables. 
 
 ```
 <preamble>
@@ -221,6 +270,11 @@ You are allowed to use XSLT elements \(XSLT template model\) inside of the xml2t
 <preamble>
 ```
 
+The configuration is converted to XSLT and then applied at the input. If something
+in your configuration is wrong, the stylesheet propably won't compile. In this case
+you should set the `debug` option to `yes` and investigate the generated stylesheet in
+`{debug-dir-uri}/xm2tex/xml2tex01.config.xsl`.
+
 ## MathML
 
 Equations specified in MathML syntax are automatically converted with the module [mml2tex](https://github.com/transpect/mml2tex).
@@ -228,3 +282,4 @@ Equations specified in MathML syntax are automatically converted with the module
 ## Tables
 
 CALS tables are converted automatically converted to tabular tables. A XSLT stylesheet which converts also HTML tables is considered for a later release.
+
