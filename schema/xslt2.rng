@@ -347,7 +347,10 @@
       </optional>
       <optional>
         <attribute name="mode">
-          <ref name="xslt2.qname.datatype"/>
+          <choice>
+            <ref name="xslt2.qname.datatype"/>
+            <text/>
+          </choice>
         </attribute>
       </optional>
       <zeroOrMore>
@@ -644,9 +647,11 @@
           </choice>
         </attribute>
       </optional>
-      <attribute name="select">
-        <ref name="xslt2.expression.datatype"/>
-      </attribute>
+      <optional>
+        <attribute name="select">
+          <ref name="xslt2.expression.datatype"/>
+        </attribute>
+      </optional>
       <optional>
         <attribute name="ordinal"/>
       </optional>
