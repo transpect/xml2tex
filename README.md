@@ -130,7 +130,7 @@ with a few bits of XSLT as shown below:
 
 ### Backmatter
 
-If you want to put content right before \end{document}, you can use the `back` element for this purpose.
+If you want to put content right before `\end{document}`, you can use the `back` element for this purpose.
 
 ```xml
 <back>
@@ -261,7 +261,7 @@ you need more programming features than the xml2tex configuration provides. So
 you even can write your own XSLT functions include other XSLT stylesheets
 or make use of variables. 
 
-```
+```xml
 <preamble>
   <!-- use german babel package when document language is 'de' -->
   <xsl:if test="/*/@xml:lang eq 'de'">
