@@ -1,0 +1,765 @@
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+namespace ns1 = "http://www.w3.org/1999/xhtml"
+namespace sch = "http://purl.oclc.org/dsdl/schematron"
+namespace xml2tex = "http://transpect.io/xml2tex"
+
+a:documentation [ " The xml2tex configuration file schema. " ]
+include "xslt2.rnc"
+start = xml2tex.set
+# *
+# * elements
+# *
+xml2tex.set =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "set" ] " element" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [ "The root element of the xml2tex configuration." ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  element xml2tex:set { xml2tex.set.attributes, xml2tex.set.content }
+xml2tex.import =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "import" ] " element" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "Import other xml2tex configuration files. Imported character maps and templates will always have a \x{a}" ~
+        "          lower priority than those in the importing configuration. Imported "
+        ns1:code [ "preamble" ]
+        ", "
+        ns1:code [ "front" ]
+        " \x{a}" ~
+        "          and "
+        ns1:code [ "back" ]
+        " will be replaced if they exist in the importing configuration"
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  element xml2tex:import {
+    xml2tex.import.attributes, xml2tex.content.empty
+  }
+xml2tex.preamble =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "preamble" ] " element" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "Place declarations such as document class, used packages and other information \x{a}" ~
+        "          TeX will need to format the document correctly"
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  element xml2tex:preamble { xml2tex.atom.content }
+xml2tex.front =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "front" ] " element" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "Used for TeX instructions to be placed immediately after \x{a}" ~
+        "        the begin of the document (e.g. "
+        ns1:code [ "\begin{document}" ]
+        ")."
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  element xml2tex:front { xml2tex.atom.content }
+xml2tex.back =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "back" ] " element" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "Used for TeX instructions to be placed immediately before \x{a}" ~
+        "          the end of the document (e.g. "
+        ns1:code [ "\end{document}" ]
+        ")."
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  element xml2tex:back { xml2tex.atom.content }
+xml2tex.ns =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "ns" ] " element" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [ "Specify the XML namespaces used in the document." ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  element xml2tex:ns { xml2tex.ns.attributes, xml2tex.content.empty }
+xml2tex.template =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "template" ] " element" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "Used to create a TeX instruction for a specified XML context."
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  element xml2tex:template {
+    xml2tex.template.attributes, xml2tex.templatemodel.content
+  }
+xml2tex.regex =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "regex" ] " element" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "Create TeX instructions where the specified regular expression \x{a}" ~
+        "          pattern matches a part of text."
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  element xml2tex:regex {
+    xml2tex.regex.attributes, xml2tex.templatemodel.content
+  }
+xml2tex.charmap =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "charmap" ] " element" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "A collection of mapping instructions for mapping \x{a}" ~
+        "          characters to specific TeX instructions."
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  element xml2tex:charmap { xml2tex.charmap.content }
+xml2tex.rule =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "rule" ] " element" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "Specify name and type of the TeX instruction and additional formatting."
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  element xml2tex:rule { xml2tex.rule.attributes, xml2tex.rule.content }
+xml2tex.char =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "char" ] " element" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [ "Used to replace a character with a TeX instruction." ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  element xml2tex:char {
+    xml2tex.char.attributes, xml2tex.content.empty
+  }
+xml2tex.text =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "option" ] " element" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "Used to add text after the TeX instruction such as "
+        ns1:code [ "\foo bar" ]
+        ". \x{a}" ~
+        "          There are three ways to control how the content is applied:"
+      ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "a) "
+        ns1:code [ "<text/>" ]
+        " The context which is specified by "
+        ns1:code [ "template/@content" ]
+        " is applied."
+        ns1:br [ ]
+        "\x{a}" ~
+        "           b) "
+        ns1:code [ '<text select="foo"/>' ]
+        " The context which is specified by the XPath expression in the "
+        ns1:code [ "@select" ]
+        " attribute is applied."
+        ns1:br [ ]
+        "\x{a}" ~
+        "           c) "
+        ns1:code [ "<text>foo</text>" ]
+        " The plain text string is inserted."
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  element xml2tex:text { xml2tex.atom.attributes, xml2tex.atom.content }
+xml2tex.param =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "option" ] " element" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "Used to create a parameter for a TeX instruction such as "
+        ns1:code [ "\foo{bar}" ]
+        ". \x{a}" ~
+        "          There are three ways to control how the content is applied:"
+      ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "a) "
+        ns1:code [ "<param/>" ]
+        " The context which is specified by "
+        ns1:code [ "template/@content" ]
+        " is applied."
+        ns1:br [ ]
+        "\x{a}" ~
+        "           b) "
+        ns1:code [ '<param select="foo"/>' ]
+        " The context which is specified by the XPath expression in the "
+        ns1:code [ "@select" ]
+        " attribute is applied."
+        ns1:br [ ]
+        "\x{a}" ~
+        "           c) "
+        ns1:code [ "<param>foo</text>" ]
+        " The plain text string is just inserted."
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  element xml2tex:param {
+    xml2tex.atom.attributes, xml2tex.atom.content
+  }
+xml2tex.option =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "option" ] " element" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "Used to create an option for a TeX instruction such as "
+        ns1:code [ "\foo[bar]" ]
+        ". \x{a}" ~
+        "          There are three ways to control how the content is applied:"
+      ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "a) "
+        ns1:code [ "<text/>" ]
+        " The context which is specified by "
+        ns1:code [ "template/@content" ]
+        " is applied."
+        ns1:br [ ]
+        "\x{a}" ~
+        "           b) "
+        ns1:code [ '<text select="foo"/>' ]
+        " The context which is specified by the XPath expression in the "
+        ns1:code [ "@select" ]
+        " attribute is applied."
+        ns1:br [ ]
+        "\x{a}" ~
+        "           c) "
+        ns1:code [ "<text>foo</text>" ]
+        " The plain text string is just inserted."
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  element xml2tex:option {
+    xml2tex.atom.attributes, xml2tex.atom.content
+  }
+# *
+# * attributes
+# *
+xml2tex.set.attributes = attribute xml:base { xsd:anyURI }?
+xml2tex.atom.attributes =
+  ([
+     a:documentation [
+       "\x{a}" ~
+       "              "
+       ns1:h1 [ "The " ns1:i [ "select" ] " attribute" ]
+       "\x{a}" ~
+       "              "
+       ns1:p [ "Value: " ns1:code [ "XPath expression" ] ]
+       "\x{a}" ~
+       "              "
+       ns1:p [
+         "Specify an XPath expression to select a node within the selected context."
+       ]
+       "\x{a}" ~
+       "            "
+     ]
+   ]
+   attribute select { text }?
+   & [
+       a:documentation [
+         "\x{a}" ~
+         "              "
+         ns1:h1 [ "The " ns1:i [ "select" ] " attribute" ]
+         "\x{a}" ~
+         "              "
+         ns1:p [ "Value: " ns1:code [ "xs:integer" ] ]
+         "\x{a}" ~
+         "              "
+         ns1:p [
+           "Specify the number of the regex group to be selected."
+         ]
+         "\x{a}" ~
+         "            "
+       ]
+     ]
+     attribute regex-group { xsd:integer }?)
+xml2tex.import.attributes =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "href" ] " attribute" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [ "Value: " ns1:code [ "path" ] ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "Import other xml2tex configuration files by specifying their relative or absolute path."
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  attribute href { text }
+xml2tex.ns.attributes =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "          "
+      ns1:h1 [ "The " ns1:i [ "prefix" ] " attribute" ]
+      "\x{a}" ~
+      "          "
+      ns1:p [ "Value: " ns1:code [ "xs:string" ] ]
+      "\x{a}" ~
+      "          "
+      ns1:p [
+        "Specify the namespace prefix. The values of "
+        ns1:code [ "prefix" ]
+        " and \x{a}" ~
+        "            "
+        ns1:code [ "uri" ]
+        " are used to create an XML namespace declaration\x{a}" ~
+        "            in the generated stylesheet."
+      ]
+      "\x{a}" ~
+      "        "
+    ]
+  ]
+  attribute prefix { xsd:QName }
+  & [
+      a:documentation [
+        "\x{a}" ~
+        "          "
+        ns1:h1 [ "The " ns1:i [ "uri" ] " attribute" ]
+        "\x{a}" ~
+        "          "
+        ns1:p [ "Value: " ns1:code [ "xs:string" ] ]
+        "\x{a}" ~
+        "          "
+        ns1:p [
+          "Specify the namespace URI. The values of "
+          ns1:code [ "prefix" ]
+          " and \x{a}" ~
+          "            "
+          ns1:code [ "uri" ]
+          " are used to create an XML namespace declaration\x{a}" ~
+          "            in the generated stylesheet."
+        ]
+        "\x{a}" ~
+        "        "
+      ]
+    ]
+    attribute uri { xsd:anyURI }
+xml2tex.template.attributes =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "context" ] " attribute" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [ "Value: " ns1:code [ "XPath expression" ] ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "The content of this attribute is an XSLT 2 matching pattern that may contain \x{a}" ~
+        "          QNames with namespace prefixes. These prefixes and the namespaces must be declared \x{a}" ~
+        "          first in the XML and second with the "
+        ns1:code [ "ns" ]
+        " element."
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  attribute context { text }
+xml2tex.rule.attributes =
+  (([
+      a:documentation [
+        "\x{a}" ~
+        "              "
+        ns1:h1 [ "The " ns1:i [ "name" ] " attribute" ]
+        "\x{a}" ~
+        "              "
+        ns1:p [ "Value: " ns1:code [ "xs:string" ] ]
+        "\x{a}" ~
+        "              "
+        ns1:p [
+          "Provides a name for the TeX instruction. The name "
+          ns1:i [ "foo" ]
+          " will expand to \x{a}" ~
+          "                either "
+          ns1:code [ "\foo" ]
+          " or "
+          ns1:code [ "\begin{foo}…\end{foo}" ]
+          " depending on the value of the \x{a}" ~
+          "                select attribute."
+        ]
+        "\x{a}" ~
+        "            "
+      ]
+    ]
+    attribute name { text }
+    & [
+        a:documentation [
+          "\x{a}" ~
+          "              "
+          ns1:h1 [ "The " ns1:i [ "type" ] " attribute" ]
+          "\x{a}" ~
+          "              "
+          ns1:p [ "Values: " ns1:code [ "cmd|env" ] ]
+          "\x{a}" ~
+          "              "
+          ns1:p [
+            "Declares whether you want to create a command ("
+            ns1:i [ "cmd" ]
+            ")such as "
+            ns1:code [ "\foo" ]
+            " or \x{a}" ~
+            "                an environment "
+            ns1:i [ "env" ]
+            " such as "
+            ns1:code [ "\begin{foo}…\end{foo}" ]
+          ]
+          "\x{a}" ~
+          "            "
+        ]
+      ]
+      attribute type { xsd:string "cmd" | xsd:string "env" })
+   | empty)
+  & [
+      a:documentation [
+        "\x{a}" ~
+        "            "
+        ns1:h1 [ "The " ns1:i [ "break-after" ] " attribute" ]
+        "\x{a}" ~
+        "            "
+        ns1:p [ "Value: " ns1:code [ "xs:integer" ] ]
+        "\x{a}" ~
+        "            "
+        ns1:p [
+          "Specifiies the number of breaks which will be added "
+          ns1:i [ "after" ]
+          " the TeX instruction"
+        ]
+        "\x{a}" ~
+        "          "
+      ]
+    ]
+    attribute break-after { xsd:integer }?
+  & [
+      a:documentation [
+        "\x{a}" ~
+        "            "
+        ns1:h1 [ "The " ns1:i [ "break-before" ] " attribute" ]
+        "\x{a}" ~
+        "            "
+        ns1:p [ "Value: " ns1:code [ "xs:integer" ] ]
+        "\x{a}" ~
+        "            "
+        ns1:p [
+          "Specifies the number of breaks which will be added "
+          ns1:i [ "before" ]
+          " the TeX instruction"
+        ]
+        "\x{a}" ~
+        "          "
+      ]
+    ]
+    attribute break-before { xsd:integer }?
+  & [
+      a:documentation [
+        "\x{a}" ~
+        "            "
+        ns1:h1 [ "The " ns1:i [ "mathmode" ] " attribute" ]
+        "\x{a}" ~
+        "            "
+        ns1:p [ "Values: " ns1:code [ "true|false" ] ]
+        "\x{a}" ~
+        "            "
+        ns1:p [
+          "The content will be enclosed in '$' characters which cause TeX to \x{a}" ~
+          "              switch to math mode."
+        ]
+        "\x{a}" ~
+        "          "
+      ]
+    ]
+    attribute mathmode { xsd:boolean }?
+xml2tex.char.attributes =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "          "
+      ns1:h1 [ "The " ns1:i [ "character" ] " attribute" ]
+      "\x{a}" ~
+      "          "
+      ns1:p [ "Value: " ns1:code [ "xs:string" ] ]
+      "\x{a}" ~
+      "          "
+      ns1:p [ "Character to be replaced" ]
+      "\x{a}" ~
+      "        "
+    ]
+  ]
+  attribute character { text }
+  & [
+      a:documentation [
+        "\x{a}" ~
+        "          "
+        ns1:h1 [ "The " ns1:i [ "string" ] " attribute" ]
+        "\x{a}" ~
+        "          "
+        ns1:p [ "Value: " ns1:code [ "xs:string" ] ]
+        "\x{a}" ~
+        "          "
+        ns1:p [
+          "The value of the "
+          ns1:code [ "@character" ]
+          " attribute is replaced with the value of this attribute."
+        ]
+        "\x{a}" ~
+        "        "
+      ]
+    ]
+    attribute string { text }
+  & [
+      a:documentation [
+        "\x{a}" ~
+        "            "
+        ns1:h1 [ "The " ns1:i [ "context" ] " attribute" ]
+        "\x{a}" ~
+        "            "
+        ns1:p [ "Value: " ns1:code [ "XPath expression" ] ]
+        "\x{a}" ~
+        "            "
+        ns1:p [
+          "The content of this attribute is an XSLT 2 matching pattern that may contain \x{a}" ~
+          "              QNames with namespace prefixes. These prefixes and the namespaces must be declared \x{a}" ~
+          "              first in the XML and second with the "
+          ns1:code [ "ns" ]
+          " element."
+        ]
+        "\x{a}" ~
+        "            "
+        ns1:p [
+          "Please be aware that MathML is converted by a separate module, named \x{a}" ~
+          "              "
+          ns1:a [
+            href = "https://github.com/transpect/mml2tex"
+            "mml2tex"
+          ]
+          ". Please look there into\x{a}" ~
+          "              "
+          ns1:code [ "texmap/texmap.xml" ]
+        ]
+        "\x{a}" ~
+        "          "
+      ]
+    ]
+    attribute context { text }?
+xml2tex.regex.attributes =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "regex" ] " attribute" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [ "Value: " ns1:code [ "regular expression pattern" ] ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "Specifies the regular expression pattern to match certain text strings."
+      ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "You can also use regular expression groups to reference them later with\x{a}" ~
+        "          the "
+        ns1:code [ "@regex-group" ]
+        " attribute in "
+        ns1:code [ "param" ]
+        ", "
+        ns1:code [ "option" ]
+        " or\x{a}" ~
+        "          "
+        ns1:code [ "text" ]
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  attribute regex { text }
+# *
+# * content models
+# *
+xml2tex.set.content =
+  (xslt2.import.element | xslt2.function.element | xml2tex.import)*
+  & xml2tex.preamble?
+  & xml2tex.front?
+  & xml2tex.back?
+  & xml2tex.ns*
+  & (xml2tex.template | xml2tex.regex)*
+  & xml2tex.charmap?
+xml2tex.content.empty = empty
+xml2tex.templatemodel.content =
+  (xml2tex.rule | xslt2.instruction.category)*
+xml2tex.charmap.content = xml2tex.char+
+xml2tex.rule.content =
+  (xml2tex.text
+   | xml2tex.param
+   | xml2tex.option
+   | xslt2.instruction.category)*
+xml2tex.atom.content = (text | xslt2.instruction.category)*
+# *
+# * schematron checks
+# *
+
+sch:ns [ prefix = "xml2tex" uri = "http://transpect.io/xml2tex" ]
+sch:pattern [
+  "\x{a}" ~
+  "    "
+  sch:rule [
+    context = "xml2tex:*[local-name() = ('option', 'param', 'text')]"
+    "\x{a}" ~
+    "      "
+    sch:let [
+      name = "context"
+      value = "ancestor::xml2tex:template/@context"
+    ]
+    "\x{a}" ~
+    "      "
+    sch:assert [
+      test = "not(normalize-space(.) and @select)"
+      " It's not permitted to use inline text and both a @select expression. Please correct xml2tex:template[@context eq '"
+      sch:value-of [ select = "$context" ]
+      "']. "
+    ]
+    "\x{a}" ~
+    "    "
+  ]
+  "\x{a}" ~
+  "  "
+]
+sch:pattern [
+  "\x{a}" ~
+  "    "
+  sch:rule [
+    context = "@regex-group"
+    "\x{a}" ~
+    "      "
+    sch:assert [
+      test = "not(ancestor::xml2tex:regex)"
+      " The @regex-group attribute is not permitted, when the parent is <xml2tex:template> "
+    ]
+    "\x{a}" ~
+    "    "
+  ]
+  "\x{a}" ~
+  "  "
+]
+sch:pattern [
+  "\x{a}" ~
+  "    "
+  sch:rule [
+    context = "@regex-group"
+    "\x{a}" ~
+    "      "
+    sch:assert [
+      test = "not(ancestor::xml2tex:template)"
+      " The @select attribute is not permitted, when the parent is <xml2tex:regex> "
+    ]
+    "\x{a}" ~
+    "    "
+  ]
+  "\x{a}" ~
+  "  "
+]

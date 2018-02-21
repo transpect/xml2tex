@@ -1,0 +1,499 @@
+# taken from https://norman.walsh.name/2004/07/25/xslt20, converted to RNG and edited by @mkraetke
+
+# $Id: xslt20.rnc,v 1.1 2004/07/24 22:37:02 ndw Exp $
+
+# This was mostly generated from the syntax summary in the XSLT 1.0
+# Recommendation (using XSLT of course) by James. Norm hacked at it
+# a bit to make it validate XSLT 2.0.
+
+# Issues: this validates extension elements as literal result
+# elements, which is overly restrictive.
+
+namespace local = ""
+default namespace xsl = "http://www.w3.org/1999/XSL/Transform"
+
+start |=
+  xslt2.stylesheet.element
+  | xslt2.transform.element
+  | xslt2.literal-result-element-as-stylesheet
+xslt2.version = "2.0"
+xslt2.top-level-elements.model =
+  (xslt2.declaration.category | xslt2.top-level-extension)*
+xslt2.top-level-extension =
+  element * - (xsl:* | local:*) {
+    grammar {
+      start = any
+      any =
+        (attribute * { text }
+         | text
+         | element * { any })*
+    }
+  }
+xslt2.template.model =
+  (xslt2.instruction.category | xslt2.literal-result-element | text)*
+xslt2.literal-result-element-as-stylesheet =
+  element * - xsl:* {
+    attribute xsl:version { xslt2.version },
+    xslt2.literal-result-element-no-version.atts,
+    xslt2.template.model
+  }
+xslt2.literal-result-element =
+  element * - xsl:* {
+    xslt2.literal-result-element.atts, xslt2.template.model
+  }
+xslt2.literal-result-element.atts =
+  xslt2.literal-result-element-no-version.atts,
+  attribute xsl:version { xslt2.version }?
+xslt2.literal-result-element-no-version.atts =
+  (attribute * - xsl:* { xslt2.avt.datatype }
+   | attribute xsl:extension-element-prefixes {
+       xslt2.prefixes.datatype
+     }
+   | attribute xsl:exclude-result-prefixes { xslt2.prefixes.datatype }
+   | attribute xsl:use-attribute-sets { xslt2.qnames.datatype })*
+xslt2.declaration.category =
+  xslt2.attribute-set.element
+  | xslt2.character-map.element
+  | xslt2.decimal-format.element
+  | xslt2.function.element
+  | xslt2.import-schema.element
+  | xslt2.include.element
+  | xslt2.key.element
+  | xslt2.namespace-alias.element
+  | xslt2.output.element
+  | xslt2.param.element
+  | xslt2.preserve-space.element
+  | xslt2.strip-space.element
+  | xslt2.template.element
+  | xslt2.variable.element
+xslt2.instruction.category =
+  xslt2.analyze-string.element
+  | xslt2.apply-imports.element
+  | xslt2.apply-templates.element
+  | xslt2.attribute.element
+  | xslt2.call-template.element
+  | xslt2.choose.element
+  | xslt2.comment.element
+  | xslt2.copy.element
+  | xslt2.copy-of.element
+  | xslt2.element.element
+  | xslt2.fallback.element
+  | xslt2.for-each.element
+  | xslt2.for-each-group.element
+  | xslt2.if.element
+  | xslt2.message.element
+  | xslt2.namespace.element
+  | xslt2.next-match.element
+  | xslt2.number.element
+  | xslt2.perform-sort.element
+  | xslt2.processing-instruction.element
+  | xslt2.result-document.element
+  | xslt2.sequence.element
+  | xslt2.text.element
+  | xslt2.value-of.element
+  | xslt2.variable.element
+xslt2.extension.atts = attribute * - (xsl:* | local:*) { text }*
+xslt2.stylesheet.element = element stylesheet { xslt2.stylesheet.model }
+xslt2.transform.element = element transform { xslt2.stylesheet.model }
+xslt2.stylesheet.model =
+  xslt2.extension.atts,
+  attribute id { xsd:NCName }?,
+  attribute extension-element-prefixes { xslt2.prefixes.datatype }?,
+  attribute exclude-result-prefixes { xslt2.prefixes.datatype }?,
+  attribute version { xslt2.version },
+  attribute xpath-default-namespace { xsd:anyURI }?,
+  attribute default-validation {
+    "strict" | "lax" | "preserve" | "strip"
+  }?,
+  (xslt2.import.element*, xslt2.top-level-elements.model)
+xslt2.include.element =
+  element include {
+    xslt2.extension.atts,
+    attribute href { xsd:anyURI }
+  }
+xslt2.import.element =
+  element import {
+    xslt2.extension.atts,
+    attribute href { xsd:anyURI }
+  }
+xslt2.import-schema.element =
+  element import-schema {
+    xslt2.extension.atts,
+    attribute namespace { xsd:anyURI }?,
+    attribute schema-location { xsd:anyURI }?
+  }
+xslt2.strip-space.element =
+  element strip-space {
+    xslt2.extension.atts,
+    attribute elements { xslt2.wildcards.datatype }
+  }
+xslt2.preserve-space.element =
+  element preserve-space {
+    xslt2.extension.atts,
+    attribute elements { xslt2.wildcards.datatype }
+  }
+xslt2.template.element =
+  element template {
+    xslt2.extension.atts,
+    attribute match { xslt2.pattern.datatype }?,
+    attribute name { xslt2.qname.datatype }?,
+    attribute priority { xslt2.number.datatype }?,
+    attribute mode { xslt2.qname.datatype }?,
+    attribute as { xslt2.sequence.datatype }?,
+    (xslt2.param.element*, xslt2.template.model)
+  }
+xslt2.apply-templates.element =
+  element apply-templates {
+    xslt2.extension.atts,
+    attribute select { xslt2.expression.datatype }?,
+    attribute mode { xslt2.qname.datatype | text }?,
+    (xslt2.sort.element | xslt2.with-param.element)*
+  }
+xslt2.apply-imports.element =
+  element apply-imports { xslt2.extension.atts }
+xslt2.call-template.element =
+  element call-template {
+    xslt2.extension.atts,
+    attribute name { xslt2.qname.datatype },
+    xslt2.with-param.element*
+  }
+xslt2.namespace-alias.element =
+  element namespace-alias {
+    xslt2.extension.atts,
+    attribute stylesheet-prefix { xslt2.prefix.datatype },
+    attribute result-prefix { xslt2.prefix.datatype }
+  }
+xslt2.element.element =
+  element element {
+    xslt2.extension.atts,
+    attribute name { xslt2.qname.datatype | xslt2.expr-avt.datatype },
+    attribute namespace { xsd:anyURI | xslt2.brace-avt.datatype }?,
+    attribute use-attribute-sets { xslt2.qnames.datatype }?,
+    attribute type { xsd:QName }?,
+    attribute validation { "strict" | "lax" | "preserve" | "strip" }?,
+    xslt2.template.model
+  }
+xslt2.attribute.element =
+  element attribute {
+    xslt2.extension.atts,
+    attribute name { xslt2.qname.datatype | xslt2.expr-avt.datatype },
+    attribute namespace { xsd:anyURI | xslt2.brace-avt.datatype }?,
+    attribute separator { text }?,
+    attribute type { xsd:QName }?,
+    attribute validation { "strict" | "lax" | "preserve" | "strip" }?,
+    (attribute select { xslt2.expression.datatype }?
+     | xslt2.template.model)
+  }
+xslt2.attribute-set.element =
+  element attribute-set {
+    xslt2.extension.atts,
+    attribute name { xslt2.qname.datatype },
+    attribute use-attribute-sets { xslt2.qnames.datatype }?,
+    xslt2.attribute.element*
+  }
+xslt2.text.element =
+  element text {
+    xslt2.extension.atts,
+    attribute disable-output-escaping { "yes" | "no" }?,
+    text
+  }
+xslt2.processing-instruction.element =
+  element processing-instruction {
+    xslt2.extension.atts,
+    attribute name { xsd:NCName | xslt2.expr-avt.datatype },
+    attribute select { xslt2.expression.datatype }?,
+    xslt2.template.model
+  }
+xslt2.comment.element =
+  element comment {
+    xslt2.extension.atts,
+    attribute select { xslt2.expression.datatype }?,
+    xslt2.template.model
+  }
+xslt2.copy.element =
+  element copy {
+    xslt2.extension.atts,
+    attribute copy-namespaces { "yes" | "no" }?,
+    attribute use-attribute-sets { xslt2.qnames.datatype }?,
+    attribute type { xsd:QName }?,
+    attribute validation { "strict" | "lax" | "preserve" | "strip" }?,
+    xslt2.template.model
+  }
+xslt2.value-of.element =
+  element value-of {
+    xslt2.extension.atts,
+    attribute select { xslt2.expression.datatype },
+    attribute disable-output-escaping { "yes" | "no" }?
+  }
+xslt2.number.element =
+  element number {
+    xslt2.extension.atts,
+    attribute level {
+      xsd:string "single" | xsd:string "multiple" | xsd:string "any"
+    }?,
+    attribute count { xslt2.pattern.datatype }?,
+    attribute from { xslt2.pattern.datatype }?,
+    attribute value { xslt2.expression.datatype }?,
+    attribute format { xslt2.avt.datatype }?,
+    attribute lang { xsd:NMTOKEN | xslt2.expr-avt.datatype }?,
+    attribute letter-value {
+      xsd:string "alphabetic"
+      | xsd:string "traditional"
+      | xslt2.expr-avt.datatype
+    }?,
+    attribute grouping-separator {
+      xslt2.char.datatype | xslt2.expr-avt.datatype
+    }?,
+    attribute grouping-size {
+      xslt2.number.datatype | xslt2.expr-avt.datatype
+    }?,
+    attribute select { xslt2.expression.datatype }?,
+    attribute ordinal { text }?
+  }
+xslt2.for-each.element =
+  element for-each {
+    xslt2.extension.atts,
+    attribute select { xslt2.expression.datatype },
+    (xslt2.sort.element*, xslt2.template.model)
+  }
+xslt2.if.element =
+  element if {
+    xslt2.extension.atts,
+    attribute test { xslt2.expression.datatype },
+    xslt2.template.model
+  }
+xslt2.choose.element =
+  element choose {
+    xslt2.extension.atts,
+    (xslt2.when.element+, xslt2.otherwise.element?)
+  }
+xslt2.when.element =
+  element when {
+    xslt2.extension.atts,
+    attribute test { xslt2.expression.datatype },
+    xslt2.template.model
+  }
+xslt2.otherwise.element =
+  element otherwise { xslt2.extension.atts, xslt2.template.model }
+# what about the sequence constructor now allowed in sort?
+xslt2.sort.element =
+  element sort {
+    xslt2.extension.atts,
+    attribute select { xslt2.expression.datatype }?,
+    attribute lang { xsd:NMTOKEN | xslt2.expr-avt.datatype }?,
+    attribute data-type {
+      xsd:string "text"
+      | xsd:string "number"
+      | xslt2.qname-but-not-ncname.datatype
+      | xslt2.expr-avt.datatype
+    }?,
+    attribute order {
+      xsd:string "ascending"
+      | xsd:string "descending"
+      | xslt2.expr-avt.datatype
+    }?,
+    attribute case-order {
+      xsd:string "upper-first"
+      | xsd:string "lower-first"
+      | xslt2.expr-avt.datatype
+    }?
+  }
+xslt2.variable.element =
+  element variable {
+    xslt2.extension.atts,
+    attribute name { xslt2.qname.datatype },
+    attribute as { xslt2.sequence.datatype }?,
+    (attribute select { xslt2.expression.datatype }
+     | xslt2.template.model)
+  }
+xslt2.param.element =
+  element param {
+    xslt2.extension.atts,
+    attribute name { xslt2.qname.datatype },
+    attribute as { xslt2.sequence.datatype }?,
+    attribute required { "yes" | "no" }?,
+    attribute tunnel { "yes" | "no" }?,
+    (attribute select { xslt2.expression.datatype }
+     | xslt2.template.model)
+  }
+xslt2.copy-of.element =
+  element copy-of {
+    xslt2.extension.atts,
+    attribute copy-namespaces { "yes" | "no" }?,
+    attribute type { xsd:QName }?,
+    attribute validation { "strict" | "lax" | "preserve" | "strip" }?,
+    attribute select { xslt2.expression.datatype }
+  }
+xslt2.with-param.element =
+  element with-param {
+    xslt2.extension.atts,
+    attribute name { xslt2.qname.datatype },
+    attribute as { xslt2.sequence.datatype }?,
+    attribute tunnel { "yes" | "no" }?,
+    (attribute select { xslt2.expression.datatype }
+     | xslt2.template.model)
+  }
+xslt2.key.element =
+  element key {
+    xslt2.extension.atts,
+    attribute name { xslt2.qname.datatype },
+    attribute match { xslt2.pattern.datatype },
+    attribute use { xslt2.expression.datatype }?,
+    attribute collation { xsd:anyURI }?
+  }
+xslt2.decimal-format.element =
+  element decimal-format {
+    xslt2.extension.atts,
+    attribute name { xslt2.qname.datatype }?,
+    attribute decimal-separator { xslt2.char.datatype }?,
+    attribute grouping-separator { xslt2.char.datatype }?,
+    attribute infinity { text }?,
+    attribute minus-sign { xslt2.char.datatype }?,
+    attribute NaN { text }?,
+    attribute percent { xslt2.char.datatype }?,
+    attribute per-mille { xslt2.char.datatype }?,
+    attribute zero-digit { xslt2.char.datatype }?,
+    attribute digit { xslt2.char.datatype }?,
+    attribute pattern-separator { xslt2.char.datatype }?
+  }
+xslt2.message.element =
+  element message {
+    xslt2.extension.atts,
+    attribute terminate { xsd:string "yes" | xsd:string "no" }?,
+    (attribute select { xslt2.expression.datatype }?
+     | xslt2.template.model)
+  }
+xslt2.fallback.element =
+  element fallback { xslt2.extension.atts, xslt2.template.model }
+xslt2.output.element =
+  element output {
+    xslt2.extension.atts,
+    attribute name { xsd:QName }?,
+    attribute method {
+      xsd:string "xml"
+      | xsd:string "html"
+      | xsd:string "xhtml"
+      | xsd:string "text"
+      | xslt2.qname-but-not-ncname.datatype
+    }?,
+    attribute cdata-section-elements { xslt2.qnames.datatype }?,
+    attribute doctype-public { text }?,
+    attribute doctype-system { text }?,
+    attribute encoding { text }?,
+    attribute escape-uri-attribute { "yes" | "no" }?,
+    attribute include-content-type { "yes" | "no" }?,
+    attribute indent { xsd:string "yes" | xsd:string "no" }?,
+    attribute media-type { text }?,
+    attribute normalize-unicode { "yes" | "no" }?,
+    attribute omit-xml-declaration {
+      xsd:string "yes" | xsd:string "no"
+    }?,
+    attribute standalone { xsd:string "yes" | xsd:string "no" }?,
+    attribute undeclare-namespaces { "yes" | "no" }?,
+    attribute use-character-maps { xslt2.rqnames.datatype }?,
+    attribute version { xsd:NMTOKEN }?
+  }
+xslt2.analyze-string.element =
+  element analyze-string {
+    attribute select { xslt2.expression.datatype },
+    attribute regex { text },
+    attribute flags { text }?,
+    (xslt2.matching-substring.element?,
+     xslt2.non-matching-substring.element?,
+     xslt2.fallback.element*)
+  }
+xslt2.matching-substring.element =
+  element matching-substring { xslt2.template.model }
+xslt2.non-matching-substring.element =
+  element non-matching-substring { xslt2.template.model }
+xslt2.character-map.element =
+  element character-map {
+    attribute name { xsd:QName },
+    attribute use-character-maps { xslt2.rqnames.datatype }?,
+    xslt2.output-character.element*
+  }
+xslt2.output-character.element =
+  element output-character {
+    attribute character { xslt2.char.datatype },
+    attribute string { text }
+  }
+xslt2.function.element =
+  element function {
+    attribute name { xsd:QName },
+    attribute as { xslt2.sequence.datatype }?,
+    attribute override { "yes" | "no" }?,
+    (xslt2.param.element*, xslt2.template.model)
+  }
+xslt2.for-each-group.element =
+  element for-each-group {
+    attribute select { xslt2.expression.datatype },
+    attribute group-by { xslt2.expression.datatype }?,
+    attribute group-adjacent { xslt2.expression.datatype }?,
+    attribute group-starting-with { xslt2.pattern.datatype }?,
+    attribute group-ending-with { xslt2.pattern.datatype }?,
+    attribute collation { xsd:anyURI }?,
+    (xslt2.sort.element*, xslt2.template.model)
+  }
+xslt2.namespace.element =
+  element namespace {
+    attribute name { xsd:NCName }?,
+    (attribute select { xslt2.expression.datatype }
+     | xslt2.template.model)
+  }
+xslt2.next-match.element =
+  element next-match {
+    (xslt2.with-param.element | xslt2.fallback.element)*
+  }
+xslt2.perform-sort.element =
+  element perform-sort {
+    attribute select { xslt2.expression.datatype }?,
+    (xslt2.sort.element+, xslt2.template.model)
+  }
+xslt2.result-document.element =
+  element result-document {
+    attribute format { xsd:QName }?,
+    attribute href { xsd:anyURI }?,
+    attribute validation { "strict" | "lax" | "preserve" | "strip" }?,
+    attribute type { xsd:QName }?,
+    xslt2.template.model
+  }
+xslt2.sequence.element =
+  element sequence {
+    attribute as { xslt2.sequence.datatype }?,
+    (attribute select { xslt2.expression.datatype }?
+     | xslt2.template.model)
+  }
+xslt2.prefixes.datatype = list { (xsd:NCName | "#default")* }
+xslt2.prefix.datatype = xsd:NCName | "#default"
+xslt2.wildcards.datatype =
+  list {
+    (xsd:QName
+     | xsd:token { pattern = "\*|\i\c*:\*" })*
+  }
+xslt2.qname.datatype = xsd:QName
+xslt2.qnames.datatype = list { xsd:QName* }
+xslt2.rqnames.datatype = list { xsd:QName+ }
+xslt2.char.datatype = xsd:string { length = "1" }
+xslt2.number.datatype = xsd:decimal
+xslt2.expression.datatype = text
+xslt2.sequence.datatype = text
+xslt2.pattern.datatype = text
+xslt2.qname-but-not-ncname.datatype = xsd:QName { pattern = ".*:.*" }
+# An AVT containing at least one expression.
+xslt2.expr-avt.datatype =
+  xsd:string {
+    pattern =
+      """([^\{\}]|\{\{|\}\})*\{([^"'\{\}]|"[^"]*"|'[^']*')+\}([^\{\}]|\{\{|\}\}|\{([^"'\{\}]|"[^"]*"|'[^']*')+\})*"""
+  }
+# An AVT containing at least one brace; ie where instantiated AVT
+# is not the same as the literal AVT.
+xslt2.brace-avt.datatype =
+  xsd:string {
+    pattern =
+      """[^\{\}]*(\{\{|\}\}|\{([^"'\{\}]|"[^"]*"|'[^']*')+\})([^\{\}]|\{\{|\}\}|\{([^"'\{\}]|"[^"]*"|'[^']*')+\})*"""
+  }
+xslt2.avt.datatype =
+  xsd:string {
+    pattern =
+      """([^\{\}]|\{\{|\}\}|\{([^"'\{\}]|"[^"]*"|'[^']*')+\})*"""
+  }
