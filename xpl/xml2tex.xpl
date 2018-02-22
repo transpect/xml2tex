@@ -113,11 +113,34 @@
   <!--  *
         * validate the configuration file.
         * -->
-  <p:validate-with-relax-ng name="validate" assert-valid="true">
-    <p:input port="schema">
-      <p:document href="../schema/xml2tex.rng"/>
-    </p:input>
-  </p:validate-with-relax-ng>
+
+  <p:try name="try-validate">
+    <p:group>
+      <p:validate-with-relax-ng name="validate" assert-valid="true">
+        <p:input port="schema">
+          <p:document href="../schema/xml2tex.rng"/>
+        </p:input>
+      </p:validate-with-relax-ng>      
+    </p:group>
+    <p:catch name="catch">
+      <cx:message>
+        <p:input port="source">
+          <p:pipe port="error" step="catch"/>
+        </p:input>
+        <p:with-option name="message"
+                       select="'[WARNING]: Configuration is not valid with respect to the schema. Please validate your configuration file with schema/xml2tex.rng.&#xa;'"/>
+      </cx:message>
+
+      <p:sink/>
+
+      <p:identity>
+        <p:input port="source">
+          <p:pipe port="result" step="load-config"/>
+        </p:input>
+      </p:identity>
+      
+    </p:catch>
+  </p:try>
   
   <tr:simple-progress-msg file="xml2tex-validate-config.txt" name="msg-1">
     <p:input port="msgs">
