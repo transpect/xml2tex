@@ -9,7 +9,7 @@
   <xsl:import href="http://transpect.io/xslt-util/roman-numerals/xsl/roman2int.xsl"/>
   
   <!-- tex document header, set declarations such as documentclass and usepackage -->
-  <preamble>% docx2tex --- ``Garbage In, Garbage Out''
+  <preamble>% docx2tex 1.1 --- ``Escape from MS Island''
     %
     % docx2tex is Open Source and 
     % you can download it on GitHub:
@@ -644,6 +644,13 @@
     <rule name="thebibliography" type="env" break-after="2" break-before="1">
       <param>0</param>
       <text/>
+    </rule>
+  </template>
+  
+  <template context="dbk:bibliodiv">
+    <rule name="bibsect" type="env">
+      <param select="dbk:title"/>
+      <text select="node() except dbk:title"/>
     </rule>
   </template>
   
