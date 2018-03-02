@@ -8,7 +8,7 @@ xml2tex is not a standalone tool but an XProc library which also depends on othe
 So you need a little setup to run it. First start with creating a project directory and 
 cloning the modules from GitHub:
 
-```bash
+```
 $ mkdir asyoulike && cd asyoulike
 $ git clone --recursive https://github.com/transpect/calabash-frontend.git
 $ git clone https://github.com/transpect/mml2tex.git
