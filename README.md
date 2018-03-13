@@ -168,7 +168,7 @@ A Template can contain zero or one `rule` child element. If no `rule` exists, th
 
 Given this XML element…
 ```xml
-<para xmlns="http://docbook.org/ns/docbook" @role="heading1">my headline</para>
+<para xmlns="http://docbook.org/ns/docbook" role="heading1">my headline</para>
 ```
 …the template above would generate this LaTeX code:
 ```xml
