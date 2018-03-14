@@ -195,7 +195,8 @@ The `@name` attribute describes the name of the LaTeX instruction.
 
 A rule can contain three child elements: `text`, `param`, `option`, which define how the content of the current XML node is wrapped. The `param` element specifies that the contents of the current context XML node is wrapped with curly braces `{}`. `option` is used to wrap the content with brackets `[]`, hence `text` process it without any wrapper.
 
-Each of these elements can contain a `@select` attribute. This attribute is optional and can be used to select a specific XML node within the current XML context. The example below shows how to use the `@select` attribute to construct the parameters of a LaTeX link instruction.
+Each of these elements can contain a `@select` attribute. This attribute is optional and can be used to specify an XML node within the current context. The example below shows how to use the `@select` attribute to construct the parameters of a LaTeX link instruction.
+
 ```xml
 <template context="dbk:link">
   <rule type="cmd" name="href">
@@ -205,9 +206,27 @@ Each of these elements can contain a `@select` attribute. This attribute is opti
 </template>
 ```
 
+### Style Mapping
+
+Frequently, you just want to map one element to a specific TeX instruction. Therefore xml2tex provides a simple `style` mapping.
+The content is selected by a specific attribute value. Therefore, you have to declare the name of the attribute globally with
+`@style-attribute`. Within `style` you specify the attribute value with `@name`. With `@start` and `@end`, you define which text
+is put around the content. Note: use Unicode entities such as `&#xa;` to insert line breaks or handle whitespace.
+
+In the example below, all elements with a `@role` attribute and the value `heading1` are converted to `\chapter{ … }`.
+
+```xml
+<set xmlns="http://transpect.io/xml2tex"
+  style-attribute="role">
+
+  <style name="heading1" start="\chapter{" end="}"/>
+
+</set>
+```
+
 ### Regular Expressions
 
-Insted of templates, you can also use regular expressions to construct a LaTeX instruction. Therefore, you can use the element `regex` and specify a regular expressions with the `@regex` attribute.
+Instead of templates and style mapping, you can also use regular expressions to construct a LaTeX instruction. Therefore, you can use the element `regex` and specify a regular expressions with the `@regex` attribute.
 
 If you want to use groups in your matching pattern, you can specify the optional attribute`regex-group` to select a specific  group. The example below shows how to construct a date makro with regular expressions.
 ```xml
