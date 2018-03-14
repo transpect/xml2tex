@@ -256,7 +256,19 @@
 
   </xsl:template>
 
-  <xsl:template match="xml2tex:regex/xml2tex:rule"/>  
+  <xsl:template match="xml2tex:regex/xml2tex:rule"/>
+  
+  <xsl:variable name="style-attribute" select="/xml2tex:set/@style-attribute" as="attribute(style-attribute)?"/>
+  
+  <xsl:template match="xml2tex:style">
+    <xsl:variable name="template-priority" select="count($rule-indexes) + position()" as="xs:integer"/>
+    <xso:template match="*[@{$style-attribute} eq '{@name}']" 
+                  mode="apply-xpath" priority="{$template-priority}">
+      <xso:value-of select="'{@start}'"/>
+      <xso:apply-templates mode="#current"/>
+      <xso:value-of select="'{@end}'"/>
+    </xso:template>
+  </xsl:template>
 
   <xsl:template match="xml2tex:template/xml2tex:rule">
     <xsl:variable name="rule" select="." as="element(xml2tex:rule)"/>
