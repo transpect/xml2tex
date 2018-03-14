@@ -136,6 +136,30 @@ xml2tex.template =
   element xml2tex:template {
     xml2tex.template.attributes, xml2tex.templatemodel.content
   }
+xml2tex.style =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "style" ] " element" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "This is a shorter but less powerful alternative for "
+        ns1:code [ "template" ]
+        ". You can select \x{a}" ~
+        "          elements by a specific attribute and value. The attribute name has to be declared\x{a}" ~
+        "          globally with "
+        ns1:code [ "@style-attribute" ]
+        " at "
+        ns1:code [ "xml2tex:set" ]
+        "."
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  element xml2tex:style { xml2tex.style.attributes }
 xml2tex.regex =
   [
     a:documentation [
@@ -331,7 +355,9 @@ xml2tex.option =
 # *
 # * attributes
 # *
-xml2tex.set.attributes = attribute xml:base { xsd:anyURI }?
+xml2tex.set.attributes =
+  attribute xml:base { xsd:anyURI }?
+  & attribute style-attribute { text }?
 xml2tex.atom.attributes =
   ([
      a:documentation [
@@ -645,6 +671,66 @@ xml2tex.char.attributes =
       ]
     ]
     attribute context { text }?
+xml2tex.style.attributes =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "name" ] " attribute" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [ "Value: " ns1:code [ "XML Attribute value" ] ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "Specifies the attribute value of an XML element. The attribute name has to be declared\x{a}" ~
+        "          globally with "
+        ns1:code [ "@style-attribute" ]
+        " at "
+        ns1:code [ "xml2tex:set" ]
+        "."
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  attribute name { text },
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "start" ] " attribute" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [ "Value: " ns1:code [ "Plain text" ] ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "The value of this attribute is inserted before the selected XML element."
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  attribute start { text },
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "end" ] " attribute" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [ "Value: " ns1:code [ "Plain text" ] ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "The value of this attribute is inserted after the selected XML element."
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  attribute end { text }
 xml2tex.regex.attributes =
   [
     a:documentation [
@@ -687,7 +773,7 @@ xml2tex.set.content =
   & xml2tex.front?
   & xml2tex.back?
   & xml2tex.ns*
-  & (xml2tex.template | xml2tex.regex)*
+  & (xml2tex.template | xml2tex.style | xml2tex.regex)*
   & xml2tex.charmap?
 xml2tex.content.empty = empty
 xml2tex.templatemodel.content =

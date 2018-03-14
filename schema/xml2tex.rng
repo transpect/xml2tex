@@ -91,6 +91,18 @@
       <ref name="xml2tex.templatemodel.content"/>
     </element>
   </define>
+  
+  <define name="xml2tex.style">
+    <element name="xml2tex:style">
+      <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+        <h1>The <i>style</i> element</h1>
+        <p>This is a shorter but less powerful alternative for <code>template</code>. You can select 
+          elements by a specific attribute and value. The attribute name has to be declared
+          globally with <code>@style-attribute</code> at <code>xml2tex:set</code>.</p>
+      </a:documentation>
+      <ref name="xml2tex.style.attributes"/>  
+    </element>
+  </define>
 
   <define name="xml2tex.regex">
     <element name="xml2tex:regex">
@@ -187,11 +199,18 @@
         * -->
 
   <define name="xml2tex.set.attributes">
-    <optional>
-      <attribute name="xml:base">
-        <data type="anyURI"/>
-      </attribute>
-    </optional>
+    <interleave>
+      <optional>
+        <attribute name="xml:base">
+          <data type="anyURI"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="style-attribute">
+          <text/>
+        </attribute>
+      </optional>
+    </interleave>
   </define>
 
   <define name="xml2tex.atom.attributes">
@@ -368,6 +387,31 @@
       </optional>
     </interleave>
   </define>
+  
+  <define name="xml2tex.style.attributes">
+    <attribute name="name">
+      <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+        <h1>The <i>name</i> attribute</h1>
+        <p>Value: <code>XML Attribute value</code></p>
+        <p>Specifies the attribute value of an XML element. The attribute name has to be declared
+          globally with <code>@style-attribute</code> at <code>xml2tex:set</code>.</p>
+      </a:documentation>
+    </attribute>
+    <attribute name="start">
+      <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+        <h1>The <i>start</i> attribute</h1>
+        <p>Value: <code>Plain text</code></p>
+        <p>The value of this attribute is inserted before the selected XML element.</p>
+      </a:documentation>
+    </attribute>
+    <attribute name="end">
+      <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+        <h1>The <i>end</i> attribute</h1>
+        <p>Value: <code>Plain text</code></p>
+        <p>The value of this attribute is inserted after the selected XML element.</p>
+      </a:documentation>
+    </attribute>
+  </define>
 
   <define name="xml2tex.regex.attributes">
     <attribute name="regex">
@@ -411,6 +455,7 @@
       <zeroOrMore>
         <choice>
           <ref name="xml2tex.template"/>
+          <ref name="xml2tex.style"/>
           <ref name="xml2tex.regex"/>
         </choice>
       </zeroOrMore>
