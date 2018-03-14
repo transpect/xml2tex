@@ -79,6 +79,8 @@
                                        (xml2tex:front, $imports/xml2tex:front)[1],
                                        (xml2tex:back, $imports/xml2tex:back)[1],
                                        xml2tex:ns, $imports/xml2tex:ns,
+                                       xml2tex:option, $imports/xml2tex:option,
+                                       xml2tex:style, $imports/xml2tex:style,
                                        $imports/xsl:* except $imports/xsl:import,
                                        $imports/xml2tex:template,
                                        $imports/xml2tex:regex, 

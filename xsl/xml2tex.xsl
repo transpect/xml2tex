@@ -19,64 +19,6 @@
   <xsl:param name="debug-dir-uri" select="'debug'"/>
   
   <xsl:include href="handle-namespace.xsl"/>
-  
-  <!-- handle imported xml2tex configuration files -->
-  
-  <xsl:variable name="imported-top-level-xsl" as="element()*">
-    <xsl:for-each select="/xml2tex:set/xml2tex:import">
-      <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
-      <xsl:sequence select="$doc/xml2tex:set/xsl:*"/>
-    </xsl:for-each>
-  </xsl:variable>
-  
-  <xsl:variable name="imported-preambles" as="element(xml2tex:preamble)*">
-    <xsl:for-each select="/xml2tex:set/xml2tex:import">
-      <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
-      <xsl:sequence select="$doc/xml2tex:set/xml2tex:preamble"/>
-    </xsl:for-each>
-  </xsl:variable>
-  
-  <xsl:variable name="imported-frontmatters" as="element(xml2tex:front)*">
-    <xsl:for-each select="/xml2tex:set/xml2tex:import">
-      <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
-      <xsl:sequence select="$doc/xml2tex:set/xml2tex:front"/>
-    </xsl:for-each>
-  </xsl:variable>
-  
-  <xsl:variable name="imported-backmatters" as="element(xml2tex:back)*">
-    <xsl:for-each select="/xml2tex:set/xml2tex:import">
-      <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
-      <xsl:sequence select="$doc/xml2tex:set/xml2tex:back"/>
-    </xsl:for-each>
-  </xsl:variable>
-  
-  <xsl:variable name="imported-ns-declarations" as="element(xml2tex:ns)*">
-    <xsl:for-each select="/xml2tex:set/xml2tex:import">
-      <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
-      <xsl:sequence select="$doc/xml2tex:set/xml2tex:ns"/>
-    </xsl:for-each>
-  </xsl:variable>
-  
-  <xsl:variable name="imported-templates" as="element(xml2tex:template)*">
-    <xsl:for-each select="/xml2tex:set/xml2tex:import">
-      <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
-      <xsl:sequence select="$doc/xml2tex:set/xml2tex:template"/>
-    </xsl:for-each>  
-  </xsl:variable>
-  
-  <xsl:variable name="imported-regex-templates" as="element(xml2tex:regex)*">
-    <xsl:for-each select="/xml2tex:set/xml2tex:import">
-      <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
-      <xsl:sequence select="$doc/xml2tex:set/xml2tex:regex"/>
-    </xsl:for-each>  
-  </xsl:variable>
-  
-  <xsl:variable name="imported-charmap-chars" as="element(xml2tex:char)*">
-    <xsl:for-each select="/xml2tex:set/xml2tex:import">
-      <xsl:variable name="doc" select="doc(resolve-uri(@href, base-uri()))" as="document-node(element(xml2tex:set))"/>
-      <xsl:sequence select="$doc/xml2tex:set/xml2tex:charmap/xml2tex:char"/>
-    </xsl:for-each>  
-  </xsl:variable>
 
   <xsl:template match="/xml2tex:set">
         
@@ -91,13 +33,13 @@
       xmlns:c="http://www.w3.org/ns/xproc-step"
       xmlns:xso="tobereplaced">
       
-      <xsl:apply-templates select="xml2tex:ns, $imported-ns-declarations"/>
+      <xsl:apply-templates select="xml2tex:ns"/>
       
       <xsl:attribute name="version">2.0</xsl:attribute>
 
       <xso:import href="http://transpect.io/xslt-util/functx/xsl/functx.xsl"/>
 
-      <xsl:apply-templates select="xsl:import, $imported-top-level-xsl"/>
+      <xsl:apply-templates select="xsl:import"/>
 
       <xso:output method="text" media-type="text/plain" encoding="UTF8"/>
 
@@ -107,11 +49,11 @@
         <!-- The c:data-section is necessary for XProc text output. -->
         <c:data content-type="text/plain">
           
-          <xsl:apply-templates select="(xml2tex:preamble, $imported-preambles)[1]"/>
+          <xsl:apply-templates select="xml2tex:preamble"/>
           <xso:text>&#xa;\begin{document}&#xa;</xso:text>
-          <xsl:apply-templates select="(xml2tex:front, $imported-frontmatters)[1]"/>
+          <xsl:apply-templates select="xml2tex:front"/>
           <xso:apply-templates mode="#current"/>
-          <xsl:apply-templates select="(xml2tex:back, $imported-backmatters)[1]"/>
+          <xsl:apply-templates select="xml2tex:back"/>
           <xso:text>&#xa;\end{document}&#xa;</xso:text>
         </c:data>
       </xso:template>
@@ -201,7 +143,7 @@
       <!-- apply regex from conf file -->
       <xso:template match="text()" mode="apply-regex">
         <xso:variable name="content" select="." as="xs:string"/>
-        <xsl:for-each select="xml2tex:regex|$imported-regex-templates">
+        <xsl:for-each select="xml2tex:regex">
           <xsl:variable name="pattern" select="concat('''', @regex, '''')" as="xs:string"/>
           <xsl:variable name="delimiters"
             select="if(xml2tex:rule/@type eq 'cmd') then (concat('\', xml2tex:rule/@name), '')
@@ -246,10 +188,6 @@
         <xso:apply-templates mode="#current"/>
       </xso:template>
       
-      <xsl:comment select="'----------- START: imported templates'"/>
-      <xsl:apply-templates select="$imported-templates"/>
-      <xsl:comment select="'----------- END: imported templates'"/>
-      
       <xsl:apply-templates select="xml2tex:* except (xml2tex:ns, xml2tex:preamble, xml2tex:front, xml2tex:back)"/>
       
       <xsl:call-template name="replace-chars-mode"/>
@@ -284,7 +222,7 @@
     <xsl:text>&#xa;</xsl:text>
   </xsl:template>
   
-  <xsl:variable name="rule-indexes" select="for $i in ($imported-templates, //xml2tex:template) return generate-id($i)" as="xs:string*"/>
+  <xsl:variable name="rule-indexes" select="for $i in //xml2tex:template return generate-id($i)" as="xs:string*"/>
   
   <xsl:template match="xml2tex:template">
     <!--  * the priority of a rule is determined by its order. If more than one 
@@ -318,7 +256,7 @@
 
   </xsl:template>
 
-  <xsl:template match="xml2tex:regex/xml2tex:rule"/>
+  <xsl:template match="xml2tex:regex/xml2tex:rule"/>  
 
   <xsl:template match="xml2tex:template/xml2tex:rule">
     <xsl:variable name="rule" select="." as="element(xml2tex:rule)"/>
@@ -425,9 +363,9 @@
   <xsl:template name="replace-chars-mode">
         
     <xso:variable name="texregex" select="{concat('''', 
-                                                  if(/xml2tex:set/xml2tex:charmap//xml2tex:char, $imported-charmap-chars)
+                                                  if(/xml2tex:set/xml2tex:charmap//xml2tex:char)
                                                   then concat('([', 
-                                                              string-join(for $ i in (/xml2tex:set/xml2tex:charmap//xml2tex:char, $imported-charmap-chars)
+                                                              string-join(for $ i in /xml2tex:set/xml2tex:charmap//xml2tex:char
                                                                           return functx:escape-for-regex(normalize-space($i/@character)),
                                                                           ''),
                                                               '])')
@@ -435,7 +373,7 @@
                                                   '''')}" as="xs:string"/>
 
       <xso:variable name="charmap" as="element(xml2tex:char)*">
-        <xsl:for-each select="(//xml2tex:char, $imported-charmap-chars)">
+        <xsl:for-each select="//xml2tex:char">
           <xml2tex:char>
             <xsl:copy-of select="@context"/>
             <xml2tex:character><xsl:value-of select="@character"/></xml2tex:character>
@@ -450,7 +388,7 @@
         <xso:variable name="simplemath" select="normalize-unicode(string-join(xml2tex:convert-simplemath(.), ''))" as="xs:string"/>
         <!-- maps unicode to latex -->
         <xsl:choose>
-          <xsl:when test="/xml2tex:set/xml2tex:charmap|$imported-charmap-chars">
+          <xsl:when test="/xml2tex:set/xml2tex:charmap">
             <xso:variable name="utf2tex" select="if(matches($simplemath, $texregex)) 
                                                  then string-join(xml2tex:utf2tex(.., $simplemath, $charmap, ()), '') 
                                                  else $simplemath" as="xs:string"/>
@@ -632,7 +570,7 @@
     <xso:template match="*" mode="char-context" as="xs:string?" priority="-1"/>
     <xso:template match="/" mode="char-context" as="xs:string?" priority="-1"/>
     
-    <xsl:for-each-group select="/xml2tex:set/xml2tex:charmap//xml2tex:char[normalize-space(@context)]|$imported-charmap-chars[normalize-space(@context)]" group-by="@context">
+    <xsl:for-each-group select="/xml2tex:set/xml2tex:charmap//xml2tex:char[normalize-space(@context)]" group-by="@context">
       <xso:template match="{@context}" mode="char-context" as="xs:string?"><!-- priority="{xml2tex:index-of(../xml2tex:char, .)}" -->
         <xso:param name="char-in-doc" as="xs:string?"/>
         <xso:choose>
