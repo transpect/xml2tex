@@ -237,7 +237,7 @@
                                                 return round-half-to-even($i div $table-width, 2)" as="xs:decimal*"/>
     <xsl:variable name="col-declaration" select="concat($line-separator, 
                                                         string-join(for $i in (1 to $col-count) 
-                                                                    return if($col-widths) 
+                                                                    return if(exists($col-widths)) 
                                                                            then concat('&#xa;p{\dimexpr ', $rel-col-widths[$i] ,'\linewidth-2\tabcolsep}')
                                                                            else 'l', 
                                                                     $line-separator), 
