@@ -231,13 +231,15 @@
                                              0
                                            )[1]" as="xs:integer"/>
     <xsl:variable name="col-widths" select="for $i in *:colspec/@colwidth
-                                            return xs:decimal(replace(replace($i, '[a-z\*%]', ''), '^\.', '0.'))" as="xs:decimal+"/>
+                                            return xs:decimal(replace(replace($i, '[a-z\*%]', ''), '^\.', '0.'))" as="xs:decimal*"/>
     <xsl:variable name="table-width" select="sum($col-widths)" as="xs:decimal"/>
-    <xsl:variable name="rel-col-widths" select="for $i in $col-widths return 
-                                                round-half-to-even($i div $table-width, 2)" as="xs:decimal+"/>
+    <xsl:variable name="rel-col-widths" select="for $i in $col-widths 
+                                                return round-half-to-even($i div $table-width, 2)" as="xs:decimal*"/>
     <xsl:variable name="col-declaration" select="concat($line-separator, 
                                                         string-join(for $i in (1 to $col-count) 
-                                                                    return concat('&#xa;p{\dimexpr ', $rel-col-widths[$i] ,'\linewidth-2\tabcolsep}'), 
+                                                                    return if($col-widths) 
+                                                                           then concat('&#xa;p{\dimexpr ', $rel-col-widths[$i] ,'\linewidth-2\tabcolsep}')
+                                                                           else 'l', 
                                                                     $line-separator), 
                                                         $line-separator)" as="xs:string"/>
     <xsl:variable name="top-separator" select="if($table-grid eq 'yes') then '&#x20;\hline&#x20;&#xa;' else ''" as="xs:string"/>
