@@ -582,7 +582,8 @@
     <xso:template match="*" mode="char-context" as="xs:string?" priority="-1"/>
     <xso:template match="/" mode="char-context" as="xs:string?" priority="-1"/>
     
-    <xsl:for-each-group select="/xml2tex:set/xml2tex:charmap//xml2tex:char[normalize-space(@context)]" group-by="@context">
+    <xsl:for-each-group select="/xml2tex:set/xml2tex:charmap//xml2tex:char[normalize-space(@context)]" 
+                        group-by="normalize-space(@context)">
       <xso:template match="{@context}" mode="char-context" as="xs:string?"><!-- priority="{xml2tex:index-of(../xml2tex:char, .)}" -->
         <xso:param name="char-in-doc" as="xs:string?"/>
         <xso:choose>
