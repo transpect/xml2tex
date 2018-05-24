@@ -20,10 +20,11 @@
   <p:input port="conf" primary="false">
     <p:document href="../example/conf-hubcssa.xml"/>
   </p:input>
-
-  <!--<p:input port="lists-xsl">
-    <p:document href="../xsl/lists.xsl"/>
-  </p:input>-->
+  <p:input port="paths" primary="false">
+    <p:inline>
+      <c:param-set/>
+    </p:inline>
+  </p:input>
 
   <p:output port="result" primary="true"/>
   
@@ -86,6 +87,7 @@
   <p:import href="load-config.xpl"/>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
+  <p:import href="http://transpect.io/cascade/xpl/load-cascaded.xpl"/>
   <p:import href="http://transpect.io/mml2tex/xpl/mml2tex.xpl"/>
   <p:import href="http://transpect.io/xslt-util/calstable/xpl/normalize.xpl"/>
   <p:import href="http://transpect.io/xslt-util/calstable/xpl/resolve-nested-tables.xpl"/>
@@ -208,13 +210,24 @@
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
   
+  <p:sink/>
+  
+  <tr:load-cascaded name="load-cals2tabular-xsl" filename="xml2tex/xsl/template.html">
+    <p:with-option name="fallback" select="resolve-uri('../xsl/calstable2tabular.xsl')"/>
+    <p:input port="paths">
+      <p:pipe port="paths" step="xml2tex"/>
+    </p:input>
+    <p:with-option name="debug" select="$debug"/>
+    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+  </tr:load-cascaded>
+  
   <p:xslt name="cals2tabular" template-name="main">
     <p:documentation>
       This stylesheet converts CALS tables to LaTeX tabular tables. The LaTeX Code is 
       inserted as "cals2tabular" processing instructions. 
     </p:documentation>
     <p:input port="stylesheet">
-      <p:document href="../xsl/calstable2tabular.xsl"/>
+      <p:pipe port="result" step="load-cals2tabular-xsl"/>
     </p:input>
     <p:with-param name="table-model" select="$table-model"/>
     <p:with-param name="table-grid" select="$table-grid"/>
@@ -254,24 +267,6 @@
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
-    
-  <!--<p:xslt name="lists">
-    <p:documentation>
-      Ordered lists are converted to enumerate environment.
-      Supports various list numbering styles and individual start values.
-    </p:documentation>    
-    <p:input port="stylesheet">
-      <p:pipe port="lists-xsl" step="xml2tex"/>
-    </p:input>
-    <p:with-param name="debug" select="$debug"/>
-    <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
-  </p:xslt>-->
-  
-  <!--<tr:store-debug name="debug-lists">
-    <p:with-option name="pipeline-step" select="concat($prefix, '5.lists')"/>
-    <p:with-option name="active" select="$debug"/>
-    <p:with-option name="base-uri" select="$debug-dir-uri"/>
-  </tr:store-debug>-->
   
   <tr:simple-progress-msg file="xml2tex-convert-xml.txt" name="msg-4">
     <p:input port="msgs">
