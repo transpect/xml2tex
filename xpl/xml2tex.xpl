@@ -156,6 +156,8 @@
     <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
   </tr:simple-progress-msg>
   
+  <p:sink/>
+  
   <tr:load-cascaded name="load-generate-conf-xsl" filename="xml2tex/xml2tex.xsl">
     <p:with-option name="fallback" select="resolve-uri('../xsl/xml2tex.xsl')"/>
     <p:input port="paths">
@@ -164,6 +166,8 @@
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </tr:load-cascaded>
+  
+  <p:sink/>
   
   <p:xslt name="conf2xsl">
     <p:documentation>This step generates a stylesheet from the xml2tex 
@@ -230,11 +234,16 @@
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </tr:load-cascaded>
   
+  <p:sink/>
+  
   <p:xslt name="cals2tabular" template-name="main">
     <p:documentation>
       This stylesheet converts CALS tables to LaTeX tabular tables. The LaTeX Code is 
       inserted as "cals2tabular" processing instructions. 
     </p:documentation>
+    <p:input port="source">
+      <p:pipe port="result" step="debug-calstables"/>
+    </p:input>
     <p:input port="stylesheet">
       <p:pipe port="result" step="load-cals2tabular-xsl"/>
     </p:input>
@@ -308,7 +317,7 @@
       <p:pipe port="result" step="conf2xsl"/>
     </p:input>
     <p:input port="parameters">
-      <p:empty/>
+      <p:pipe port="paths" step="xml2tex"/>
     </p:input>
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
@@ -322,7 +331,7 @@
       <p:pipe port="result" step="conf2xsl"/>
     </p:input>
     <p:input port="parameters">
-      <p:empty/>
+      <p:pipe port="paths" step="xml2tex"/>
     </p:input>
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
@@ -336,7 +345,7 @@
       <p:pipe port="result" step="conf2xsl"/>
     </p:input>
     <p:input port="parameters">
-      <p:empty/>
+      <p:pipe port="paths" step="xml2tex"/>
     </p:input>
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
@@ -350,7 +359,7 @@
       <p:pipe port="result" step="conf2xsl"/>
     </p:input>
     <p:input port="parameters">
-      <p:empty/>
+      <p:pipe port="paths" step="xml2tex"/>
     </p:input>
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
@@ -364,7 +373,7 @@
       <p:pipe port="result" step="conf2xsl"/>
     </p:input>
     <p:input port="parameters">
-      <p:empty/>
+      <p:pipe port="paths" step="xml2tex"/>
     </p:input>
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
