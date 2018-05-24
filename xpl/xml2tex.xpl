@@ -156,11 +156,20 @@
     <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
   </tr:simple-progress-msg>
   
+  <tr:load-cascaded name="load-generate-conf-xsl" filename="xml2tex/xml2tex.xsl">
+    <p:with-option name="fallback" select="resolve-uri('../xsl/xml2tex.xsl')"/>
+    <p:input port="paths">
+      <p:pipe port="paths" step="xml2tex"/>
+    </p:input>
+    <p:with-option name="debug" select="$debug"/>
+    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+  </tr:load-cascaded>
+  
   <p:xslt name="conf2xsl">
     <p:documentation>This step generates a stylesheet from the xml2tex 
       mapping instructions. The rules are converted to XSL templates.</p:documentation>
     <p:input port="stylesheet">
-      <p:document href="../xsl/xml2tex.xsl"/>
+      <p:pipe port="result" step="load-generate-conf-xsl"/>
     </p:input>
     <p:input port="source">
       <p:pipe port="result" step="load-config"/>
@@ -212,7 +221,7 @@
   
   <p:sink/>
   
-  <tr:load-cascaded name="load-cals2tabular-xsl" filename="xml2tex/xsl/template.html">
+  <tr:load-cascaded name="load-cals2tabular-xsl" filename="xml2tex/calstable2tabular.xsl">
     <p:with-option name="fallback" select="resolve-uri('../xsl/calstable2tabular.xsl')"/>
     <p:input port="paths">
       <p:pipe port="paths" step="xml2tex"/>
