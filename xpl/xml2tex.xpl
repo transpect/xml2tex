@@ -275,6 +275,9 @@
     <p:documentation>
       MathML equations are converted to "mml2tex" processing instructions.
     </p:documentation>
+    <p:input port="paths">
+      <p:pipe port="paths" step="xml2tex"/>
+    </p:input>
     <p:with-option name="preprocessing" select="$preprocessing"/>    
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
