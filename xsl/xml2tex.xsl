@@ -39,11 +39,11 @@
 
       <xso:import href="http://transpect.io/xslt-util/functx/xsl/functx.xsl"/>
 
-      <xsl:apply-templates select="xsl:import"/>
+      <xsl:apply-templates select="xsl:import, xsl:param, xsl:key"/>
 
       <xso:output method="text" media-type="text/plain" encoding="UTF8"/>
 
-      <xsl:apply-templates select="xsl:* except xsl:import"/>
+      <xsl:apply-templates select="xsl:* except (xsl:import|xsl:param|xsl:key)"/>
 
       <xso:template match="/" mode="apply-xpath">
         <!-- The c:data-section is necessary for XProc text output. -->

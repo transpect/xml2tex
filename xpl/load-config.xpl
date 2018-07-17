@@ -75,6 +75,8 @@
                     </xsl:copy>
                   </xsl:for-each>
                   <xsl:copy-of select="xsl:import, $imports/xsl:import,
+                                       xsl:param, $imports/xsl:param,
+                                       xsl:key, $imports/xsl:key,
                                        (xml2tex:preamble, $imports/xml2tex:preamble)[1],
                                        (xml2tex:front, $imports/xml2tex:front)[1],
                                        (xml2tex:back, $imports/xml2tex:back)[1],
@@ -85,7 +87,7 @@
                                        $imports/xml2tex:template,
                                        $imports/xml2tex:regex, 
                                        $imports/xsl:template,
-                                       xsl:* except xsl:import,
+                                       xsl:* except (xsl:import|xsl:key|xsl:param),
                                        xml2tex:template, 
                                        xml2tex:regex"/>
                   <charmap>
