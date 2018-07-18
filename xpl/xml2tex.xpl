@@ -208,6 +208,38 @@
     </p:input>
   </p:identity>
   
+  <p:choose name="html2cals-tables">
+
+    <p:when test="exists(//*:table//*:td)">
+      <p:output port="result" primary="true"/>
+      <p:output port="report" sequence="true">
+        <p:pipe port="report" step="html2cals"/>
+      </p:output>
+      <tr:xslt-mode msg="yes" mode="html2cals" name="html2cals">
+        <p:input port="stylesheet">
+          <p:document href="http://this.transpect.io/xslt-util/calstable/xsl/html2calstable.xsl"/>
+        </p:input>
+        <p:input port="parameters">
+          <p:empty/>
+        </p:input>
+        <p:input port="models"><p:empty/></p:input>
+        <p:with-option name="debug" select="$debug"/>
+        <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+        <p:with-option name="fail-on-error" select="$fail-on-error"/>
+        <p:with-option name="prefix" select="concat($prefix, '2')"/>
+      </tr:xslt-mode>
+    </p:when>
+    <p:otherwise>
+      <p:output port="result" primary="true"/>
+      <p:output port="report" sequence="true"/>
+      <p:identity name="i2">
+        <p:input port="source">
+          <p:pipe port="result" step="pipe-input-xml"/>
+        </p:input>
+      </p:identity>
+    </p:otherwise>
+  </p:choose>
+
   <p:choose name="resolve-tables-or-normalize">
     <p:when test="$nested-tables eq 'yes'">
       <tr:normalize-calstables name="normalize-calstables"/>
@@ -218,7 +250,7 @@
   </p:choose>
   
   <tr:store-debug name="debug-calstables">
-    <p:with-option name="pipeline-step" select="concat($prefix, '2.normalize-calstables')"/>
+    <p:with-option name="pipeline-step" select="concat($prefix, '3.normalize-calstables')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -254,7 +286,7 @@
   </p:xslt>
   
   <tr:store-debug name="debug-cals2tabular">
-    <p:with-option name="pipeline-step" select="concat($prefix, '3.cals2tabular')"/>
+    <p:with-option name="pipeline-step" select="concat($prefix, '4.cals2tabular')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -284,7 +316,7 @@
   </mml2tex:convert>
   
   <tr:store-debug name="debug-mml2tex">
-    <p:with-option name="pipeline-step" select="concat($prefix, '4.mml2tex')"/>
+    <p:with-option name="pipeline-step" select="concat($prefix, '5.mml2tex')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
