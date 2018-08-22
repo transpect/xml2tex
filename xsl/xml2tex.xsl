@@ -17,6 +17,8 @@
   
   <xsl:param name="debug" select="'no'"/>
   <xsl:param name="debug-dir-uri" select="'debug'"/>
+  <!-- output only tex body without preamble, \begin{document} and \end{document} -->
+  <xsl:param name="only-tex-body" select="'no'"/>
   
   <xsl:include href="handle-namespace.xsl"/>
 
@@ -48,13 +50,16 @@
       <xso:template match="/" mode="apply-xpath">
         <!-- The c:data-section is necessary for XProc text output. -->
         <c:data content-type="text/plain">
-          
-          <xsl:apply-templates select="xml2tex:preamble"/>
-          <xso:text>&#xa;\begin{document}&#xa;</xso:text>
+          <xsl:if test="$only-tex-body eq 'no'">
+            <xsl:apply-templates select="xml2tex:preamble"/>
+            <xso:text>&#xa;\begin{document}&#xa;</xso:text>  
+          </xsl:if>
           <xsl:apply-templates select="xml2tex:front"/>
           <xso:apply-templates mode="#current"/>
           <xsl:apply-templates select="xml2tex:back"/>
-          <xso:text>&#xa;\end{document}&#xa;</xso:text>
+          <xsl:if test="$only-tex-body eq 'no'">
+            <xso:text>&#xa;\end{document}&#xa;</xso:text>
+          </xsl:if>
         </c:data>
       </xso:template>
       

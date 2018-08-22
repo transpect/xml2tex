@@ -84,6 +84,13 @@
     </p:documentation>
   </p:option>
   
+  <p:option name="only-tex-body" select="'yes'">
+    <p:documentation>
+      Just output the tex body document without preamble, 
+      \begin{document} and \end{document}
+    </p:documentation>
+  </p:option>
+  
   <p:import href="load-config.xpl"/>
   
   <p:import href="http://xmlcalabash.com/extension/steps/library-1.0.xpl"/>
@@ -180,6 +187,7 @@
     </p:input>
     <p:with-param name="debug" select="$debug"/>
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-param name="only-tex-body" select="$only-tex-body"/>
   </p:xslt>
   
   <tr:store-debug name="debug-conf" extension="xsl">
