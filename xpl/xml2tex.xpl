@@ -84,7 +84,7 @@
     </p:documentation>
   </p:option>
   
-  <p:option name="only-tex-body" select="'yes'">
+  <p:option name="only-tex-body" select="'no'">
     <p:documentation>
       Just output the tex body document without preamble, 
       \begin{document} and \end{document}
