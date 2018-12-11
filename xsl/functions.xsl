@@ -97,7 +97,7 @@
     </xsl:variable>
     <xsl:variable name="normalize-unicode" select="normalize-unicode($string, 'NFKD')" as="xs:string"/>
     <xsl:variable name="diacritica-regex" select="'([a-zA-Z])([&#x300;-&#x36F;])'" as="xs:string"/>
-    <xsl:variable name="fraction-regex" select="'(\d+)([&#x2044;])(\d+)'" as="xs:string"/>
+    <xsl:variable name="fraction-regex" select="'(\d)([&#x2044;])(\d+)'" as="xs:string"/>
     <!-- decompose diacritical marks -->
     <xsl:choose>
       <xsl:when test="matches($normalize-unicode, $diacritica-regex)">
