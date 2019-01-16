@@ -177,7 +177,7 @@
                            |processing-instruction('mml2tex')
                            |processing-instruction('latex')
 	   		   |processing-instruction('mathtype')" mode="dissolve-pi">
-        <xso:value-of select="replace(., '[\p{{Zs}}\p{{Zs}}]+', ' ')"/>
+        <xso:value-of select="replace(., '\s\s+', ' ')"/>
       </xso:template>
             
       <!-- dissolve elements which are not matched by other templates -->
