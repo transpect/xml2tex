@@ -78,7 +78,7 @@
     </p:documentation>
   </p:option>
   
-  <p:option name="prefix" select="'xml2tex/xml2tex0'">
+  <p:option name="prefix" select="'xml2tex/xml2tex'">
     <p:documentation>
       Prefix for debug files.
     </p:documentation>
@@ -114,7 +114,7 @@
   </xml2tex:load-config>
   
   <tr:store-debug name="store-config">
-    <p:with-option name="pipeline-step" select="concat($prefix, '0.loaded-config')"/>
+    <p:with-option name="pipeline-step" select="concat($prefix, '00.loaded-config')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -191,7 +191,7 @@
   </p:xslt>
   
   <tr:store-debug name="debug-conf" extension="xsl">
-    <p:with-option name="pipeline-step" select="concat($prefix, '1.config')"/>
+    <p:with-option name="pipeline-step" select="concat($prefix, '01.config')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -234,7 +234,7 @@
         <p:with-option name="debug" select="$debug"/>
         <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
         <p:with-option name="fail-on-error" select="$fail-on-error"/>
-        <p:with-option name="prefix" select="concat($prefix, '2')"/>
+        <p:with-option name="prefix" select="concat($prefix, '02')"/>
       </tr:xslt-mode>
     </p:when>
     <p:otherwise>
@@ -258,7 +258,7 @@
   </p:choose>
   
   <tr:store-debug name="debug-calstables">
-    <p:with-option name="pipeline-step" select="concat($prefix, '3.normalize-calstables')"/>
+    <p:with-option name="pipeline-step" select="concat($prefix, '03.normalize-calstables')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -294,7 +294,7 @@
   </p:xslt>
   
   <tr:store-debug name="debug-cals2tabular">
-    <p:with-option name="pipeline-step" select="concat($prefix, '4.cals2tabular')"/>
+    <p:with-option name="pipeline-step" select="concat($prefix, '04.cals2tabular')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -324,7 +324,7 @@
   </mml2tex:convert>
   
   <tr:store-debug name="debug-mml2tex">
-    <p:with-option name="pipeline-step" select="concat($prefix, '5.mml2tex')"/>
+    <p:with-option name="pipeline-step" select="concat($prefix, '05.mml2tex')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -352,7 +352,7 @@
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
-    <p:with-option name="prefix" select="concat($prefix, '6')"/>
+    <p:with-option name="prefix" select="concat($prefix, '06')"/>
   </tr:xslt-mode>
   
   <tr:xslt-mode msg="yes" mode="apply-regex" name="apply-regex">
@@ -366,7 +366,7 @@
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
-    <p:with-option name="prefix" select="concat($prefix, '7')"/>
+    <p:with-option name="prefix" select="concat($prefix, '07')"/>
   </tr:xslt-mode>
   
   <tr:xslt-mode msg="yes" mode="replace-chars" name="replace-chars">
@@ -380,7 +380,7 @@
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
-    <p:with-option name="prefix" select="concat($prefix, '9')"/>
+    <p:with-option name="prefix" select="concat($prefix, '09')"/>
   </tr:xslt-mode>
   
   <tr:xslt-mode msg="yes" mode="dissolve-pi" name="dissolve-pi">
