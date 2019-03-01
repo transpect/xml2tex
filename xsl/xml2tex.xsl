@@ -271,7 +271,14 @@
   <xsl:template match="xml2tex:template/xml2tex:file">
     <c:data href="{@href}" method="text" content-type="text/plain"
             encoding="{(@encoding, 'utf-8')[1]}">
-      <xso:apply-templates mode="#current"/>
+      <xsl:choose>
+        <xsl:when test="not(node())">
+          <xso:apply-templates mode="#current"/>    
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:apply-templates select="xsl:*"/>
+        </xsl:otherwise>
+      </xsl:choose>
     </c:data>
   </xsl:template>
 
