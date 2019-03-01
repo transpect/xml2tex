@@ -206,6 +206,23 @@ Each of these elements can contain a `@select` attribute. This attribute is opti
 </template>
 ```
 
+### Storing separate files
+
+Some TeX packages rely on external configuration files. For this purpose,
+you can store the evaluated context of a `template` to a separate file.
+The following example shows briefly how to generate a separate BibTeX file
+from an XML bibliography.
+
+```xml
+<template context="dbk:bibliography[@role eq 'Citavi']">
+  <xsl:variable name="bibtex-path" select="concat($path, '/', $basename, '-citavi.bib')" as="xs:string"/>
+  <rule name="bibliography" type="cmd" break-after="2" break-before="2">
+    <param select="concat($basename, '-citavi')"/>
+  </rule>
+  <file href="{$bibtex-path}" encoding="utf-8"/>
+</template>
+```
+
 ### Style Mapping
 
 Frequently, you just want to map one element to a specific TeX instruction. Therefore xml2tex provides a simple `style` mapping.
