@@ -425,4 +425,22 @@
     <p:with-option name="prefix" select="concat($prefix, '12')"/>
   </tr:xslt-mode>
   
+  <p:viewport match="/c:data//c:data" name="store-additional-outputs">
+    <p:output port="result" sequence="true"/>
+    
+    <p:store >
+      <p:with-option name="href" select="c:data/@href"/>
+      <p:with-option name="method" select="c:data/@method"/>
+      <p:with-option name="encoding" select="c:data/@encoding"/>
+      <p:with-option name="media-type" select="c:data/@content-type"/>
+    </p:store>
+    
+    <p:delete match="c:data">
+      <p:input port="source">
+        <p:pipe port="current" step="store-additional-outputs"/>
+      </p:input>
+    </p:delete>
+    
+  </p:viewport>
+  
 </p:declare-step>

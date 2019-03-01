@@ -268,6 +268,13 @@
     </xso:template>
   </xsl:template>
 
+  <xsl:template match="xml2tex:template/xml2tex:file">
+    <c:data href="{@href}" method="text" content-type="text/plain"
+            encoding="{(@encoding, 'utf-8')[1]}">
+      <xso:apply-templates mode="#current"/>
+    </c:data>
+  </xsl:template>
+
   <xsl:template match="xml2tex:template/xml2tex:rule">
     <xsl:variable name="rule" select="." as="element(xml2tex:rule)"/>
       <!-- three types: 
