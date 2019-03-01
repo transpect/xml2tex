@@ -212,6 +212,55 @@ xml2tex.rule =
     ]
   ]
   element xml2tex:rule { xml2tex.rule.attributes, xml2tex.rule.content }
+xml2tex.file =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "        "
+      ns1:h1 [ "The " ns1:i [ "file" ] " element" ]
+      "\x{a}" ~
+      "        "
+      ns1:p [
+        "You can store the evaluated context of the "
+        ns1:code [ "template" ]
+        " \x{a}" ~
+        "          to a separate file by specifying a file reference."
+      ]
+      "\x{a}" ~
+      "      "
+    ]
+  ]
+  element xml2tex:file {
+    [
+      a:documentation [
+        "\x{a}" ~
+        "            "
+        ns1:h1 [ "The " ns1:i [ "href" ] " attribute" ]
+        "\x{a}" ~
+        "            "
+        ns1:p [ "Specifies a path on the local file system." ]
+        "\x{a}" ~
+        "          "
+      ]
+    ]
+    attribute href { text }
+    & [
+        a:documentation [
+          "\x{a}" ~
+          "              "
+          ns1:h1 [ "The " ns1:i [ "encoding" ] " attribute" ]
+          "\x{a}" ~
+          "              "
+          ns1:p [
+            "With this optional attribute, you can specify the \x{a}" ~
+            "                file encoding. The default value is 'utf-8'"
+          ]
+          "\x{a}" ~
+          "            "
+        ]
+      ]
+      attribute encoding { text }?
+  }
 xml2tex.char =
   [
     a:documentation [
@@ -768,16 +817,23 @@ xml2tex.regex.attributes =
 # * content models
 # *
 xml2tex.set.content =
-  (xslt2.import.element | xslt2.function.element | xml2tex.import)*
+  (xslt2.import.element
+   | xslt2.param.element
+   | xslt2.key.element
+   | xslt2.function.element
+   | xml2tex.import)*
   & xml2tex.preamble?
   & xml2tex.front?
   & xml2tex.back?
   & xml2tex.ns*
-  & (xml2tex.template | xml2tex.style | xml2tex.regex)*
+  & (xslt2.variable.element
+     | xml2tex.template
+     | xml2tex.style
+     | xml2tex.regex)*
   & xml2tex.charmap?
 xml2tex.content.empty = empty
 xml2tex.templatemodel.content =
-  (xml2tex.rule | xslt2.instruction.category)*
+  (xml2tex.rule | xml2tex.file | xslt2.instruction.category)*
 xml2tex.charmap.content = xml2tex.char+
 xml2tex.rule.content =
   (xml2tex.text
