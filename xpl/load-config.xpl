@@ -91,8 +91,10 @@
                                        xml2tex:template, 
                                        xml2tex:regex"/>
                   <charmap>
-                    <xsl:copy-of select="xml2tex:charmap/xml2tex:char,
-                                         $imports/xml2tex:charmap/xml2tex:char[not(@character = /xml2tex:set/xml2tex:charmap/xml2tex:char/@character)]"/>
+                    <xsl:copy-of select="xml2tex:charmap/xml2tex:char"/>
+                      <xsl:if test="not(xml2tex:charmap[@ignore-imported-charmaps eq 'true'])">
+                        <xsl:copy-of select="$imports/xml2tex:charmap/xml2tex:char[not(@character = /xml2tex:set/xml2tex:charmap/xml2tex:char/@character)]"/>
+                      </xsl:if>
                   </charmap>
                 </xsl:copy>
               </xsl:template>

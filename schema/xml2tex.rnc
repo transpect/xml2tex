@@ -1,5 +1,6 @@
 namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 namespace ns1 = "http://www.w3.org/1999/xhtml"
+namespace rng = "http://relaxng.org/ns/structure/1.0"
 namespace sch = "http://purl.oclc.org/dsdl/schematron"
 namespace xml2tex = "http://transpect.io/xml2tex"
 
@@ -195,7 +196,9 @@ xml2tex.charmap =
       "      "
     ]
   ]
-  element xml2tex:charmap { xml2tex.charmap.content }
+  element xml2tex:charmap {
+    xml2tex.charmap.attributes, xml2tex.charmap.content
+  }
 xml2tex.rule =
   [
     a:documentation [
@@ -648,6 +651,37 @@ xml2tex.rule.attributes =
       ]
     ]
     attribute mathmode { xsd:boolean }?
+xml2tex.charmap.attributes =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "          "
+      rng:h1 [
+        "The "
+        rng:i [ "ignore-imported-charmaps" ]
+        " attribute"
+      ]
+      "\x{a}" ~
+      "          "
+      rng:p [ "Value: " rng:code [ "xs:boolean" ] ]
+      "\x{a}" ~
+      "          "
+      rng:p [
+        "Whether character maps from imported configurations should be \x{a}" ~
+        "            ignored ("
+        rng:code [ "true" ]
+        ") or overridden ("
+        rng:code [ "false" ]
+        "). \x{a}" ~
+        "            When you omit this attribute, the default is to override \x{a}" ~
+        "            imported configurations, e.g. prefer character mappings \x{a}" ~
+        "            from the importing configuration."
+      ]
+      "\x{a}" ~
+      "        "
+    ]
+  ]
+  attribute ignore-imported-charmaps { xsd:boolean }?
 xml2tex.char.attributes =
   [
     a:documentation [

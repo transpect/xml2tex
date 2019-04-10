@@ -123,6 +123,7 @@
         <p>A collection of mapping instructions for mapping 
           characters to specific TeX instructions.</p>
       </a:documentation>
+      <ref name="xml2tex.charmap.attributes"/>
       <ref name="xml2tex.charmap.content"/>
     </element>
   </define>
@@ -379,6 +380,23 @@
         </attribute>
       </optional>
     </interleave>
+  </define>
+
+  <define name="xml2tex.charmap.attributes">
+    <optional>
+      <attribute name="ignore-imported-charmaps">
+        <a:documentation>
+          <h1>The <i>ignore-imported-charmaps</i> attribute</h1>
+          <p>Value: <code>xs:boolean</code></p>
+          <p>Whether character maps from imported configurations should be 
+            ignored (<code>true</code>) or overridden (<code>false</code>). 
+            When you omit this attribute, the default is to override 
+            imported configurations, e.g. prefer character mappings 
+            from the importing configuration.</p>
+        </a:documentation>
+        <data type="boolean"/>
+    </attribute>
+    </optional>
   </define>
 
   <define name="xml2tex.char.attributes">
