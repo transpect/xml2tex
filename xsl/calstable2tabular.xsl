@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet 
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:calstable="http://docs.oasis-open.org/ns/oasis-exchange/table"
   xmlns:cals2tabular="http://transpect.io/cals2tabular"
@@ -158,10 +157,11 @@
   
   <xsl:template match="*:entry[@xml:id]" mode="cals2tabular:final">
     <xsl:variable name="entry-id" select="@xml:id" as="xs:string"/>
-    <xsl:variable name="is-colspan" 
-      select="boolean(following-sibling::*:entry[$entry-id eq @linkend])" as="xs:boolean"/>
-    <xsl:variable name="is-rowspan" 
-      select="boolean(for $i in parent::*:row/following-sibling::*:row[*:entry[@linkend][$entry-id eq @linkend]] return $i)" as="xs:boolean"/>
+    <xsl:variable name="is-colspan" as="xs:boolean"
+                  select="boolean(following-sibling::*:entry[$entry-id eq @linkend])"/>
+    <xsl:variable name="is-rowspan" as="xs:boolean"
+                  select="boolean(for $i in parent::*:row/following-sibling::*:row[*:entry[@linkend][$entry-id eq @linkend]] 
+                                  return $i)"/>
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
@@ -173,12 +173,11 @@
   
   <xsl:template match="*:entry[@linkend]" mode="cals2tabular:final">
     <xsl:variable name="entry-idref" select="@linkend" as="xs:string"/>
-    <xsl:variable name="is-last-colspan-ref" 
-      select="boolean(preceding-sibling::*:entry[$entry-idref eq @xml:id ]
-      and not(following-sibling::*:entry[$entry-idref eq @linkend])
-      )" as="xs:boolean"/>
-    <xsl:variable name="is-rowspan-ref" 
-      select="boolean(parent::*:row/preceding-sibling::*:row[*:entry[@xml:id][$entry-idref eq @xml:id]])" as="xs:boolean"/>
+    <xsl:variable name="is-last-colspan-ref" as="xs:boolean"
+                  select="boolean(preceding-sibling::*:entry[$entry-idref eq @xml:id ] 
+                                  and not(following-sibling::*:entry[$entry-idref eq @linkend]))"/>
+    <xsl:variable name="is-rowspan-ref" as="xs:boolean"
+                  select="boolean(parent::*:row/preceding-sibling::*:row[*:entry[@xml:id][$entry-idref eq @xml:id]])"/>
     <xsl:variable name="is-last" select="position() eq last()" as="xs:boolean"/>
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
@@ -222,34 +221,47 @@
   </xsl:template>
   
   <xsl:template match="*:tgroup" mode="cals2tabular:final">
-    <xsl:variable name="col-count" select="(
-                                             (
-                                               count(*:colspec), 
-                                               for $cols in @cols[. castable as xs:integer] return xs:integer($cols),
-                                               xs:integer(max(for $row in (*:row, */*:row) return count($row/*)))
-                                             )[not(. = 0)][1],
-                                             0
-                                           )[1]" as="xs:integer"/>
-    <xsl:variable name="col-widths" select="for $i in *:colspec/@colwidth
-                                            return xs:decimal(replace(replace($i, '[a-z\*%]', ''), '^\.', '0.'))" as="xs:decimal*"/>
+    <xsl:variable name="col-count" 
+                  select="(
+                            (count(*:colspec), 
+                             for $cols in @cols[. castable as xs:integer] 
+                             return xs:integer($cols),
+                             xs:integer(max(for $row in (*:row, */*:row) return count($row/*)))
+                            )[not(. = 0)][1],
+                           0
+                           )[1]" as="xs:integer"/>
+    <xsl:variable name="col-widths" as="xs:decimal*"
+                  select="for $i in *:colspec/@colwidth
+                          return xs:decimal(replace(replace($i, '[a-z\*%]', ''), '^\.', '0.'))"/>
     <xsl:variable name="table-width" select="sum($col-widths)" as="xs:decimal"/>
-    <xsl:variable name="rel-col-widths" select="for $i in $col-widths 
-                                                return round-half-to-even($i div $table-width, 2)" as="xs:decimal*"/>
-    <xsl:variable name="col-declaration" select="concat($line-separator, 
-                                                        string-join(for $i in (1 to $col-count) 
-                                                                    return if(exists($col-widths)) 
-                                                                           then concat('&#xa;p{\dimexpr ', $rel-col-widths[$i] ,'\linewidth-2\tabcolsep}')
-                                                                           else 'l', 
-                                                                    $line-separator), 
-                                                        $line-separator)" as="xs:string"/>
+    <xsl:variable name="rel-col-widths" as="xs:decimal*"
+                  select="for $i in $col-widths 
+                          return round-half-to-even($i div $table-width, 2)"/>
+    <xsl:variable name="col-declaration" as="xs:string"
+                  select="concat($line-separator, 
+                                 string-join(for $i in (1 to $col-count) 
+                                             return if(exists($col-widths)) 
+                                                    then concat('&#xa;p{\dimexpr ', $rel-col-widths[$i] ,'\linewidth-2\tabcolsep}')
+                                                    else 'l', 
+                                             $line-separator), 
+                                 $line-separator)"/>
     <xsl:variable name="top-separator" select="if($table-grid eq 'yes') then '&#x20;\hline&#x20;&#xa;' else ''" as="xs:string"/>
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:text>&#xa;</xsl:text>
-      <xsl:processing-instruction name="cals2tabular" select="concat('\begin{', if($table-model eq 'tabular') then 'tabular' else 'tabularx}{\textwidth', '}{', $col-declaration, '}', $top-separator)"/>
+      <xsl:processing-instruction name="cals2tabular" 
+                                  select="concat('\begin{', 
+                                                 if($table-model eq 'tabular') then 'tabular' else 'tabularx}{\textwidth', 
+                                                 '}{', 
+                                                 $col-declaration, 
+                                                 '}', 
+                                                 $top-separator)"/>
       <xsl:text>&#xa;</xsl:text>
       <xsl:apply-templates mode="#current"/>
-      <xsl:processing-instruction name="cals2tabular" select="concat('\end{', if($table-model eq 'tabular') then 'tabular' else 'tabularx' ,'}')"/>
+      <xsl:processing-instruction name="cals2tabular" 
+                                  select="concat('\end{', 
+                                                 if($table-model eq 'tabular') then 'tabular' else 'tabularx',
+                                                 '}')"/>
     </xsl:copy>
   </xsl:template>
   
