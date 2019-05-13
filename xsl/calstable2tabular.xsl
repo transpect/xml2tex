@@ -241,7 +241,11 @@
                   select="concat($line-separator, 
                                  string-join(for $i in (1 to $col-count) 
                                              return if(exists($col-widths)) 
-                                                    then concat('&#xa;p{\dimexpr ', $rel-col-widths[$i] ,'\linewidth-2\tabcolsep}')
+                                                    then concat('&#xa;p{\dimexpr ', 
+                                                                $rel-col-widths[$i],
+                                                                '\linewidth-2\tabcolsep-',
+                                                                if($i eq 1) then '2' else (),
+                                                                '\arrayrulewidth}')
                                                     else 'l', 
                                              $line-separator), 
                                  $line-separator)"/>
