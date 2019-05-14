@@ -114,8 +114,8 @@
     <!-- count sibling entries with a corresponding id reference -->
     <xsl:variable name="colspan" select="count(following-sibling::*:entry[$entry-id eq @linkend]) + 1" as="xs:integer"/>
     <xsl:variable name="cell-declaration" as="xs:string"
-                  select="concat(if(position() eq 1) then $line-separator else (),
-                                 'l', 
+                  select="concat(if(not(preceding-sibling::*[1])) then $line-separator else (), 
+                                 'l',
                                  $line-separator)"/>
     <xsl:copy>
       <xsl:choose>
@@ -135,23 +135,23 @@
   
   <xsl:template match="*:entry[@linkend]" mode="cals2tabular:multicolumn">
     <xsl:variable name="entry-idref" select="@linkend" as="xs:string"/>
-    <xsl:variable name="is-colspan" as="xs:boolean"
+    <xsl:variable name="is-rowspan-and-colspan-ref" as="xs:boolean"
                   select="@morerows 
                           and not(preceding-sibling::*[1][@linkend eq $entry-idref])
                           and     following-sibling::*[1][@linkend eq $entry-idref]"/>
     <xsl:variable name="colspan" select="count(following-sibling::*:entry[@linkend eq $entry-idref]) + 1" as="xs:integer"/>
     <xsl:variable name="cell-declaration" as="xs:string"
-                  select="concat(if(position() eq 1) then $line-separator else (),
+                  select="concat(if(not(preceding-sibling::*[1])) then $line-separator else (),
                                  'l', 
                                  $line-separator)"/>
-    <xsl:if test="$is-colspan">
+    <xsl:if test="$is-rowspan-and-colspan-ref">
       <xsl:processing-instruction name="cals2tabular" 
                                   select="concat('\multicolumn{', $colspan, '}{', $cell-declaration , '}{')"/>
     </xsl:if>
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
-    <xsl:if test="$is-colspan">
+    <xsl:if test="$is-rowspan-and-colspan-ref">
       <xsl:processing-instruction name="cals2tabular" 
                                   select="'}'"/>
     </xsl:if>
