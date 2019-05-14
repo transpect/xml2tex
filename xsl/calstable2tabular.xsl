@@ -187,15 +187,14 @@
       <xsl:text>&#x20;</xsl:text>
       <xsl:processing-instruction name="cals2tabular" select="'&amp;&#x20;'"/>
     </xsl:if>
-  </xsl:template>  
+  </xsl:template>
   
   <xsl:template match="*:row" mode="cals2tabular:final">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
     <xsl:text>&#x20;</xsl:text>
-    <xsl:processing-instruction name="cals2tabular" select="'\\'"/>         
-    <xsl:text>&#xa;</xsl:text>
+    <xsl:processing-instruction name="cals2tabular" select="'\\'"/>
     <!-- test if a rowspan by @xml:id with reference to next row or an @linkend with reference to an @xml:id in previous row-->
     <xsl:variable name="rowspan-previous-row" 
                   select="for $i in *:entry[@linkend] 
@@ -212,13 +211,14 @@
             <xsl:processing-instruction name="cals2tabular" 
                                         select="if($table-grid eq 'yes') then concat('&#x20;\cline{', $pos, '-', $pos, '}') else ''"/>
           </xsl:if>
-        </xsl:for-each>    
+        </xsl:for-each>
       </xsl:when>
       <xsl:otherwise>
         <xsl:processing-instruction name="cals2tabular" 
-                                    select="if($table-grid eq 'yes') then '\hline&#x20;&#xa;' else ''"/>
+                                    select="if($table-grid eq 'yes') then '\hline&#x20;' else ()"/>
       </xsl:otherwise>
     </xsl:choose>
+    <xsl:text>&#xa;</xsl:text>
   </xsl:template>
   
   <xsl:template match="*:tgroup" mode="cals2tabular:final">
@@ -254,7 +254,7 @@
                                                     else 'l', 
                                              $line-separator), 
                                  $line-separator)"/>
-    <xsl:variable name="top-separator" select="if($table-grid eq 'yes') then '&#x20;\hline&#x20;&#xa;' else ''" as="xs:string"/>
+    <xsl:variable name="top-separator" select="if($table-grid eq 'yes') then '&#x20;\hline&#x20;' else ''" as="xs:string"/>
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:text>&#xa;</xsl:text>
