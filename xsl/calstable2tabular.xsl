@@ -114,16 +114,17 @@
     <!-- count sibling entries with a corresponding id reference -->
     <xsl:variable name="colspan" select="count(following-sibling::*:entry[$entry-id eq @linkend]) + 1" as="xs:integer"/>
     <xsl:variable name="cell-declaration" 
-                  select="concat(if(position() eq 1 or following-sibling::*:entry[@xml:id ne $entry-id][for $i in @xml:id 
-                                                                                                        return following-sibling::*:entry[@linkend eq $i]]) 
-                                 then $line-separator else '',
+                  select="concat(if(position() eq 1) 
+                                 then $line-separator 
+                                 else (),
                                  'l',
                                  $line-separator)" as="xs:string"/>
     <xsl:copy>
       <xsl:choose>
         <xsl:when test="$colspan gt 1">
           <xsl:apply-templates select="@*" mode="#current"/>
-          <xsl:processing-instruction name="cals2tabular" select="concat('\multicolumn{', $colspan, '}{', $cell-declaration , '}{')"/>
+          <xsl:processing-instruction name="cals2tabular" 
+                                      select="concat('\multicolumn{', $colspan, '}{', $cell-declaration , '}{')"/>
           <xsl:apply-templates select="node()" mode="#current"/>
           <xsl:processing-instruction name="cals2tabular" select="'}'"/>
         </xsl:when>
@@ -243,9 +244,13 @@
                                              return if(exists($col-widths)) 
                                                     then concat('&#xa;p{\dimexpr ', 
                                                                 $rel-col-widths[$i],
-                                                                '\linewidth-2\tabcolsep-',
-                                                                if($i eq 1) then '2' else (),
-                                                                '\arrayrulewidth}')
+                                                                '\linewidth-2\tabcolsep',
+                                                                if($table-grid eq 'yes') 
+                                                                then ('-', 
+                                                                      if($i eq 1) then '2' else (),
+                                                                      '\arrayrulewidth')
+                                                                else (),
+                                                                '}')
                                                     else 'l', 
                                              $line-separator), 
                                  $line-separator)"/>
