@@ -254,14 +254,16 @@
                           return xs:decimal(replace(replace($i, '[a-z\*%]', ''), '^\.', '0.'))"/>
     <xsl:variable name="table-width" select="sum($col-widths)" as="xs:decimal"/>
     <xsl:variable name="rel-col-widths" as="xs:decimal*"
-                  select="for $i in $col-widths 
+                  select="for $i in $col-widths[not(position() eq last())]
                           return round-half-to-even($i div $table-width, 2)"/>
+    <xsl:variable name="last-col-width" select="1 - sum($rel-col-widths)" as="xs:decimal*"/>
+    <xsl:variable name="final-col-widths" select="($rel-col-widths, $last-col-width)" as="xs:decimal*"/>
     <xsl:variable name="col-declaration" as="xs:string"
                   select="concat($line-separator, 
                                  string-join(for $i in (1 to $col-count) 
                                              return if(exists($col-widths)) 
                                                     then concat('&#xa;p{\dimexpr ', 
-                                                                $rel-col-widths[$i],
+                                                                $final-col-widths[$i],
                                                                 '\linewidth-2\tabcolsep',
                                                                 if($table-grid eq 'yes') 
                                                                 then concat('-', 
