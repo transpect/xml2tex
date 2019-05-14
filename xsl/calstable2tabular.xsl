@@ -113,12 +113,10 @@
     <xsl:variable name="entry-id" select="@xml:id" as="xs:string"/>
     <!-- count sibling entries with a corresponding id reference -->
     <xsl:variable name="colspan" select="count(following-sibling::*:entry[$entry-id eq @linkend]) + 1" as="xs:integer"/>
-    <xsl:variable name="cell-declaration" 
-                  select="concat(if(position() eq 1) 
-                                 then $line-separator 
-                                 else (),
-                                 'l',
-                                 $line-separator)" as="xs:string"/>
+    <xsl:variable name="cell-declaration" as="xs:string"
+                  select="concat(if(position() eq 1) then $line-separator else (),
+                                 'l', 
+                                 $line-separator)"/>
     <xsl:copy>
       <xsl:choose>
         <xsl:when test="$colspan gt 1">
@@ -137,11 +135,26 @@
   
   <xsl:template match="*:entry[@linkend]" mode="cals2tabular:multicolumn">
     <xsl:variable name="entry-idref" select="@linkend" as="xs:string"/>
-    <!-- check for preceding-sibling entries with a corresponding xml:id -->
-    <xsl:variable name="is-colspan-ref" select="boolean(preceding-sibling::*:entry[$entry-idref eq @xml:id ])" as="xs:boolean"/>
+    <xsl:variable name="is-colspan" as="xs:boolean"
+                  select="@morerows 
+                          and not(preceding-sibling::*[1][@linkend eq $entry-idref])
+                          and     following-sibling::*[1][@linkend eq $entry-idref]"/>
+    <xsl:variable name="colspan" select="count(following-sibling::*:entry[@linkend eq $entry-idref]) + 1" as="xs:integer"/>
+    <xsl:variable name="cell-declaration" as="xs:string"
+                  select="concat(if(position() eq 1) then $line-separator else (),
+                                 'l', 
+                                 $line-separator)"/>
+    <xsl:if test="$is-colspan">
+      <xsl:processing-instruction name="cals2tabular" 
+                                  select="concat('\multicolumn{', $colspan, '}{', $cell-declaration , '}{')"/>
+    </xsl:if>
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
+    <xsl:if test="$is-colspan">
+      <xsl:processing-instruction name="cals2tabular" 
+                                  select="'}'"/>
+    </xsl:if>
   </xsl:template>
 
   <!-- MODE cals2tabular:final -->
@@ -175,15 +188,20 @@
   <xsl:template match="*:entry[@linkend]" mode="cals2tabular:final">
     <xsl:variable name="entry-idref" select="@linkend" as="xs:string"/>
     <xsl:variable name="is-last-colspan-ref" as="xs:boolean"
-                  select="boolean(preceding-sibling::*:entry[$entry-idref eq @xml:id ] 
-                                  and not(following-sibling::*:entry[$entry-idref eq @linkend]))"/>
+                  select="preceding-sibling::*:entry[$entry-idref eq @xml:id ] 
+                          and not(following-sibling::*:entry[$entry-idref eq @linkend])"/>
     <xsl:variable name="is-rowspan-ref" as="xs:boolean"
-                  select="boolean(parent::*:row/preceding-sibling::*:row[*:entry[@xml:id][$entry-idref eq @xml:id]])"/>
+                  select="exists(parent::*:row/preceding-sibling::*:row[*:entry[@xml:id][$entry-idref eq @xml:id]])"/>
+    <xsl:variable name="is-rowspan-and-colspan-ref" as="xs:boolean"
+                  select="@morerows 
+                          and not(preceding-sibling::*[1][@linkend eq $entry-idref]) 
+                          and     following-sibling::*[1][@linkend eq $entry-idref]"/>    
     <xsl:variable name="is-last" select="position() eq last()" as="xs:boolean"/>
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
-    <xsl:if test="($is-rowspan-ref and not($is-last)) or ($is-last-colspan-ref and not($is-last))">
+    <xsl:if test="($is-rowspan-ref or $is-last-colspan-ref)
+                  and not($is-last or $is-rowspan-and-colspan-ref)">
       <xsl:text>&#x20;</xsl:text>
       <xsl:processing-instruction name="cals2tabular" select="'&amp;&#x20;'"/>
     </xsl:if>
