@@ -246,9 +246,9 @@
                                                                 $rel-col-widths[$i],
                                                                 '\linewidth-2\tabcolsep',
                                                                 if($table-grid eq 'yes') 
-                                                                then ('-', 
-                                                                      if($i eq 1) then '2' else (),
-                                                                      '\arrayrulewidth')
+                                                                then concat('-', 
+                                                                            if($i eq 1) then '2' else (),
+                                                                            '\arrayrulewidth')
                                                                 else (),
                                                                 '}')
                                                     else 'l', 
