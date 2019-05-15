@@ -4,6 +4,7 @@
   xmlns:calstable="http://docs.oasis-open.org/ns/oasis-exchange/table"
   xmlns:cals2tabular="http://transpect.io/cals2tabular"
   xmlns:dbk="http://docbook.org/ns/docbook"
+  xmlns:css="http://www.w3.org/1996/css"
   version="2.0">
   
   <!-- this template expects a hub file with normalized tables -->
@@ -56,12 +57,16 @@
     <xsl:variable name="rowspan" 
       select="count(for $i in parent::*:row/following-sibling::*:row[*:entry[@linkend][$entry-id eq @linkend]] 
                     return $i) + 1" as="xs:integer"/>
+    <xsl:variable name="vertical-align" as="xs:string?"
+                  select="if(not(@css:vertical-align)) then '[t]'
+                          else if(@css:vertical-align eq 'bottom') then '[b]'
+                          else ()"/>
     <xsl:copy>
       <xsl:choose>
         <xsl:when test="$rowspan gt 1">
           <xsl:apply-templates select="@*" mode="#current"/>
           <xsl:processing-instruction name="cals2tabular" 
-                                      select="concat('\multirow{', $rowspan, '}{*}{' )"/>
+                                      select="concat('\multirow', $vertical-align, '{', $rowspan, '}{*}{' )"/>
           <xsl:choose>
             <xsl:when test="count(*:para) lt 2">
               <xsl:apply-templates mode="#current"/>    
