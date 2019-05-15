@@ -118,9 +118,13 @@
     <xsl:variable name="entry-id" select="@xml:id" as="xs:string"/>
     <!-- count sibling entries with a corresponding id reference -->
     <xsl:variable name="colspan" select="count(following-sibling::*:entry[$entry-id eq @linkend]) + 1" as="xs:integer"/>
+    <xsl:variable name="text-align" as="xs:string" 
+                  select="if(@css:text-align eq 'center') then 'c' 
+                          else if(@css:text-align eq 'right') then 'r'
+                          else 'l'"/>
     <xsl:variable name="cell-declaration" as="xs:string"
                   select="concat(if(not(preceding-sibling::*[1])) then $line-separator else (), 
-                                 'l',
+                                 $text-align,
                                  $line-separator)"/>
     <xsl:copy>
       <xsl:choose>
