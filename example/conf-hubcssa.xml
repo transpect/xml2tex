@@ -2,11 +2,15 @@
 <?xml-model href="http://transpect.io/xml2tex/schema/xml2tex.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
 <?xml-model href="http://transpect.io/xml2tex/schema/xml2tex.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
 <set xmlns="http://transpect.io/xml2tex"  
-  xmlns:tr="http://transpect.io"
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+     xmlns:tr="http://transpect.io"
+     xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   
   <xsl:import href="http://transpect.io/xslt-util/colors/xsl/colors.xsl"/>
+  <xsl:import href="http://transpect.io/xslt-util/paths/xsl/paths.xsl"/>
   <xsl:import href="http://transpect.io/xslt-util/roman-numerals/xsl/roman2int.xsl"/>
+  
+  <xsl:variable name="path" select="tr:path(base-uri())" as="xs:string"/>
+  <xsl:variable name="basename" select="tr:basename(base-uri())" as="xs:string"/>
   
   <!-- tex document header, set declarations such as documentclass and usepackage -->
   <preamble>% docx2tex 1.1 --- ``Escape from MS Island''
@@ -15,7 +19,9 @@
     % you can download it on GitHub:
     % https://github.com/transpect/docx2tex
     % 
-    \documentclass{scrbook} 
+    \documentclass{scrbook}
+    \usepackage[T1]{fontenc}
+    \usepackage[utf8]{inputenc}
     \usepackage{graphicx}
     \usepackage{hyperref}
     \usepackage{multirow}
@@ -31,9 +37,11 @@
     \usepackage{mathtools}
     \usepackage{txfonts}
     \usepackage{upgreek}
+    \usepackage{tipa}
     \usepackage{enumerate}
     \usepackage{tensor}
     \usepackage{pifont}
+    \usepackage{soul}
     <xsl:if test="//dbk:div[@role eq 'hub:index'][1]">
       <xsl:text>\usepackage{makeidx}&#xa;\makeindex&#xa;</xsl:text>
     </xsl:if>
@@ -115,7 +123,13 @@
   
   <!-- regular paras -->
 
-  <template context="dbk:para[not(parent::dbk:entry)][not(parent::dbk:footnote)]">
+  <template context="dbk:para[not(parent::dbk:entry)]
+                             [not(parent::dbk:footnote)]
+                             [not(following-sibling::*[1][self::dbk:orderedlist])]
+                             [not(following-sibling::*[1][self::dbk:itemizedlist])]
+                             [not(following-sibling::*[1][self::dbk:variablelist])]
+                             [not(.//dbk:equation)]
+                             [not(.//dbk:equation and following-sibling::*[1][self::dbk:para[xs:decimal(replace(@css:text-indent, '[a-z]+$', '')) gt 0]])]">
     <rule break-after="2">
       <text/>
     </rule>
@@ -131,6 +145,14 @@
   
   <template context="dbk:br">
     <rule name="newline" type="cmd" break-after="1"/>
+  </template>
+
+  <template context="dbk:title/dbk:br">
+    <rule name="protect\newline" type="cmd" break-after="1"/>
+  </template>
+  
+  <template context="text()[following-sibling::node()[1][self::dbk:br]]">
+    <xsl:value-of select="replace(. ,'\s+$', '')"/>
   </template>
   
   <template context="dbk:entry//dbk:br">
@@ -149,49 +171,69 @@
   <template context="dbk:entry[not(@*:morerows) or @*:morerows eq '0']/dbk:para[not(parent::dbk:footnote)]
                                                                                [following-sibling::dbk:para]">
     <rule>
-      <text/>
+      <xsl:next-match/>
       <text> \par </text>
     </rule>
   </template>
   
   <template context="dbk:entry//dbk:br[every $precedent in ancestor::dbk:para[1]//node()[. &lt;&lt; current()] 
-                            satisfies (not(normalize-space($precedent)))]">
+                                       satisfies (not(normalize-space($precedent)))]">
     <rule>
       <text>\leavemode\newline
 </text>  
     </rule>
   </template>
   
-  <template context="dbk:para[not(parent::dbk:entry)][not(parent::dbk:footnote)]
-                             [not(@css:font-style eq 'normal')]
+  <template context="dbk:para[not(@css:font-style eq 'normal')]
                              [@css:font-style eq 'italic'
                               or exists(for $i in ./@role 
                                         return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@css:font-style eq 'italic'])]">
     <rule name="textit" type="cmd" break-after="2">
       <param/>
+      <xsl:choose>
+        <xsl:when test="parent::dbk:entry">
+          <xsl:text>\par&#xa;</xsl:text>
+        </xsl:when>
+        <xsl:when test="not(parent::dbk:footnote)">
+          <xsl:text>&#xa;&#xa;</xsl:text>
+        </xsl:when>
+      </xsl:choose>
     </rule>
   </template>
   
-  <template context="dbk:para[not(parent::dbk:entry)][not(parent::dbk:footnote)]
-                             [not(@css:font-weight eq 'normal')]
+  <template context="dbk:para[not(@css:font-weight eq 'normal')]
                              [@css:font-weight eq 'bold'
                               or exists(for $i in ./@role 
                                         return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@css:font-weight eq 'bold'])]">
-    <rule name="textbf" type="cmd" break-after="2">
+    <rule name="textbf" type="cmd">
       <param/>
+      <xsl:choose>
+        <xsl:when test="parent::dbk:entry">
+          <xsl:text>\par&#xa;</xsl:text>
+        </xsl:when>
+        <xsl:when test="not(parent::dbk:footnote)">
+          <xsl:text>&#xa;&#xa;</xsl:text>
+        </xsl:when>
+      </xsl:choose>
+    </rule>
+  </template>
+
+  <template context="dbk:*[@css:display eq 'none']">
+    <rule>
+      <text>&#xa;%</text>
+      <text/>
+      <text>&#xa;</text>
     </rule>
   </template>
   
   <!-- manually lowered or raised position -->
   
-  <template context="dbk:phrase[(@css:top, for $i in ./@role return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]/@css:top)[1]]/text()">
-    <rule name="raisebox" type="cmd">
-      <text>{</text>
+  <template context="dbk:phrase[(@css:top[. ne '0pt'], for $i in ./@role return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]/@css:top[. ne '0pt'])[1]]/text()">
+    <rule>
       <text select="if(starts-with((parent::*/@css:top, for $i in parent::*/@role return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]/@css:top)[1], '-'))
-                    then replace((parent::*/@css:top, for $i in parent::*/@role return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]/@css:top)[1], '^-', '')
-                    else concat('-', (parent::*/@css:top, for $i in parent::*/@role return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]/@css:top)[1])"/>
-      <text>}</text>
-      <param/>
+                    then concat('\raisebox{', replace((parent::*/@css:top, for $i in parent::*/@role return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]/@css:top)[1], '^-', ''), '}')
+                    else concat('\raisebox{-', (parent::*/@css:top, for $i in parent::*/@role return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]/@css:top)[1], '}')"/>
+      <text select="concat('{', ., '}')"/>
     </rule>
   </template>  
   
@@ -200,7 +242,6 @@
   <template context="dbk:tab|dbk:phrase[@role eq 'tab']">
     <rule>
       <text>&#x9;</text>
-      <text/>
     </rule>
   </template>
 
@@ -237,7 +278,7 @@
   <template context="dbk:imagedata">
     <rule name="includegraphics" type="cmd">
       <option select="concat('width=', 1 div count(ancestor::*[dbk:mediaobject|dbk:inlinemediaobject]/*[local-name() = ('mediaobject', 'inlinemediaobject')]),'\textwidth')"/>
-      <param select="@fileref"/>
+      <param select="replace(@fileref, '([%#])', '\\$1')"/>
     </rule>
   </template>
   
@@ -308,6 +349,10 @@
       <option/>
     </rule>
   </template>
+  
+  <!-- resolve tab when it's the begin of a term -->
+  
+  <template context="dbk:term/node()[1][self::dbk:tabs or self::dbk:tab]"/>
 
   <!-- text styles -->
   
@@ -358,11 +403,18 @@
     </rule>
   </template>
   
-  <template context="dbk:phrase[(@css:font-style, @css:font-weight) = 'normal']">
+  <template context="dbk:phrase[@css:font-weight eq 'normal']">
     <xsl:text>\textnormal{</xsl:text>
     <xsl:next-match/>
     <xsl:text>}</xsl:text>
   </template>
+
+  <template context="dbk:phrase[@css:font-style eq 'normal']">
+    <xsl:text>\textup{</xsl:text>
+    <xsl:next-match/>
+    <xsl:text>}</xsl:text>
+  </template>
+
   
   <template context="dbk:phrase[@css:font-style eq 'italic' 
                                 or exists(for $i in ./@role 
@@ -395,6 +447,14 @@
                                 and not(@role eq 'Hyperlink' or parent::dbk:link)]">
     <xsl:text>\underline{</xsl:text>
       <xsl:next-match/>
+    <xsl:text>}</xsl:text>
+  </template>
+
+  <template context="dbk:phrase[@css:text-decoration-line eq 'line-through'
+                                or exists(for $i in ./@role 
+                                          return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@css:text-decoration-line eq 'line-through'])]">
+    <xsl:text>\sout{</xsl:text>
+    <xsl:next-match/>
     <xsl:text>}</xsl:text>
   </template>
 
@@ -555,20 +615,20 @@
   </template>
 
   <template context="dbk:equation[@condition eq 'numbered'][not(ancestor::dbk:table or ancestor::dbk:informaltable)]">
-    <rule name="equation" type="env" break-after="1">
+    <rule name="equation" type="env">
       <text/>
     </rule>
   </template>
   
   <template context="dbk:equation[not(@condition eq 'numbered')][not(ancestor::dbk:table or ancestor::dbk:informaltable)]">
-    <rule name="equation*" type="env" break-after="1">
+    <rule name="equation*" type="env">
       <text/>
     </rule>
   </template>
   
   <template context="dbk:equation[@condition eq 'numbered'][not(ancestor::dbk:table or ancestor::dbk:informaltable)]
                                  [contains(., '\\')]">
-    <rule name="align" type="env" break-after="1">
+    <rule name="align" type="env">
       <text/>
     </rule>
   </template>
@@ -576,8 +636,23 @@
   <template context="dbk:equation[not(@condition eq 'numbered')]
                                  [not(ancestor::dbk:table or ancestor::dbk:informaltable)]
                                  [contains(., '\\')]">
-    <rule name="align*" type="env" break-after="1">
+    <rule name="align*" type="env">
       <text/>
+    </rule>
+  </template>
+  
+  <!-- replace tabs -->
+  
+  <template context="dbk:tab[@xml:space eq 'preserve']">
+    <rule>
+      <text>&#x20;</text>
+    </rule>
+  </template>
+  
+  <template context="dbk:tab[@xml:space eq 'preserve']
+                            [preceding-sibling::dbk:inlineequation and following-sibling::dbk:inlineequation]">
+    <rule>
+      <text>{\quad}</text>
     </rule>
   </template>
   
@@ -629,9 +704,21 @@
     </rule>
   </template>
   
+  <template context="dbk:primary">
+    <rule>
+      <xsl:if test="@sortas">
+        <text select="concat(@sortas, '@')"/>
+      </xsl:if>
+      <text/>
+    </rule>
+  </template>
+  
   <template context="dbk:secondary|dbk:tertiary">
     <rule>
       <text>!</text>
+      <xsl:if test="@sortas">
+        <text select="concat(@sortas, '@')"/>
+      </xsl:if>
       <text/>
     </rule>
   </template>
@@ -686,8 +773,94 @@
       <text/>
     </rule>
   </template>
+  
+  <template context="dbk:biblioref">
+    <rule name="cite" type="cmd">
+      <param select="string-join(tokenize(@linkends, '\s'), ',')"/>
+    </rule>  
+  </template>
+  
+  <template context="dbk:bibliography[@role eq 'Citavi']">
+    <xsl:variable name="bibtex-path" select="concat($path, '/', $basename, '-citavi.bib')" as="xs:string"/>
+    <rule name="bibliography" type="cmd" break-after="2" break-before="2">
+      <param select="concat($basename, '-citavi')"/>
+    </rule>
+    <file href="{$bibtex-path}" encoding="utf-8"/>
+  </template>
+  
+  <template context="dbk:bibliography[@role eq 'Citavi']/dbk:biblioentry">
+    <xsl:variable name="main-set" as="element(dbk:biblioset)"
+                  select="(dbk:biblioset[@relation eq 'article'], dbk:biblioset[@relation eq 'inproceedings'], dbk:biblioset)[1]"/>
+    <xsl:value-of select="concat('@', $main-set/@relation, '{')"/>
+    <xsl:value-of select="concat(@xml:id, ',&#xa;')"/>
+    <xsl:apply-templates mode="#current"/>
+    <xsl:text>}&#xa;</xsl:text>
+  </template>
+  
+  <template context="dbk:biblioentry[dbk:biblioset[@relation eq 'article']]/dbk:biblioset[@relation = ('journal', 'incollection', 'inproceedings')]">
+    <xsl:value-of select="concat('journal={', ' ', dbk:title, '},&#xa;')"/>
+  </template>
+  
+  <template context="dbk:biblioset/*"/>
+  
+  <template context="dbk:authorgroup">
+    <xsl:text>author={</xsl:text>
+    <xsl:for-each select="dbk:author">
+      <xsl:apply-templates mode="#current"/>
+      <xsl:if test="position() ne last()">
+        <xsl:text> and </xsl:text>
+      </xsl:if>
+    </xsl:for-each>
+    <xsl:text>},&#xa;</xsl:text>
+    <xsl:if test="dbk:editor">
+      <xsl:text>editor={</xsl:text>
+      <xsl:for-each select="dbk:editor">
+        <xsl:apply-templates mode="#current"/>
+        <xsl:if test="position() ne last()">
+          <xsl:text> and </xsl:text>
+        </xsl:if>
+      </xsl:for-each>
+      <xsl:text>},&#xa;</xsl:text>
+    </xsl:if>
+  </template>
+  
+  <template context="dbk:personname"><!-- for above bibtex generating template -->
+    <xsl:value-of select="string-join((dbk:firstname, dbk:othername[starts-with(@role, 'middle')], dbk:surname), ' ')"/>
+  </template>
+  
+  <template context="dbk:author|dbk:editor"><!-- probably for authors in the article header? -->
+    <xsl:value-of select="concat(dbk:personname/dbk:firstname, ' ', dbk:personname/dbk:surname)"/>
+  </template>
+  
+  <template context="dbk:pubdate">
+    <xsl:value-of select="concat('date={', ., '},&#xa;')"/>
+  </template>
+  
+  <template context="dbk:publisher">
+    <xsl:value-of select="concat('publisher={', dbk:publishername, '},&#xa;')"/>
+  </template>
+  
+  <template context="dbk:pagenums">
+    <xsl:value-of select="concat('pages={', ., '},&#xa;')"/>
+  </template>
+  
+  <template context="dbk:volumenum">
+    <xsl:value-of select="concat('number={', ., '},&#xa;')"/>
+  </template>
+  
+  <template context="dbk:biblioset[not(following-sibling::dbk:biblioset[@relation = 'inproceedings'])]/dbk:title">
+    <xsl:value-of select="concat('title={', ., '},&#xa;')"/>
+  </template>
 
-  <charmap>
+  <template context="dbk:biblioset[following-sibling::dbk:biblioset[@relation = 'inproceedings']]/dbk:title">
+    <xsl:value-of select="concat('booktitle={', ., '},&#xa;')"/>
+  </template>
+
+  <template context="dbk:biblioid">
+    <xsl:value-of select="concat(@class, '={', ., '},&#xa;')"/>
+  </template>
+  
+<charmap>
     
     <!-- *
          * UNICODE - LATEX TEXT AND MATH MODE COMMANDS
@@ -726,8 +899,8 @@
     <char character="&#xa7;" string="{\S}"/>
     <!--COPYRIGHT -->
     <char character="&#xa9;" string="{\textcopyright}"/>
-    <!--LEFT-POINTING DOUBLE ANGLE QUOTATION MARK -->
-    <char character="&#xab;" string="{\flqq}"/>
+    <!-- LEFT-POINTING DOUBLE ANGLE QUOTATION MARK -->
+    <char character="&#xab;" string="\guillemotleft{}"/>
     <!--= \lnot, NOT SIGN-->
     <char character="&#xac;" string="${\neg}$"/>
     <!--SOFT HYPHEN -->
@@ -748,8 +921,10 @@
     <char character="&#xb6;" string="\P"/>
     <!--SUPERSCRIPT ONE -->
     <char character="&#xb9;" string="$^{1}$"/>
-    <!--RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK -->
-    <char character="&#xbb;" string="{\frqq}"/>
+    <!-- MASCULINE ORDINAL INDICATOR  ^{\circ} -->
+    <char character="&#xba;" string="$^{\circ}$"/>
+    <!-- RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK -->
+    <char character="&#xbb;" string="\guillemotright{}"/>    
     <!-- INVERTED QUESTION MARK -->
     <char character="&#xbf;" string="{\textquestiondown}"/>
     <!--LATIN CAPITAL LETTER A WITH RING ABOVE -->    
@@ -778,7 +953,7 @@
          * -->
     
     <!--imath-->
-    <char character="&#x131;" string="${\imath}$"/>
+    <char character="&#x131;" string="\i{}"/>
     <!--LATIN CAPITAL LETTER L WITH STROKE -->
     <char character="&#x141;" string="\L{}"/>
     <!--LATIN SMALL LETTER L WITH STROKE -->
@@ -791,13 +966,211 @@
     <!-- *
          * Latin Extended-B
          * -->
-    
+
+    <!-- LATIN LETTER DENTAL CLICK -->
+    <char character="&#x1c0;" string="{\textbar}"/>
     <!-- LATIN SMALL LETTER F WITH HOOK -->
     <char character="&#x192;" string="${\mathit{f}}$"/>
     <!--jmath-->
     <char character="&#x237;" string="${\jmath}$"/>
     
-        
+    <!-- * 
+         * IPA Extensions
+         * -->
+    
+    <!-- LATIN SMALL LETTER TURNED A -->
+    <char character="&#x250;" string="\textturna{}"/>
+    <!-- LATIN SMALL LETTER ALPHA  -->
+    <char character="&#x251;" string="\textscripta(A){}"/>
+    <!-- LATIN SMALL LETTER TURNED ALPHA -->
+    <char character="&#x252;" string="\textturnscripta(6){}"/>
+    <!-- LATIN SMALL LETTER B WITH HOOK  -->
+    <char character="&#x253;" string="\texthtb(\!b){}"/>
+    <!-- LATIN SMALL LETTER OPEN O  -->
+    <char character="&#x254;" string="\textopeno(O){}"/>
+    <!-- LATIN SMALL LETTER C WITH CURL  -->
+    <char character="&#x255;" string="\textctc(C){}"/>
+    <!-- LATIN SMALL LETTER D WITH TAIL -->
+    <char character="&#x256;" string="\textrtaild(\:d){}"/>
+    <!-- LATIN SMALL LETTER D WITH HOOK  -->
+    <char character="&#x257;" string="\texthtd(\!d){}"/>
+    <!-- LATIN SMALL LETTER REVERSED E -->
+    <char character="&#x258;" string="\textreve(9){}"/>
+    <!-- LATIN SMALL LETTER SCHWA  -->
+    <char character="&#x259;" string="\textschwa(@){}"/>
+    <!-- LATIN SMALL LETTER SCHWA WITH HOOK -->
+    <char character="&#x25a;" string="\textrhookschwa{}"/>
+    <!-- LATIN SMALL LETTER OPEN E -->
+    <char character="&#x25b;" string="\textepsilon(E){}"/>
+    <!-- LATIN SMALL LETTER REVERSED OPEN E -->
+    <char character="&#x25c;" string="\textrevepsilon(3){}"/>
+    <!-- LATIN SMALL LETTER REVERSED OPEN E WITH HOOK -->
+    <char character="&#x25d;" string="\textrhookrevepsilon{}"/>
+    <!-- LATIN SMALL LETTER CLOSED REVERSED OPEN E -->
+    <char character="&#x25e;" string="\textcloserevepsilon{}"/>
+    <!-- LATIN SMALL LETTER DOTLESS J WITH STROKE -->
+    <char character="&#x25f;" string="\textbardotlessj{}"/>
+    <!-- LATIN SMALL LETTER G WITH HOOK  -->
+    <char character="&#x260;" string="\texthtg(\!g){}"/>
+    <!-- LATIN SMALL LETTER SCRIPT G  -->
+    <char character="&#x261;" string="\textg(g){}"/>
+    <!-- LATIN LETTER SMALL CAPITAL G -->
+    <char character="&#x262;" string="\textscg(\;G){}"/>
+    <!-- LATIN SMALL LETTER GAMMA -->
+    <char character="&#x263;" string="\textbabygamma{}"/>
+    <!-- LATIN SMALL LETTER RAMS HORN  -->
+    <char character="&#x264;" string="textramshorns(7){}"/>
+    <!-- LATIN SMALL LETTER TURNED H -->
+    <char character="&#x265;" string="\textturnh(4){}"/>
+    <!-- LATIN SMALL LETTER H WITH HOOK  -->
+    <char character="&#x266;" string="\texthth(H){}"/>
+    <!-- LATIN SMALL LETTER HENG WITH HOOK  -->
+    <char character="&#x267;" string="\texththeng{}"/>
+    <!-- LATIN SMALL LETTER I WITH STROKE  -->
+    <char character="&#x268;" string="\textbari(1){}"/>
+    <!-- LATIN SMALL LETTER IOTA -->
+    <char character="&#x269;" string="\textiota{}"/>
+    <!-- LATIN LETTER SMALL CAPITAL I -->
+    <char character="&#x26a;" string="\textsci(I){}"/>
+    <!-- LATIN SMALL LETTER L WITH MIDDLE TILDE  -->
+    <char character="&#x26b;" string="\textltilde(\|~l){}"/>
+    <!-- LATIN SMALL LETTER L WITH BELT -->
+    <char character="&#x26c;" string="\textbeltl{}"/>
+    <!-- LATIN SMALL LETTER L WITH RETROFLEX HOOK -->
+    <char character="&#x26d;" string="\textrtaill(\:l){}"/>
+    <!-- LATIN SMALL LETTER LEZH -->
+    <char character="&#x26e;" string="\textlyoghlig{}"/>
+    <!-- LATIN SMALL LETTER TURNED M -->
+    <char character="&#x26f;" string="\textturnm(W){}"/>
+    <!-- LATIN SMALL LETTER TURNED M WITH LONG LEG -->
+    <char character="&#x270;" string="\textturnmrleg{}"/>
+    <!-- LATIN SMALL LETTER M WITH HOOK -->
+    <char character="&#x271;" string="\textltailm(M){}"/>
+    <!-- LATIN SMALL LETTER N WITH LEFT HOOK -->
+    <char character="&#x272;" string="\textltailn{}"/>
+    <!-- LATIN SMALL LETTER N WITH RETROFLEX HOOK -->
+    <char character="&#x273;" string="\textnrleg{}"/>
+    <!-- LATIN LETTER SMALL CAPITAL N -->
+    <char character="&#x274;" string="\textscn(\;N){}"/>
+    <!-- LATIN SMALL LETTER BARRED O -->
+    <char character="&#x275;" string="\textbaro(8){}"/>
+    <!-- LATIN LETTER SMALL CAPITAL OE -->
+    <char character="&#x276;" string="\textscoelig(\OE){}"/>
+    <!-- LATIN SMALL LETTER CLOSED OMEGA -->
+    <char character="&#x277;" string="\textcloseomega{}"/>
+    <!-- LATIN SMALL LETTER PHI  -->
+    <char character="&#x278;" string="\textphi(F){}"/>
+    <!-- LATIN SMALL LETTER TURNED R -->
+    <char character="&#x279;" string="\textturnr(\*r){}"/>
+    <!-- LATIN SMALL LETTER TURNED R WITH LONG LEG -->
+    <char character="&#x27a;" string="\textturnlonglegr{}"/>
+    <!-- LATIN SMALL LETTER TURNED R WITH HOOK -->
+    <char character="&#x27b;" string="\textturnrrtail(\:R){}"/>
+    <!-- LATIN SMALL LETTER R WITH LONG LEG -->
+    <char character="&#x27c;" string="\textlonglegr{}"/>
+    <!-- LATIN SMALL LETTER R WITH TAIL -->
+    <char character="&#x27d;" string="\textrtailr(\:r){}"/>
+    <!-- LATIN SMALL LETTER R WITH FISHHOOK -->
+    <char character="&#x27e;" string="\textfishhookr(R){}"/>
+    <!-- LATIN SMALL LETTER REVERSED R WITH FISHHOOK -->
+    <!--<char character="&#x27f;" string=""/>-->
+    <!-- LATIN LETTER SMALL CAPITAL R -->
+    <char character="&#x280;" string="\textscr(\;R){}"/>
+    <!-- ATIN LETTER SMALL CAPITAL INVERTED R -->
+    <char character="&#x281;" string="\textinvscr(K){}"/>
+    <!-- LATIN SMALL LETTER S WITH HOOK -->
+    <char character="&#x282;" string="\textrtails(\:s){}"/>
+    <!-- LATIN SMALL LETTER ESH -->
+    <char character="&#x283;" string="\textesh(S){}"/>
+    <!-- LATIN SMALL LETTER DOTLESS J WITH STROKE AND HOOK -->
+    <char character="&#x284;" string="\texthtbardotlessj(\!j){}"/>
+    <!-- LATIN SMALL LETTER SQUAT REVERSED ESH -->
+    <!--<char character="&#x285;" string=""/>-->
+    <!-- LATIN SMALL LETTER ESH WITH CURL -->
+    <char character="&#x286;" string="\textctesh{}"/>
+    <!-- LATIN SMALL LETTER TURNED T -->
+    <char character="&#x287;" string="\textturnt(\*t){}"/>
+    <!-- LATIN SMALL LETTER T WITH RETROFLEX HOOK -->
+    <char character="&#x288;" string="\textrtailt(\:t){}"/>
+    <!-- LATIN SMALL LETTER U BAR -->
+    <char character="&#x289;" string="\textbaru(0){}"/>
+    <!-- LATIN SMALL LETTER UPSILON -->
+    <char character="&#x28a;" string="\textupsilon(U){}"/>
+    <!-- LATIN SMALL LETTER V WITH HOOK -->
+    <char character="&#x28b;" string="\textscriptv(V){}"/>
+    <!-- LATIN SMALL LETTER TURNED V -->
+    <char character="&#x28c;" string="\textturnv{}"/>
+    <!-- LATIN SMALL LETTER TURNED W -->
+    <char character="&#x28d;" string="\textturnw(\*w){}"/>
+    <!-- LATIN SMALL LETTER TURNED Y -->
+    <char character="&#x28e;" string="\textturny(L){}"/>
+    <!-- LATIN LETTER SMALL CAPITAL Y -->
+    <char character="&#x28f;" string="\textscy(Y){}"/>
+    <!-- LATIN SMALL LETTER Z WITH RETROFLEX HOOK  -->
+    <char character="&#x290;" string="\textrtailz(\:z){}"/>
+    <!-- LATIN SMALL LETTER Z WITH CURL -->
+    <char character="&#x291;" string="\textctz{}"/>
+    <!-- LATIN SMALL LETTER EZH -->
+    <char character="&#x292;" string="\textyogh(Z){}"/>
+    <!-- LATIN SMALL LETTER EZH WITH CURL -->
+    <char character="&#x293;" string="\textctyogh{}"/>
+    <!-- LATIN LETTER GLOTTAL STOP -->
+    <char character="&#x294;" string="\textglotstop(P){}"/>
+    <!-- LATIN LETTER PHARYNGEAL VOICED FRICATIVE -->
+    <char character="&#x295;" string="\textrevglotstop(Q){}"/>
+    <!-- LATIN LETTER INVERTED GLOTTAL STOP -->
+    <char character="&#x296;" string="\textinvglotstop{}"/>
+    <!-- LATIN LETTER STRETCHED C -->
+    <char character="&#x297;" string="\textstretchc{}"/>
+    <!-- LATIN LETTER BILABIAL CLICK -->
+    <char character="&#x298;" string="\textbullseye(\!o){}"/>
+    <!-- LATIN LETTER SMALL CAPITAL B -->
+    <char character="&#x299;" string="\textscb(\;B){}"/>
+    <!-- LATIN SMALL LETTER CLOSED OPEN E -->
+    <char character="&#x29a;" string="\textcloseepsilon{}"/>
+    <!-- LATIN LETTER SMALL CAPITAL G WITH HOOK -->
+    <char character="&#x29b;" string="\texthtscg(\!G){}"/>
+    <!-- LATIN LETTER SMALL CAPITAL H -->
+    <char character="&#x29c;" string="\textsch(\;H){}"/>
+    <!-- LATIN SMALL LETTER J WITH CROSSED-TAIL -->
+    <char character="&#x29d;" string="\textctj(J){}"/>
+    <!-- LATIN SMALL LETTER TURNED K -->
+    <char character="&#x29e;" string="\textturnk(\*k){}"/>
+    <!-- LATIN LETTER SMALL CAPITAL L -->
+    <char character="&#x29f;" string="\textscl(\;L){}"/>
+    <!-- LATIN SMALL LETTER Q WITH HOOK -->
+    <char character="&#x2a0;" string="\texthtq{}"/>
+    <!-- LATIN LETTER GLOTTAL STOP WITH STROKE -->
+    <char character="&#x2a1;" string="\textbarglotstop{}"/>
+    <!-- LATIN LETTER REVERSED GLOTTAL STOP WITH STROKE -->
+    <char character="&#x2a2;" string="\textbarrevglotstop{}"/>
+    <!-- LATIN SMALL LETTER DZ DIGRAPH -->
+    <char character="&#x2a3;" string="\textdzlig{}"/>
+    <!-- LATIN SMALL LETTER DEZH DIGRAPH -->
+    <char character="&#x2a4;" string="\textdyoghlig{}"/>
+    <!-- LATIN SMALL LETTER DZ DIGRAPH WITH CURL -->
+    <char character="&#x2a5;" string="\textdctzlig{}"/>
+    <!-- LATIN SMALL LETTER TS DIGRAPH -->
+    <char character="&#x2a6;" string="\texttslig{}"/>
+    <!-- LATIN SMALL LETTER TESH DIGRAPH -->
+    <char character="&#x2a7;" string="\textteshlig{}"/>
+    <!-- LATIN SMALL LETTER TC DIGRAPH WITH CURL -->
+    <char character="&#x2a8;" string="\texttctclig{}"/>
+    <!-- LATIN SMALL LETTER FENG DIGRAPH -->
+    <!--<char character="&#x2a9;" string=""/>-->
+    <!-- LATIN SMALL LETTER LS DIGRAPH -->
+    <!--<char character="&#x2aa;" string="\"/>-->
+    <!-- LATIN SMALL LETTER LZ DIGRAPH  -->
+    <!--<char character="&#x2ab;" string=""/>-->
+    <!-- LATIN LETTER BILABIAL PERCUSSIVE -->
+    <!--<char character="&#x2ac;" string=""/>-->
+    <!-- LATIN LETTER BIDENTAL PERCUSSIVE -->
+    <!--<char character="&#x2ad;" string=""/>-->
+    <!-- LATIN SMALL LETTER TURNED H WITH FISHHOOK -->
+    <!--<char character="&#x2ae;" string=""/>-->
+    <!-- LATIN SMALL LETTER TURNED H WITH FISHHOOK AND TAIL  -->
+    <!--<char character="&#x2af;" string=""/>-->
+    
     <!-- *
          * Greek and Coptic
          * -->
@@ -1055,31 +1428,15 @@
     <!--MINUS SIGN -->
     <char character="&#x2012;" string="$-$"/>
     <!--EN DASH -->
-    <char character="&#x2013;" string="--"/>
+    <char character="&#x2013;" string="\textendash{}"/>
     <!--EM DASH -->
-    <char character="&#x2014;" string="---"/>
+    <char character="&#x2014;" string="\textemdash{}"/>
     <!--HORIZONTAL BAR -->
-    <char character="&#x2015;" string="---"/>
+    <char character="&#x2015;" string="{---}"/>
     <!--= \Vert, double vertical bar-->
     <char character="&#x2016;" string="${\|}$"/>
-    <!--LEFT SINGLE QUOTATION MARK ‘ -->
-    <char character="&#x2018;" string="`"/>
-    <!--RIGHT SINGLE QUOTATION MARK ’ -->
-    <char character="&#x2019;" string="'"/>
-    <!--SINGLE LOW-9 QUOTATION MARK ‚ -->
-    <char character="&#x201a;" string=","/>
     <!--SINGLE HIGH-REVERSED-9 QUOTATION MARK -->
     <char character="&#x201b;" string="`"/>
-    <!--LEFT DOUBLE QUOTATION MARK “ -->
-    <char character="&#x201c;" string="``"/>
-    <char character="&#x201c;" string="{\grqq}" context="dbk:para[(for $i in ./@role return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]/@xml:lang eq 'de', 
-                                                                   if(@xml:lang) then @xml:lang eq 'de' else exists(ancestor::*[@xml:lang eq 'de']))[1]]"/>
-    <!--RIGHT DOUBLE QUOTATION MARK ” -->
-    <char character="&#x201d;" string="''"/>
-    <!--DOUBLE LOW-9 QUOTATION MARK „ -->
-    <char character="&#x201e;" string=",,"/>
-    <char character="&#x201e;" string="{\glqq}" context="dbk:para[(for $i in ./@role return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]/@xml:lang eq 'de', 
-                                                                  if(@xml:lang) then @xml:lang eq 'de' else exists(ancestor::*[@xml:lang eq 'de']))[1]]"/>
     <!--DAGGER relation-->
     <char character="&#x2020;" string="${\dag}$"/>
     <!--DOUBLE DAGGER relation-->
@@ -1104,20 +1461,32 @@
     <char character="&#x2031;" string="{\textpertenthousand}"/>
     <!--PRIME or minute, not superscripted-->
     <char character="&#x2032;" string="$^{\prime}$"/>
-    <!--DOUBLE PRIME or second, not superscripted-->
+    <!--DOUBLE PRIME or second, not superscripted-->
     <char character="&#x2033;" string="$^{\prime\prime}$"/>
     <!--TRIPLE PRIME (not superscripted)-->
     <char character="&#x2034;" string="$^{\prime\prime\prime}$"/>
-    <!--reverse prime, not superscripted-->
+    <!--REVERSE PRIME, not superscripted-->
     <char character="&#x2035;" string="${\backprime}$"/>
+    <!-- DOUBLE REVERSE PRIME, not superscripted -->
+    <char character="&#x2036;" string="${\backdprime}$"/>
+    <!-- TRIPLE REVERSE PRIME, not superscripted -->
+    <char character="&#x2037;" string="${\backtrprime}$"/>
+    <!-- CARET (insertion mark) -->
+    <char character="&#x2038;" string="${\caretinsert}"/>
     <!-- SINGLE LEFT-POINTING ANGLE QUOTATION MARK -->
     <char character="&#x2039;" string="{\flq}"/>
     <!-- SINGLE RIGHT-POINTING ANGLE QUOTATION MARK -->
     <char character="&#x203a;" string="{\frq}"/>
+    <!-- DOUBLE EXCLAMATION MARK -->
+    <char character="&#x203c;" string="${\Exclam}$"/>    
     <!--CHARACTER TIE, z notation sequence concatenation-->
-    <char character="&#x2040;" string="${\cat}$"/>    
+    <char character="&#x2040;" string="${\cat}$"/>
+    <!-- HYPHEN BULLET -->
+    <char character="&#x2043;" string="${\hyphenbullet}$"/>
+    <!-- DOUBLE QUESTION MARK -->
+    <char character="&#x2047;" string="${\Question}$"/>
     <!--QUADRUPLE PRIME, not superscripted-->
-    <char character="&#x2057;" string="${\fourth}$"/>
+    <char character="&#x2057;" string="${\qprime}$"/>
     <!--FUNCTION APPLICATION -->
     <char character="&#x2061;" string=" "/>
     <!--INVISIBLE TIMES -->
@@ -1255,8 +1624,16 @@
     <char character="&#x20db;" string="${\dddot}$"/>
     <!--COMBINING FOUR DOTS ABOVE-->
     <char character="&#x20dc;" string="${\ddddot}$"/>
+    <!--COMBINING ENCLOSING CIRCLE -->
+    <char character="&#x20dd;" string="${\enclosecircle}$"/>
+    <!--COMBINING ENCLOSING SQUARE -->
+    <char character="&#x20dd;" string="${\enclosesquare}$"/>
+    <!--COMBINING ENCLOSING DIAMOND -->
+    <char character="&#x20de;" string="${\enclosediamond}$"/>
     <!--COMBINING LEFT RIGHT ARROW ABOVE-->
     <char character="&#x20e1;" string="${\overleftrightarrow}$"/>
+    <!--COMBINING ENCLOSING UPWARD POINTING TRIANGLE -->
+    <char character="&#x20e4;" string="${\enclosetriangle}$"/>
     <!--COMBINING LEFT ARROW BELOW-->
     <char character="&#x20ee;" string="${\underleftarrow}$"/>
     <!--COMBINING RIGHT ARROW BELOW-->
@@ -1276,8 +1653,10 @@
     <char character="&#x210b;" string="${\mathcal{H}}$"/>
     <!--/frak H, black-letter capital H-->
     <char character="&#x210c;" string="${\mathfrak{H}}$"/>
-    <!--= \mathds{H} (dsfont), open face capital H-->
+    <!--DOUBLE-STRUCK CAPITAL H-->
     <char character="&#x210d;" string="${\mathbb{H}}$"/>
+    <!--PLANCK CONSTANT-->
+    <char character="&#x210e;" string="${\mathit{h}}$"/>
     <!--=\HBar (wrisym), Planck's h over 2pi-->
     <char character="&#x210f;" string="${\hslash}$"/>
     <!--/scr I, script capital I-->
@@ -1350,6 +1729,12 @@
     <char character="&#x213f;" string="${\mathbb{Pi}}$"/>
     <!--DOUBLE-STRUCK N-ARY SUMMATION-->
     <char character="&#x2140;" string="${\mathbb{Sigma}}$"/>
+    <!--TURNED SANS-SERIF CAPITAL G-->
+    <char character="&#x2141;" string="${\Game}$"/>
+    <!--TURNED SANS-SERIF CAPITAL L-->
+    <char character="&#x2142;" string="${\sansLturned}$"/>
+    <!--REVERSED SANS-SERIF CAPITAL L-->
+    <char character="&#x2143;" string="${\sansLmirrored}$"/>
     <!--TURNED SANS-SERIF CAPITAL Y-->
     <char character="&#x2144;" string="${\Yup}$"/>
     <!--= \DD (wrisym), DOUBLE-STRUCK ITALIC CAPITAL D-->
@@ -1362,6 +1747,8 @@
     <char character="&#x2148;" string="${\ComplexI}$"/>
     <!--= \jj (wrisym), DOUBLE-STRUCK ITALIC SMALL J-->
     <char character="&#x2149;" string="${\ComplexJ}$"/>
+    <!--PROPERTY LINE-->
+    <char character="&#x214a;" string="${\PropertyLine}$"/>
     <!--# \bindnasrepma (stmaryrd), TURNED AMPERSAND-->
     <char character="&#x214b;" string="${\invamp}$"/>
     
@@ -1409,6 +1796,8 @@
     <char character="&#x21a6;" string="${\mapsto}$"/>
     <!--maps to, downward-->
     <char character="&#x21a7;" string="${\MapsDown}$"/>
+    <!--UP DOWN ARROW WITH BASE-->
+    <char character="&#x21a8;" string="${\updownarrowbar}$"/>
     <!--left arrow-hooked-->
     <char character="&#x21a9;" string="${\hookleftarrow}$"/>
     <!--right arrow-hooked-->
@@ -1629,7 +2018,7 @@
     <!--= \dbloint (wrisym), double contour integral operator-->
     <char character="&#x222f;" string="${\oiint}$"/>
     <!--triple contour integral operator-->
-    <char character="&#x2230;" string="${\oiiint}$"/>
+    <char character="&#x2230;" string="${\oiiint}$"/>    
     <!--= \clockoint (wrisym), contour integral, clockwise-->
     <char character="&#x2232;" string="${\varointclockwise}$"/>
     <!--= \cntclockoint (wrisym), contour integral, anticlockwise-->
@@ -1967,18 +2356,32 @@
     
     <!--# \varnothing (amssymb), DIAMETER SIGN-->   
     <char character="&#x2300;" string="${\diameter}$"/>
+    <!--HOUSE-->
+    <char character="&#x2302;" string="${\house}$"/>
     <!--LEFT CEILING-->
     <char character="&#x2308;" string="${\lceil}$"/>
     <!--RIGHT CEILING-->
     <char character="&#x2309;" string="${\rceil}$"/>
+    <!--REVERSE NOT-->
+    <char character="&#x2310;" string="${\invneg}$"/>
+    <!--SQUARE LOZENGE-->
+    <char character="&#x2311;" string="${\wasylozenge}$"/>
+    <!--PROFILE OF A LINE-->
+    <char character="&#x2312;" string="${\profline}$"/>
+    <!--PROFILE OF A SURFACE-->
+    <char character="&#x2313;" string="${\profsurf}$"/>
+    <!--VIEWDATA SQUARE-->
+    <char character="&#x2317;" string="${\viewdata}$"/>
+    <!--TURNED NOT SIGN-->
+    <char character="&#x2319;" string="${\turnednot}$"/>
+    <!--TOP HALF INTEGRAL-->
+    <char character="&#x2320;" string="${\inttop}$"/>
+    <!--BOTTOM HALF INTEGRAL-->
+    <char character="&#x2321;" string="${\intbottom}$"/>
     <!--LEFT FLOOR-->
     <char character="&#x230a;" string="${\lfloor}$"/>
     <!--RIGHT FLOOR-->
     <char character="&#x230b;" string="${\rfloor}$"/>
-    <!--reverse not-->
-    <char character="&#x2310;" string="${\invneg}$"/>
-    <!--SQUARE LOZENGE-->
-    <char character="&#x2311;" string="${\wasylozenge}$"/>
     <!--upper left corner-->
     <char character="&#x231c;" string="${\ulcorner}$"/>
     <!--upper right corner-->
@@ -1994,9 +2397,17 @@
     <!-- LEFT-POINTING ANGLE BRACKET -->
     <char character="&#x2329;" string="${\langle}$"/>
     <!-- RIGHT-POINTING ANGLE BRACKET -->
-    <char character="&#x232a;" string="${\rangle}$"/>    
+    <char character="&#x232a;" string="${\rangle}$"/>
+    <!--BENZENE RING-->
+    <char character="&#x232c;" string="${\varhexagonlrbonds}$"/>
+    <!--CONICAL TAPER-->
+    <char character="&#x2332;" string="${\conictaper}$"/>
+    <!--TOP AND BOTTOM-->
+    <char character="&#x2336;" string="${\topbot}$"/>
     <!--APL FUNCTIONAL SYMBOL QUAD DIVIDE-->
     <char character="&#x2339;" string="${\APLinv}$"/>
+    <!--APL FUNCTIONAL SYMBOL BACKSLASH BAR-->
+    <char character="&#x2340;" string="${\APLnotbackslash}$"/>
     <!--APL FUNCTIONAL SYMBOL SLASH BAR, solidus, bar through-->
     <char character="&#x233f;" string="${\notslash}$"/>
     <!--APL FUNCTIONAL SYMBOL BACKSLASH BAR-->
@@ -2007,16 +2418,24 @@
     <char character="&#x2348;" string="${\APLrightarrowbox}$"/>
     <!--APL FUNCTIONAL SYMBOL QUAD UPWARDS ARROW-->
     <char character="&#x2350;" string="${\APLuparrowbox}$"/>
+    <!--APL FUNCTIONAL SYMBOL QUAD UP CARET-->
+    <char character="&#x2353;" string="${\APLboxupcaret}$"/>
     <!--APL FUNCTIONAL SYMBOL QUAD DOWNWARDS ARROW-->
     <char character="&#x2357;" string="${\APLdownarrowbox}$"/>
     <!--APL FUNCTIONAL SYMBOL UP SHOE JOT-->
     <char character="&#x235d;" string="${\APLcomment}$"/>
     <!--APL FUNCTIONAL SYMBOL QUOTE QUAD-->
     <char character="&#x235e;" string="${\APLinput}$"/>
-    <!-- APL FUNCTIONAL SYMBOL ALPHA -->
-    <char character="&#x237a;" string="${\upalpha}$"/>
     <!--APL FUNCTIONAL SYMBOL CIRCLE STAR-->
     <char character="&#x235f;" string="${\APLlog}$"/>
+    <!--APL FUNCTIONAL SYMBOL QUAD QUESTION-->
+    <char character="&#x2370;" string="${\APLboxquestion}$"/>
+    <!--APL FUNCTIONAL SYMBOL ALPHA-->
+    <char character="&#x237a;" string="${\upalpha}$"/>
+    <!--RIGHT ANGLE WITH DOWNWARDS ZIGZAG ARROW-->
+    <char character="&#x237c;" string="${\rangledownzigzagarrow}$"/>
+    <!--SOFTWARE-FUNCTION SYMBOL, HEXAGON-->
+    <char character="&#x2394;" string="${\hexagon}$"/>
     <!--= \wideparen (yhmath mathabx fourier), TOP PARENTHESIS (mathematical use)-->
     <char character="&#x23dc;" string="${\overparen}$"/>
     <!--BOTTOM PARENTHESIS (mathematical use)-->
@@ -2780,10 +3199,6 @@
     <char character="&#x276c;" string="\("/>
     <!-- MEDIUM RIGHT-POINTING ANGLE BRACKET ORNAMENT -->
     <char character="&#x276d;" string="\)"/>
-    <!-- HEAVY LEFT-POINTING ANGLE QUOTATION MARK ORNAMENT -->
-    <char character="&#x276e;" string="{\flqq}"/>
-    <!-- HEAVY RIGHT-POINTING ANGLE QUOTATION MARK ORNAMENT -->
-    <char character="&#x276f;" string="{\frqq}"/>
     <!-- HEAVY LEFT-POINTING ANGLE BRACKET ORNAMENT -->
     <char character="&#x2770;" string="{\flq}"/>
     <!-- HEAVY RIGHT-POINTING ANGLE BRACKET ORNAMENT -->
@@ -3272,8 +3687,14 @@
     <char character="&#x2b27;" string="${\blacklozenge}"/>
     <!-- WHITE MEDIUM LOZENGE -->
     <char character="&#x2b28;" string="${\lozenge}"/>
-    
-    
+
+    <!-- *
+         * Symbols, Other
+         * -->
+
+    <!-- REPLACEMENT CHARACTER -->
+    <char character="&#xfffd;" string="${\blacksquare}$"/>
+     
     <!-- *
          * Mathematical Alphanumeric Symbols
          * -->
@@ -4928,7 +5349,7 @@
     <xsl:text>&#xa;&#xa;</xsl:text>
     <xsl:apply-templates mode="#current"/>
     <xsl:value-of select="'\end{enumerate}'"/>
-    <xsl:text>&#xa;&#xa;</xsl:text>
+    <xsl:text>&#xa;</xsl:text>
   </template>
 
   <xsl:function name="tr:enumerate-list-type" as="xs:string">
