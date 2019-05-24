@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet 
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:tr="http://transpect.io"  
   xmlns:xml2tex="http://transpect.io/xml2tex"
   xmlns:c="http://www.w3.org/ns/xproc-step"
   xmlns:functx="http://www.functx.com"
@@ -10,6 +10,7 @@
   version="2.0">
   
   <xsl:import href="http://transpect.io/xslt-util/functx/xsl/functx.xsl"/>
+  <xsl:import href="http://transpect.io/xslt-util/colors/xsl/colors.xsl"/>
   
   <!-- escape special characters for tex -->
   
@@ -220,6 +221,38 @@
                                   '-',
                                   '&#x2011;'
                                   )"/>
+  </xsl:function>
+  
+  <xsl:function name="xml2tex:lang-to-latex-pkg" as="xs:string?">
+    <xsl:param name="lang" as="xs:string"/>
+    <xsl:value-of select="     if($lang eq 'de') then '\usepackage[ngerman]{babel}'
+                          else if($lang eq 'fr') then '\usepackage[frenchb]{babel}'
+                          else if($lang eq 'it') then '\usepackage[italian]{babel}'
+                          else if($lang eq 'es') then '\usepackage[spanish]{babel}'
+                          else if($lang eq 'cs') then '\usepackage[czech]{babel}'
+                          else if($lang eq 'fi') then '\usepackage[finnish]{babel}'
+                          else if($lang eq 'el') then '\usepackage[english,greek]{babel}'
+                          else if($lang eq 'hu') then '\usepackage[magyar]{babel}'
+                          else if($lang eq 'is') then '\usepackage[icelandic]{babel}'
+                          else if($lang eq 'pl') then '\usepackage[polish]{babel}'
+                          else if($lang eq 'pt') then '\usepackage[portuguese]{babel}'
+                          else if($lang = ('ar', 'fa', 'ur', 'ps', 'ku', 'ug')) then '\usepackage{arabtex}'
+                          else if($lang eq 'zh') then '\usepackage{CJK}'
+                          else ()"/>
+  </xsl:function>
+  
+  <xsl:function name="xml2tex:rgb-to-tex-color">
+    <xsl:param name="colors" as="xs:string*"/>
+    <xsl:variable name="colors-filtered" select="distinct-values($colors)"/>
+    <xsl:for-each select="$colors-filtered">
+      <xsl:value-of select="concat('color{',
+                                   for $i in . return concat('color-', index-of($colors-filtered, $i)),
+                                   '}{rgb}{',
+                                   string-join(for $i in tr:hex-rgb-color-to-ints(.) 
+                                               return xs:string(round-half-to-even($i div 255, 2)),
+                                               ','),
+                                  '}')"/>
+    </xsl:for-each>
   </xsl:function>
 
 </xsl:stylesheet>
