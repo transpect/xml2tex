@@ -24,7 +24,7 @@
   <xsl:function name="xml2tex:utf2tex" as="xs:string+">
     <xsl:param name="context" as="element(*)"/>
     <xsl:param name="string" as="xs:string"/>
-    <xsl:param name="charmap" as="element(xml2tex:char)+"/>
+    <xsl:param name="charmap" as="element(xml2tex:char)*"/>
     <xsl:param name="seen" as="xs:string*"/>
     <xsl:param name="texregex" as="xs:string"/>
     <xsl:analyze-string select="$string" regex="{$texregex}">
