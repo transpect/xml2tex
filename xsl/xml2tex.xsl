@@ -174,9 +174,9 @@
       
       <!-- dissolve pis created by calstable-normalize -->
       <xso:template match="processing-instruction('cals2tabular')
-                           |processing-instruction('mml2tex')
-                           |processing-instruction('latex')
-	   		   |processing-instruction('mathtype')" mode="dissolve-pi">
+                          |processing-instruction('mml2tex')
+                          |processing-instruction('latex')
+                          |processing-instruction('mathtype')" mode="dissolve-pi">
         <xso:value-of select="replace(., '\s\s+', ' ')"/>
       </xso:template>
             
@@ -407,26 +407,29 @@
       </xso:variable>
       
       <!-- replacement with xpath context -->
-      <xso:template match="text()" mode="replace-chars">
-        <!-- this function needs to run before any character mapping, because of roots e.g. -->
-        <xso:variable name="simplemath" select="normalize-unicode(string-join(xml2tex:convert-simplemath(.), ''))" as="xs:string"/>
-        <!-- maps unicode to latex -->
-        <xsl:choose>
-          <xsl:when test="/xml2tex:set/xml2tex:charmap">
-            <xso:variable name="utf2tex" select="if(matches($simplemath, $texregex)) 
-                                                 then string-join(xml2tex:utf2tex(.., $simplemath, $charmap, (), $texregex), '') 
-                                                 else $simplemath" as="xs:string"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xso:variable name="utf2tex" select="$simplemath" as="xs:string"/>
-          </xsl:otherwise>
-        </xsl:choose>
-        <!-- has to run last because it resolves combined unicode characters -->
-        <xso:variable name="diacrits" select="string-join(xml2tex:convert-diacrits($utf2tex, $texregex), '')" as="xs:string"/>
-        <xso:value-of select="$diacrits"/>
-      </xso:template>    
+    <xso:template match="text()" mode="replace-chars">
+      <!-- this function needs to run before any character mapping, because of roots e.g. -->
+      <xso:variable name="simplemath" select="normalize-unicode(string-join(xml2tex:convert-simplemath(.), ''))" as="xs:string"/>
+      <!-- maps unicode to latex -->
+      <xsl:choose>
+        <xsl:when test="/xml2tex:set/xml2tex:charmap">
+          <xso:variable name="utf2tex" select="if(matches($simplemath, $texregex)) 
+                                               then string-join(xml2tex:utf2tex(.., $simplemath, $charmap, (), $texregex), '') 
+                                               else $simplemath" as="xs:string"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xso:variable name="utf2tex" select="$simplemath" as="xs:string"/>
+        </xsl:otherwise>
+      </xsl:choose>
+      <!-- has to run last because it resolves combined unicode characters -->
+      <xso:variable name="diacrits" select="string-join(xml2tex:convert-diacrits($utf2tex, $texregex), '')" as="xs:string"/>
+      <xso:value-of select="$diacrits"/>
+    </xso:template>
+    
     <xso:template match="text()" mode="char-context"/>
+    
     <xso:template match="*" mode="char-context" as="xs:string?" priority="-1"/>
+    
     <xso:template match="/" mode="char-context" as="xs:string?" priority="-1"/>
     
     <xsl:for-each-group select="/xml2tex:set/xml2tex:charmap//xml2tex:char[normalize-space(@context)]" 
