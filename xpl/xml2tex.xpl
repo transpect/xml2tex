@@ -78,7 +78,7 @@
     </p:documentation>
   </p:option>
   
-  <p:option name="prefix" select="'xml2tex/xml2tex'">
+  <p:option name="prefix" select="'xml2tex/'">
     <p:documentation>
       Prefix for debug files.
     </p:documentation>
