@@ -96,13 +96,14 @@
         <mark hex="&#x2044;" tex="\frac"/>      <!-- fraction slash -->
       </map>
     </xsl:variable>
-    <xsl:variable name="normalize-unicode" select="normalize-unicode($string, 'NFKD')" as="xs:string"/>
+    <xsl:variable name="normalize-unicode-NFD" select="normalize-unicode($string, 'NFD')" as="xs:string"/>
+    <xsl:variable name="normalize-unicode-NFKD" select="normalize-unicode($string, 'NFKD')" as="xs:string"/>
     <xsl:variable name="diacritica-regex" select="'([a-zA-Z])([&#x300;-&#x36F;])'" as="xs:string"/>
     <xsl:variable name="fraction-regex" select="'(\d)([&#x2044;])(\d+)'" as="xs:string"/>
     <!-- decompose diacritical marks -->
     <xsl:choose>
-      <xsl:when test="matches($normalize-unicode, $diacritica-regex)">
-        <xsl:analyze-string select="$normalize-unicode" regex="{$diacritica-regex}" flags="i">
+      <xsl:when test="matches($normalize-unicode-NFD, $diacritica-regex)">
+        <xsl:analyze-string select="$normalize-unicode-NFD" regex="{$diacritica-regex}" flags="i">
           <xsl:matching-substring>
             <xsl:variable name="char" select="concat('{', regex-group(1), '}')" as="xs:string"/>
             <xsl:variable name="mark" select="regex-group(2)" as="xs:string"/>
@@ -117,8 +118,8 @@
         </xsl:analyze-string>    
       </xsl:when>
       <!-- simple fractions -->
-      <xsl:when test="matches($normalize-unicode, $fraction-regex)">
-        <xsl:analyze-string select="$normalize-unicode" regex="{$fraction-regex}" flags="i">
+      <xsl:when test="matches($normalize-unicode-NFKD, $fraction-regex)">
+        <xsl:analyze-string select="$normalize-unicode-NFKD" regex="{$fraction-regex}" flags="i">
           <xsl:matching-substring>
             <xsl:variable name="args" select="concat('{', regex-group(1), '}{', regex-group(3), '}')" as="xs:string"/>
             <xsl:variable name="mark" select="'&#x2044;'" as="xs:string"/>
