@@ -854,16 +854,17 @@ xml2tex.set.content =
   (xslt2.import.element
    | xslt2.param.element
    | xslt2.key.element
+   | xslt2.template.element
    | xslt2.function.element
-   | xml2tex.import)*
+   | xslt2.variable.element
+   | xml2tex.import
+   | xml2tex.ns
+   | xml2tex.template
+   | xml2tex.style
+   | xml2tex.regex)*
   & xml2tex.preamble?
   & xml2tex.front?
   & xml2tex.back?
-  & xml2tex.ns*
-  & (xslt2.variable.element
-     | xml2tex.template
-     | xml2tex.style
-     | xml2tex.regex)*
   & xml2tex.charmap?
 xml2tex.content.empty = empty
 xml2tex.templatemodel.content =
