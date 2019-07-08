@@ -485,8 +485,14 @@
           <ref name="xslt2.import.element"/>
           <ref name="xslt2.param.element"/>
           <ref name="xslt2.key.element"/>
+          <ref name="xslt2.template.element"/>
           <ref name="xslt2.function.element"/>
-          <ref name="xml2tex.import"/>  
+          <ref name="xslt2.variable.element"/>
+          <ref name="xml2tex.import"/>
+          <ref name="xml2tex.ns"/>
+          <ref name="xml2tex.template"/>
+          <ref name="xml2tex.style"/>
+          <ref name="xml2tex.regex"/>
         </choice>
       </zeroOrMore>
       <optional>
@@ -498,17 +504,6 @@
       <optional>
         <ref name="xml2tex.back"/>
       </optional>
-      <zeroOrMore>
-        <ref name="xml2tex.ns"/>
-      </zeroOrMore>
-      <zeroOrMore>
-        <choice>
-          <ref name="xslt2.variable.element"/>
-          <ref name="xml2tex.template"/>
-          <ref name="xml2tex.style"/>
-          <ref name="xml2tex.regex"/>
-        </choice>
-      </zeroOrMore>
       <optional>
         <ref name="xml2tex.charmap"/>
       </optional>
