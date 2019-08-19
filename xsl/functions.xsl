@@ -137,7 +137,10 @@
     </xsl:choose>
     
   </xsl:function>
-  
+
+  <xsl:variable name="xml2tex:root-regex" select="'([&#x221a;&#x221b;&#x221c;])(\d+)'" as="xs:string"/>
+  <xsl:variable name="xml2tex:simpleeq-regex" select="'(\p{L}|\d+([\.,]\d+)*)((\s*[=\-+/]\s*)+(\p{L}|\d+([\.,]\d+)*)){2,}'" as="xs:string"/>
+
   <!-- set simple math expressions in math mode -->
   
   <xsl:function name="xml2tex:convert-simplemath" as="xs:string+">
@@ -148,14 +151,11 @@
         <mark hex="&#x221b;" tex="\sqrt[3]"/>   <!-- cube root -->
         <mark hex="&#x221c;" tex="\sqrt[4]"/>   <!-- fourth root -->          
       </map>
-    </xsl:variable> 
-    <!--  -->
-    <xsl:variable name="root-regex" select="'([&#x221a;&#x221b;&#x221c;])(\d+)'" as="xs:string"/>
-    <xsl:variable name="simpleeq-regex" select="'(\p{L}|\d+([\.,]\d+)*)((\s*[=\-+/]\s*)+(\p{L}|\d+([\.,]\d+)*)){2,}'" as="xs:string"/>
+    </xsl:variable>
     <xsl:choose>
       <!-- simple root -->
-      <xsl:when test="matches($string, $root-regex)">
-        <xsl:analyze-string select="$string" regex="{$root-regex}" flags="i">
+      <xsl:when test="matches($string, $xml2tex:root-regex)">
+        <xsl:analyze-string select="$string" regex="{$xml2tex:root-regex}" flags="i">
           <xsl:matching-substring>
             <xsl:variable name="args" select="concat('{', regex-group(2), '}')" as="xs:string"/>
             <xsl:variable name="mark" select="regex-group(1)" as="xs:string"/>
@@ -168,11 +168,11 @@
         </xsl:analyze-string>
       </xsl:when>
       <!-- set simple equations automatically in math mode, e.g. 3 + 2 = a, exclude dates -->
-      <xsl:when test="matches($string, concat('(^|\s)', $simpleeq-regex, '($|\s)'))
+      <xsl:when test="matches($string, concat('(^|\s)', $xml2tex:simpleeq-regex, '($|\s)'))
         and not(matches($string, '\d{4}(-\d{2}){2}'))
         and not(matches($string, '(\d{2}\.\s?){2}\d{4}'))
         and matches($string, '=')">
-        <xsl:analyze-string select="$string" regex="{$simpleeq-regex}" flags="i">
+        <xsl:analyze-string select="$string" regex="{$xml2tex:simpleeq-regex}" flags="i">
           <xsl:matching-substring>
             <xsl:value-of select="concat(' $', ., '$ ')"/>
           </xsl:matching-substring>

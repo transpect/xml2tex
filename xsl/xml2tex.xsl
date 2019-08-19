@@ -405,9 +405,9 @@
           </xml2tex:char>
         </xsl:for-each>
       </xso:variable>
-      
-      <!-- replacement with xpath context -->
-    <xso:template match="text()" mode="replace-chars">
+    
+    <!-- replacement with xpath context -->
+    <xso:template match="text()[matches(., concat('(', $texregex, ')|(', $xml2tex:simpleeq-regex, ')|(', $xml2tex:root-regex, ')'))]" mode="replace-chars">
       <!-- this function needs to run before any character mapping, because of roots e.g. -->
       <xso:variable name="simplemath" select="normalize-unicode(string-join(xml2tex:convert-simplemath(.), ''))" as="xs:string"/>
       <!-- maps unicode to latex -->
