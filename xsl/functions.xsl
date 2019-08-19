@@ -66,48 +66,51 @@
     </xsl:analyze-string>
   </xsl:function>
   
+  <xsl:variable name="xml2tex:diacrits" as="element(diacrits)">
+    <diacrits>
+      <mark hex="&#x300;" tex="\`"/>          <!-- grave accent -->
+      <mark hex="&#x301;" tex="\'"/>          <!-- acute accent -->
+      <mark hex="&#x302;" tex="\^"/>          <!-- circumflex accent -->
+      <mark hex="&#x303;" tex="\~"/>          <!-- tilde -->
+      <mark hex="&#x304;" tex="\="/>          <!-- macron -->
+      <mark hex="&#x305;" tex="\="/>          <!-- overline -->
+      <mark hex="&#x306;" tex="\u"/>          <!-- breve -->
+      <mark hex="&#x307;" tex="\."/>          <!-- dot above -->
+      <mark hex="&#x308;" tex="\&quot;"/>     <!-- diaeresis -->
+      <mark hex="&#x30a;" tex="\r"/>          <!-- ring above -->
+      <mark hex="&#x30b;" tex="\H"/>          <!-- double acute accent -->
+      <mark hex="&#x30c;" tex="\v"/>          <!-- caron/háček -->
+      <mark hex="&#x30d;" tex="\="/>          <!-- vertical line above, not we misuse the macron for this -->
+      <mark hex="&#x30e;" tex="\v"/>          <!-- double vertical line above -->
+      <mark hex="&#x323;" tex="\d"/>          <!-- dot below -->
+      <mark hex="&#x327;" tex="\c"/>          <!-- cedilla -->
+      <mark hex="&#x328;" tex="\k"/>          <!-- ogonek -->
+      <mark hex="&#x331;" tex="\b"/>          <!-- macron below -->
+      <mark hex="&#x332;" tex="\b"/>          <!-- low line -->
+      <mark hex="&#x324;" tex="\~"/>          <!-- greek perispomeni -->
+      <mark hex="&#x2044;" tex="\frac"/>      <!-- fraction slash -->
+    </diacrits>
+  </xsl:variable>
+  
+  <xsl:variable name="xml2tex:diacrits-regex" select="'([a-zA-Z])([&#x300;-&#x36F;])'" as="xs:string"/>
+  <xsl:variable name="xml2tex:fraction-regex" select="'(\d)([&#x2044;])(\d+)'" as="xs:string"/>
+  
   <!-- convert unicode characters combined with diacritical marks -->
   
   <xsl:function name="xml2tex:convert-diacrits" as="xs:string+">
     <xsl:param name="string" as="xs:string"/>
     <xsl:param name="texregex" as="xs:string"/>
-    <xsl:variable name="map" as="element(map)">
-      <map>
-        <mark hex="&#x300;" tex="\`"/>          <!-- grave accent -->
-        <mark hex="&#x301;" tex="\'"/>          <!-- acute accent -->
-        <mark hex="&#x302;" tex="\^"/>          <!-- circumflex accent -->
-        <mark hex="&#x303;" tex="\~"/>          <!-- tilde -->
-        <mark hex="&#x304;" tex="\="/>          <!-- macron -->
-        <mark hex="&#x305;" tex="\="/>          <!-- overline -->
-        <mark hex="&#x306;" tex="\u"/>          <!-- breve -->
-        <mark hex="&#x307;" tex="\."/>          <!-- dot above -->
-        <mark hex="&#x308;" tex="\&quot;"/>     <!-- diaeresis -->
-        <mark hex="&#x30a;" tex="\r"/>          <!-- ring above -->
-        <mark hex="&#x30b;" tex="\H"/>          <!-- double acute accent -->
-        <mark hex="&#x30c;" tex="\v"/>          <!-- caron/háček -->
-        <mark hex="&#x30d;" tex="\="/>          <!-- vertical line above, not we misuse the macron for this -->
-        <mark hex="&#x30e;" tex="\v"/>          <!-- double vertical line above -->
-        <mark hex="&#x323;" tex="\d"/>          <!-- dot below -->
-        <mark hex="&#x327;" tex="\c"/>          <!-- cedilla -->
-        <mark hex="&#x328;" tex="\k"/>          <!-- ogonek -->
-        <mark hex="&#x331;" tex="\b"/>          <!-- macron below -->
-        <mark hex="&#x332;" tex="\b"/>          <!-- low line -->
-        <mark hex="&#x324;" tex="\~"/>          <!-- greek perispomeni -->
-        <mark hex="&#x2044;" tex="\frac"/>      <!-- fraction slash -->
-      </map>
-    </xsl:variable>
+    <xsl:param name="diacritical-marks" as="element()"/>
     <xsl:variable name="normalize-unicode-NFD" select="normalize-unicode($string, 'NFD')" as="xs:string"/>
     <xsl:variable name="normalize-unicode-NFKD" select="normalize-unicode($string, 'NFKD')" as="xs:string"/>
-    <xsl:variable name="diacritica-regex" select="'([a-zA-Z])([&#x300;-&#x36F;])'" as="xs:string"/>
-    <xsl:variable name="fraction-regex" select="'(\d)([&#x2044;])(\d+)'" as="xs:string"/>
     <!-- decompose diacritical marks -->
     <xsl:choose>
-      <xsl:when test="matches($normalize-unicode-NFD, $diacritica-regex)">
-        <xsl:analyze-string select="$normalize-unicode-NFD" regex="{$diacritica-regex}" flags="i">
+      <xsl:when test="matches($normalize-unicode-NFD, $xml2tex:diacrits-regex)">
+        <xsl:analyze-string select="$normalize-unicode-NFD" regex="{$xml2tex:diacrits-regex}" flags="i">
           <xsl:matching-substring>
             <xsl:variable name="char" select="concat('{', regex-group(1), '}')" as="xs:string"/>
             <xsl:variable name="mark" select="regex-group(2)" as="xs:string"/>
-            <xsl:variable name="tex-instr" select="$map//mark[@hex eq $mark]/@tex" as="xs:string*"/>
+            <xsl:variable name="tex-instr" select="$xml2tex:diacrits//mark[@hex eq $mark]/@tex" as="xs:string*"/>
             <xsl:value-of select="if(string-length($tex-instr) gt 0 and not(matches(normalize-unicode(.), $texregex)))
               then concat($tex-instr, $char)
               else normalize-unicode(.)"/>
@@ -118,12 +121,12 @@
         </xsl:analyze-string>    
       </xsl:when>
       <!-- simple fractions -->
-      <xsl:when test="matches($normalize-unicode-NFKD, $fraction-regex)">
-        <xsl:analyze-string select="$normalize-unicode-NFKD" regex="{$fraction-regex}" flags="i">
+      <xsl:when test="matches($normalize-unicode-NFKD, $xml2tex:fraction-regex)">
+        <xsl:analyze-string select="$normalize-unicode-NFKD" regex="{$xml2tex:fraction-regex}" flags="i">
           <xsl:matching-substring>
             <xsl:variable name="args" select="concat('{', regex-group(1), '}{', regex-group(3), '}')" as="xs:string"/>
             <xsl:variable name="mark" select="'&#x2044;'" as="xs:string"/>
-            <xsl:variable name="tex-instr" select="$map//mark[@hex eq $mark]/@tex" as="xs:string*"/>
+            <xsl:variable name="tex-instr" select="$xml2tex:diacrits//mark[@hex eq $mark]/@tex" as="xs:string*"/>
             <xsl:value-of select="concat('$', $tex-instr, $args, '$')"/>
           </xsl:matching-substring>
           <xsl:non-matching-substring>

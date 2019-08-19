@@ -407,7 +407,11 @@
       </xso:variable>
     
     <!-- replacement with xpath context -->
-    <xso:template match="text()[matches(., concat('(', $texregex, ')|(', $xml2tex:simpleeq-regex, ')|(', $xml2tex:root-regex, ')'))]" mode="replace-chars">
+    <xso:template match="text()[   matches(., $texregex) 
+                                or matches(., $xml2tex:simpleeq-regex)
+                                or matches(., $xml2tex:root-regex)
+                                or matches(normalize-unicode(., 'NFD'),  $xml2tex:diacrits-regex)
+                                or matches(normalize-unicode(., 'NFKD'), $xml2tex:fraction-regex)]" mode="replace-chars">
       <!-- this function needs to run before any character mapping, because of roots e.g. -->
       <xso:variable name="simplemath" select="normalize-unicode(string-join(xml2tex:convert-simplemath(.), ''))" as="xs:string"/>
       <!-- maps unicode to latex -->
@@ -422,7 +426,8 @@
         </xsl:otherwise>
       </xsl:choose>
       <!-- has to run last because it resolves combined unicode characters -->
-      <xso:variable name="diacrits" select="string-join(xml2tex:convert-diacrits($utf2tex, $texregex), '')" as="xs:string"/>
+      <xso:variable name="diacrits" as="xs:string"
+                    select="string-join(xml2tex:convert-diacrits($utf2tex, $texregex, $xml2tex:diacrits), '')"/>
       <xso:value-of select="$diacrits"/>
     </xso:template>
     
