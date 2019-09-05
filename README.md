@@ -10,9 +10,9 @@ cloning the modules from GitHub:
 
 ```
 $ mkdir asyoulike && cd asyoulike
-$ git clone --recursive https://github.com/transpect/calabash-frontend.git
+$ git clone --recursive -b saxon98 https://github.com/transpect/calabash-frontend.git calabash
 $ git clone https://github.com/transpect/mml2tex.git
-$ git clone https://github.com/transpect/mml2tex.git
+$ git clone https://github.com/transpect/cascade.git
 $ git clone https://github.com/transpect/mml-normalize.git
 $ git clone https://github.com/transpect/xproc-util.git
 $ git clone https://github.com/transpect/xslt-util.git
@@ -29,6 +29,7 @@ Now we add an XML catalog to resolve the import URIs of the XProc modules.
   <nextCatalog catalog="../xproc-util/xmlcatalog/catalog.xml"/>
   <nextCatalog catalog="../xslt-util/xmlcatalog/catalog.xml"/>  
   <nextCatalog catalog="../xml2tex/xmlcatalog/catalog.xml"/>
+  <nextCatalog catalog="../cascade/xmlcatalog/catalog.xml"/>
 </catalog>
 ```
 
@@ -39,6 +40,10 @@ Now you just have to run calabash.
 ```
 $ calabash/calabash.sh -i source=xml2tex/example/example.xml -i conf=xml2tex/example/conf-hubcssa.xml xml2tex/xpl/xml2tex.xpl
 ```
+
+Alternatively, you can download a [release of docx2tex](https://github.com/transpect/docx2tex/releases) that uses this xml2tex library,
+or you can clone docx2tex recursively for the most current libraries.
+There, all the repos listed above are already included as submodules, and the XML Catalog is also present.
 
 ## Configuration
 
