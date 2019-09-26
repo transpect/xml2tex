@@ -168,8 +168,9 @@
       <xso:template match="processing-instruction()" mode="clean"/>
       
       <xso:template match="text()" mode="clean">
-        <xso:variable name="normalize-linebreaks" select="replace(., '\n\n\n+', '&#xa;&#xa;', 'm')" as="xs:string"/>        
-        <xso:value-of select="$normalize-linebreaks"/>
+        <xso:variable name="normalize-linebreaks" select="replace(., '\n\n\n+', '&#xa;&#xa;', 'm')" as="xs:string"/>
+        <xso:variable name="remove-newlines-before-linebreaks" select="replace(., '(\n)+\s*(\\newline)', '$2$1', 'm')" as="xs:string"/>        
+        <xso:value-of select="$remove-newlines-before-linebreaks"/>
       </xso:template>
       
       <!-- dissolve pis created by calstable-normalize -->
