@@ -246,7 +246,7 @@
     <xsl:param name="lang" as="xs:string?"/>
     <xsl:value-of select="     if($lang eq 'de') then 'ngerman'
                           else if($lang eq 'en') then 'english'
-                          else if($lang eq 'fr') then 'frenchb'
+                          else if($lang eq 'fr') then 'french'
                           else if($lang eq 'it') then 'italian'
                           else if($lang eq 'es') then 'spanish'
                           else if($lang eq 'cs') then 'czech'
