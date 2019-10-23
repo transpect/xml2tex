@@ -229,19 +229,24 @@
   
   <xsl:function name="xml2tex:lang-to-latex-pkg" as="xs:string?">
     <xsl:param name="lang" as="xs:string"/>
-    <xsl:value-of select="     if($lang eq 'de') then '\usepackage[ngerman]{babel}'
-                          else if($lang eq 'fr') then '\usepackage[frenchb]{babel}'
-                          else if($lang eq 'it') then '\usepackage[italian]{babel}'
-                          else if($lang eq 'es') then '\usepackage[spanish]{babel}'
-                          else if($lang eq 'cs') then '\usepackage[czech]{babel}'
-                          else if($lang eq 'fi') then '\usepackage[finnish]{babel}'
-                          else if($lang eq 'el') then '\usepackage[english,greek]{babel}'
-                          else if($lang eq 'hu') then '\usepackage[magyar]{babel}'
-                          else if($lang eq 'is') then '\usepackage[icelandic]{babel}'
-                          else if($lang eq 'pl') then '\usepackage[polish]{babel}'
-                          else if($lang eq 'pt') then '\usepackage[portuguese]{babel}'
-                          else if($lang = ('ar', 'fa', 'ur', 'ps', 'ku', 'ug')) then '\usepackage{arabtex}'
-                          else if($lang eq 'zh') then '\usepackage{CJK}'
+    <xsl:value-of select="if($lang eq 'zh') 
+                          then '\usepackage{CJK}'
+                          else concat('\usepackage[', xml2tex:lang-to-babel-lang($lang), ']{babel}')"/>
+  </xsl:function>
+
+  <xsl:function name="xml2tex:lang-to-babel-lang" as="xs:string?">
+    <xsl:param name="lang" as="xs:string"/>
+    <xsl:value-of select="     if($lang eq 'de') then 'ngerman'
+                          else if($lang eq 'fr') then 'frenchb'
+                          else if($lang eq 'it') then 'italian'
+                          else if($lang eq 'es') then 'spanish'
+                          else if($lang eq 'cs') then 'czech'
+                          else if($lang eq 'fi') then 'finnish'
+                          else if($lang eq 'el') then 'english,greek'
+                          else if($lang eq 'hu') then 'magyar'
+                          else if($lang eq 'is') then 'icelandic'
+                          else if($lang eq 'pl') then 'polish'
+                          else if($lang eq 'pt') then 'portuguese'
                           else ()"/>
   </xsl:function>
   
