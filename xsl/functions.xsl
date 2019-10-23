@@ -227,11 +227,19 @@
                                   )"/>
   </xsl:function>
   
-  <xsl:function name="xml2tex:lang-to-latex-pkg" as="xs:string?">
-    <xsl:param name="lang" as="xs:string"/>
-    <xsl:value-of select="if($lang eq 'zh') 
-                          then '\usepackage{CJK}'
-                          else concat('\usepackage[', xml2tex:lang-to-babel-lang($lang), ']{babel}')"/>
+  <xsl:function name="xml2tex:langs-to-latex-pkg" as="xs:string?">
+    <xsl:param name="langs" as="xs:string*"/>
+    <xsl:variable name="babel-langs" as="xs:string*"
+                  select="for $i in $langs 
+                          return xml2tex:lang-to-babel-lang($i)"/>
+    <xsl:value-of select="concat('\usepackage[',
+                                 string-join(($babel-langs[position() ne 1], 
+                                              $babel-langs[1]), (: 1st lang is main lang and comes last :)
+                                              ','),
+                                 ']{babel}&#xa;')"/>
+    <xsl:if test="$langs = 'zh'">
+      <xsl:value-of select="'\usepackage{CJK}&#xa;'"/>
+    </xsl:if>
   </xsl:function>
 
   <xsl:function name="xml2tex:lang-to-babel-lang" as="xs:string?">
