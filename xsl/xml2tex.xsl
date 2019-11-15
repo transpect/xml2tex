@@ -150,19 +150,16 @@
                                                           concat('\end{',   xml2tex:rule/@name, '}'))
                else                                      ()" as="xs:string*"/>
           <xsl:variable name="name" select="xml2tex:rule/@name" as="attribute(name)?"/>
-          <xsl:variable name="replace" 
-            select="string-join(('concat(''',
-                                                   for $i in xml2tex:rule/*
-                                                   return (if($name) then concat('\', $name) else (),
-                                                           xml2tex:get-delimiter($i/local-name(), true()),
-                                                           if($i/@regex-group) 
-                                                           then concat(''', ', 'regex-group(', $i/@regex-group, '),', '''')
-                                                           else (replace($i/@select, '^['']?(.+?)['']?$', '$1'), $i/text())[1],
-                                                           xml2tex:get-delimiter($i/local-name(), false())),
-                                                   ''')'), '')" as="xs:string*"/>
-          <!--<xso:variable name="content" select="replace($content, 
-                                                       {$pattern}, 
-                                                       {replace($replace, '([\\$])', '\\$1')})" as="xs:string"/>-->
+          <xsl:variable name="replace" as="xs:string*"
+                        select="string-join(('concat(''',
+                                             for $i in xml2tex:rule/*
+                                             return (if($name) then concat('\', $name) else (),
+                                                     xml2tex:get-delimiter($i/local-name(), true()),
+                                                     if($i/@regex-group) 
+                                                     then concat(''', ', 'regex-group(', $i/@regex-group, '),', '''')
+                                                     else (replace($i/@select, '^['']?(.+?)['']?$', '$1'), $i/text())[1],
+                                                     xml2tex:get-delimiter($i/local-name(), false())),
+                                             ''')'), '')"/>
           <xso:analyze-string select="." regex="{$pattern}">
             <xso:matching-substring>
               <xso:processing-instruction name="latex" 
