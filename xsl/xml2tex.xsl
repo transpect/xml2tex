@@ -313,7 +313,7 @@
     <xso:value-of select="$closing-tag"/>
   </xsl:template>
   
-  <xsl:template match="xsl:*|@*" priority="100">
+  <xsl:template match="xsl:*|xsl:*//*|xsl:*//@*">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()"/>
     </xsl:copy>
