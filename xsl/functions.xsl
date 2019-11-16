@@ -256,6 +256,7 @@
                           else if($lang eq 'is') then 'icelandic'
                           else if($lang eq 'pl') then 'polish'
                           else if($lang eq 'pt') then 'portuguese'
+                          else if($lang eq 'tr') then 'turkish'
                           else ()"/>
   </xsl:function>
   
