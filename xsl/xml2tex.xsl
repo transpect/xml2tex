@@ -159,7 +159,7 @@
                                                      then concat(''', ', '''$', $i/@regex-group, ''',', '''')
                                                      else (replace($i/@select, '^['']?(.+?)['']?$', '$1'), $i/text())[1],
                                                      xml2tex:get-delimiter($i/local-name(), false())),
-                                             ''')'), '')"/>
+                                             ''','''')'), '')"/>
           <xso:variable name="content" select="replace($content, {$pattern}, {$replace})" as="xs:string"/>
         </xsl:for-each>
         <xso:processing-instruction name="latex" select="$content"/>
