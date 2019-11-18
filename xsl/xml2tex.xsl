@@ -140,30 +140,33 @@
       </xso:template>
 
       <!-- apply regex from conf file -->
-      <xso:template match="text()[matches(., '({string-join(//xml2tex:regex/@regex, ')|(')})')]" mode="apply-regex">
-        <xso:variable name="content" select="." as="xs:string"/>
-        <xsl:for-each select="xml2tex:regex">
-          <xsl:variable name="pattern" select="concat('''', @regex, '''')" as="xs:string"/>
-          <xsl:variable name="delimiters"
-            select="if(xml2tex:rule/@type eq 'cmd') then (concat('\', xml2tex:rule/@name), '')
-               else if(xml2tex:rule/@type eq 'env') then (concat('\begin{', xml2tex:rule/@name, '}'), 
-                                                          concat('\end{',   xml2tex:rule/@name, '}'))
-               else                                      ()" as="xs:string*"/>
-          <xsl:variable name="name" select="xml2tex:rule/@name" as="attribute(name)?"/>
-          <xsl:variable name="replace" as="xs:string*"
-                        select="string-join(('concat(''',
-                                             for $i in xml2tex:rule/*
-                                             return (if($name) then concat('\\', $name) else (),
-                                                     xml2tex:get-delimiter($i/local-name(), true()),
-                                                     if($i/@regex-group) 
-                                                     then concat(''', ', '''$', $i/@regex-group, ''',', '''')
-                                                     else (replace($i/@select, '^['']?(.+?)['']?$', '$1'), $i/text())[1],
-                                                     xml2tex:get-delimiter($i/local-name(), false())),
-                                             ''','''')'), '')"/>
-          <xso:variable name="content" select="replace($content, {$pattern}, {$replace})" as="xs:string"/>
-        </xsl:for-each>
-        <xso:processing-instruction name="latex" select="$content"/>
-      </xso:template>
+      <xsl:if test="xml2tex:regex">        
+        <xso:template match="text()[matches(., '({string-join(//xml2tex:regex/@regex, ')|(')})')]" mode="apply-regex">
+          <xso:variable name="content" select="." as="xs:string"/>
+          <xsl:for-each select="xml2tex:regex">
+            <xsl:variable name="pattern" select="concat('''', @regex, '''')" as="xs:string"/>
+            <xsl:variable name="type"
+              select="if(xml2tex:rule/@type eq 'cmd') then (concat('\', xml2tex:rule/@name), '')
+                 else if(xml2tex:rule/@type eq 'env') then (concat('\begin{', xml2tex:rule/@name, '}'), 
+                                                            concat('\end{',   xml2tex:rule/@name, '}'))
+                 else                                      ()" as="xs:string*"/>
+            <xsl:variable name="name" select="xml2tex:rule/@name" as="attribute(name)?"/>
+            <xsl:variable name="replace" as="xs:string*"
+                          select="string-join(('concat(''',
+                                               for $i in xml2tex:rule/*
+                                               return ($type[1],
+                                                       xml2tex:get-delimiter($i/local-name(), true()),
+                                                       if($i/@regex-group) 
+                                                       then concat(''', ', '''$', $i/@regex-group, ''',', '''')
+                                                       else (replace($i/@select, '^['']?(.+?)['']?$', '$1'), $i/text())[1],
+                                                       xml2tex:get-delimiter($i/local-name(), false())),
+                                                       $type[2],
+                                               ''','''')'), '')"/>
+            <xso:variable name="content" select="replace($content, {$pattern}, {replace($replace, '\\', '\\\\')})" as="xs:string"/>
+          </xsl:for-each>
+          <xso:processing-instruction name="latex" select="$content"/>
+        </xso:template>
+      </xsl:if>
       
       <xso:template match="processing-instruction()" mode="clean"/>
       
