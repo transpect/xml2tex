@@ -284,10 +284,7 @@
                   select="concat($line-separator,
                                  string-join(for $i in (1 to $col-count)
                                              return if(exists($col-widths))
-                                                    then concat('&#xa;',
-                                                                'p', (: alignment goes here :)
-                                                    
-                                                                '{\dimexpr ', 
+                                                    then concat('&#xa;p{\dimexpr ', 
                                                                 $final-col-widths[$i],
                                                                 '\linewidth-2\tabcolsep',
                                                                 if($table-grid eq 'yes') 
