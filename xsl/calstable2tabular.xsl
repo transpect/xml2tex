@@ -67,6 +67,7 @@
           <xsl:apply-templates select="@*" mode="#current"/>
           <xsl:processing-instruction name="cals2tabular" 
                                       select="concat('\multirow', $vertical-align, '{', $rowspan, '}{*}{' )"/>
+          <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
           <xsl:choose>
             <xsl:when test="count(*:para) lt 2">
               <xsl:apply-templates mode="#current"/>    
@@ -88,7 +89,9 @@
           <xsl:processing-instruction name="cals2tabular" select="'} '"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:apply-templates select="@*, node()" mode="#current"/>    
+          <xsl:apply-templates select="@*" mode="#current"/>
+          <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
+          <xsl:apply-templates mode="#current"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:copy>
@@ -106,7 +109,9 @@
           <xsl:apply-templates select="@*" mode="#current"/>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:apply-templates select="@*, node()" mode="#current"/>
+          <xsl:apply-templates select="@*" mode="#current"/>
+          <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
+          <xsl:apply-templates mode="#current"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:copy>
@@ -186,7 +191,6 @@
     <xsl:variable name="is-rowspan" as="xs:boolean"
                   select="boolean(for $i in parent::*:row/following-sibling::*:row[*:entry[@linkend][$entry-id eq @linkend]] 
                                   return $i)"/>
-    <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
@@ -208,7 +212,6 @@
                           and not(preceding-sibling::*[1][@linkend eq $entry-idref]) 
                           and     following-sibling::*[1][@linkend eq $entry-idref]"/>
     <xsl:variable name="is-last" select="position() eq last()" as="xs:boolean"/>
-    <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
@@ -284,7 +287,9 @@
                   select="concat($line-separator,
                                  string-join(for $i in (1 to $col-count)
                                              return if(exists($col-widths))
-                                                    then concat('&#xa;p{\dimexpr ', 
+                                                    then concat('&#xa;',
+                                                                'p',
+                                                                '{\dimexpr ', 
                                                                 $final-col-widths[$i],
                                                                 '\linewidth-2\tabcolsep',
                                                                 if($table-grid eq 'yes') 
