@@ -169,6 +169,7 @@
   <!-- MODE cals2tabular:final -->
   
   <xsl:template match="*:entry[not(@linkend or @xml:id)]" mode="cals2tabular:final">
+    <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
@@ -185,6 +186,7 @@
     <xsl:variable name="is-rowspan" as="xs:boolean"
                   select="boolean(for $i in parent::*:row/following-sibling::*:row[*:entry[@linkend][$entry-id eq @linkend]] 
                                   return $i)"/>
+    <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
@@ -204,8 +206,9 @@
     <xsl:variable name="is-rowspan-and-colspan-ref" as="xs:boolean"
                   select="@morerows 
                           and not(preceding-sibling::*[1][@linkend eq $entry-idref]) 
-                          and     following-sibling::*[1][@linkend eq $entry-idref]"/>    
+                          and     following-sibling::*[1][@linkend eq $entry-idref]"/>
     <xsl:variable name="is-last" select="position() eq last()" as="xs:boolean"/>
+    <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
@@ -215,6 +218,16 @@
       <xsl:processing-instruction name="cals2tabular" select="'&amp;&#x20;'"/>
     </xsl:if>
   </xsl:template>
+  
+  <xsl:function name="cals2tabular:cell-align" as="processing-instruction()?">
+    <xsl:param name="text-align" as="attribute(css:text-align)?"/>
+    <xsl:if test="$text-align">
+      <xsl:processing-instruction name="cals2tabular"
+                                select="if($text-align eq 'center') then '\centering\arraybackslash{}'
+                                        else if($text-align eq 'right') then '\raggedleft\arraybackslash{}'
+                                        else ()"/>  
+    </xsl:if>
+  </xsl:function>
   
   <xsl:template match="*:row" mode="cals2tabular:final">
     <xsl:copy>
@@ -268,10 +281,13 @@
     <xsl:variable name="last-col-width" select="1 - sum($rel-col-widths)" as="xs:decimal*"/>
     <xsl:variable name="final-col-widths" select="($rel-col-widths, $last-col-width)" as="xs:decimal*"/>
     <xsl:variable name="col-declaration" as="xs:string"
-                  select="concat($line-separator, 
-                                 string-join(for $i in (1 to $col-count) 
-                                             return if(exists($col-widths)) 
-                                                    then concat('&#xa;p{\dimexpr ', 
+                  select="concat($line-separator,
+                                 string-join(for $i in (1 to $col-count)
+                                             return if(exists($col-widths))
+                                                    then concat('&#xa;',
+                                                                'p', (: alignment goes here :)
+                                                    
+                                                                '{\dimexpr ', 
                                                                 $final-col-widths[$i],
                                                                 '\linewidth-2\tabcolsep',
                                                                 if($table-grid eq 'yes') 
