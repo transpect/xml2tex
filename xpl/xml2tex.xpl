@@ -185,6 +185,9 @@
     <p:input port="source">
       <p:pipe port="result" step="load-config"/>
     </p:input>
+    <p:input port="parameters">
+      <p:pipe port="paths" step="xml2tex"/>
+    </p:input>
     <p:with-param name="debug" select="$debug"/>
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-param name="only-tex-body" select="$only-tex-body"/>
@@ -287,6 +290,9 @@
     <p:input port="stylesheet">
       <p:pipe port="result" step="load-cals2tabular-xsl"/>
     </p:input>
+    <p:input port="parameters">
+      <p:pipe port="paths" step="xml2tex"/>
+    </p:input>
     <p:with-param name="table-model" select="$table-model"/>
     <p:with-param name="table-grid" select="$table-grid"/>
     <p:with-param name="debug" select="$debug"/>
@@ -346,7 +352,7 @@
       <p:pipe port="result" step="conf2xsl"/>
     </p:input>
     <p:input port="parameters">
-      <p:empty/>
+      <p:pipe port="paths" step="xml2tex"/>
     </p:input>
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
