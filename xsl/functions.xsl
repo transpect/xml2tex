@@ -244,18 +244,25 @@
 
   <xsl:function name="xml2tex:lang-to-babel-lang" as="xs:string?">
     <xsl:param name="lang" as="xs:string?"/>
-    <xsl:value-of select="     if($lang eq 'de') then 'ngerman'
+    <xsl:value-of select="     if($lang eq 'da') then 'danish'
+                          else if($lang eq 'de') then 'ngerman'
                           else if($lang eq 'en') then 'english'
                           else if($lang eq 'fr') then 'french'
+                          else if($lang eq 'fi') then 'finnish'
+                          else if($lang eq 'hu') then 'magyar'
                           else if($lang eq 'it') then 'italian'
+                          else if($lang = ('is', 'fo')) then 'icelandic'
                           else if($lang eq 'es') then 'spanish'
                           else if($lang eq 'cs') then 'czech'
                           else if($lang eq 'fi') then 'finnish'
                           else if($lang eq 'el') then 'english,greek'
                           else if($lang eq 'hu') then 'magyar'
+                          else if($lang eq 'no') then 'norsk'
                           else if($lang eq 'is') then 'icelandic'
                           else if($lang eq 'pl') then 'polish'
                           else if($lang eq 'pt') then 'portuguese'
+                          else if($lang eq 'sk') then 'slovak'
+                          else if($lang eq 'sv') then 'swedish'
                           else if($lang eq 'tr') then 'turkish'
                           else ()"/>
   </xsl:function>
