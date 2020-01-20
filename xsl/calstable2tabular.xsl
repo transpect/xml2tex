@@ -239,20 +239,28 @@
     <xsl:text>&#x20;</xsl:text>
     <xsl:processing-instruction name="cals2tabular" select="'\\'"/>
     <!-- test if a rowspan by @xml:id with reference to next row or an @linkend with reference to an @xml:id in previous row-->
-    <xsl:variable name="rowspan-previous-row" 
-                  select="for $i in *:entry[@linkend] 
-                          return $i[parent::*:row/preceding-sibling::*:row[*:entry[@xml:id][$i/@linkend eq @xml:id]]]"/>
     <xsl:variable name="rowspan-exists" 
-                  select="exists(for $i in *:entry[@xml:id or @linkend] 
+                  select="exists(for $i in *:entry[@xml:id or @linkend]
                                  return $i[parent::*:row/following-sibling::*:row[*:entry[(@xml:id, @linkend)[1]][$i/(@xml:id, @linkend)[1] eq @linkend]]])"/>
     <xsl:choose>
       <xsl:when test="$rowspan-exists">
-        <xsl:for-each select="*:entry">
-          <xsl:variable name="id" select="(@xml:id, @linkend)[1]" as="xs:string?"/>
-          <xsl:variable name="pos" select="position()" as="xs:integer"/>
-          <xsl:if test="not(parent::*:row/following-sibling::*:row[*:entry[@linkend][$id eq @linkend]])">
+        <xsl:variable name="positions" as="xs:integer*">
+          <xsl:for-each select="*:entry">
+            <xsl:variable name="id" select="(@xml:id, @linkend)[1]" as="xs:string?"/>
+            <xsl:variable name="pos" select="position()" as="xs:integer"/>
+            <xsl:if test="not(parent::*:row/following-sibling::*:row[*:entry[@linkend][$id eq @linkend]])">
+              <xsl:value-of select="$pos"/>
+            </xsl:if>
+          </xsl:for-each>
+        </xsl:variable>
+        <xsl:for-each select="*:entry[position() = $positions]">
+          <xsl:if test="not(preceding-sibling::*[1]/position() = $positions)">
             <xsl:processing-instruction name="cals2tabular" 
-                                        select="if($table-grid eq 'yes') then concat('&#x20;\cline{', $pos, '-', $pos, '}') else ''"/>
+                                        select="if($table-grid eq 'yes') then concat('&#x20;\cline{', position(), '-') else ()"/>  
+          </xsl:if>
+          <xsl:if test="not(following-sibling::*[2]/position() = $positions)">
+            <xsl:processing-instruction name="cals2tabular" 
+                                        select="if($table-grid eq 'yes') then concat(position(), '}') else ()"/>  
           </xsl:if>
         </xsl:for-each>
       </xsl:when>
