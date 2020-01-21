@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:map="http://www.w3.org/2005/xpath-functions/map"
+  xmlns:tr="http://transpect.io"
   xmlns:calstable="http://docs.oasis-open.org/ns/oasis-exchange/table"
   xmlns:cals2tabular="http://transpect.io/cals2tabular"
   xmlns:dbk="http://docbook.org/ns/docbook"
   xmlns:css="http://www.w3.org/1996/css"
-  version="2.0">
+  version="3.0">
+  
+  <xsl:import href="http://transpect.io/xslt-util/num/xsl/num.xsl"/>
   
   <!-- this template expects a hub file with normalized tables -->
   
@@ -244,29 +248,33 @@
                                  return $i[parent::*:row/following-sibling::*:row[*:entry[(@xml:id, @linkend)[1]][$i/(@xml:id, @linkend)[1] eq @linkend]]])"/>
     <xsl:choose>
       <xsl:when test="$rowspan-exists">
-        <xsl:variable name="positions" as="xs:integer*">
+        <xsl:variable name="col-indices" as="xs:integer*">
           <xsl:for-each select="*:entry">
             <xsl:variable name="id" select="(@xml:id, @linkend)[1]" as="xs:string?"/>
-            <xsl:variable name="pos" select="position()" as="xs:integer"/>
+            <xsl:variable name="index" select="position()" as="xs:integer"/>
             <xsl:if test="not(parent::*:row/following-sibling::*:row[*:entry[@linkend][$id eq @linkend]])">
-              <xsl:value-of select="$pos"/>
+              <xsl:value-of select="$index"/>
             </xsl:if>
           </xsl:for-each>
         </xsl:variable>
-        <xsl:for-each select="*:entry[position() = $positions]">
-          <xsl:if test="not(preceding-sibling::*[1]/position() = $positions)">
+        <xsl:variable name="col-range-map" select="tr:get-adjacent-integers-from-seq($col-indices)" as="map(xs:integer, xs:integer*)"/>
+        <xsl:for-each select="1 to map:size($col-range-map)">
+          <xsl:variable name="col-range" 
+                        select="$col-range-map(position())" as="xs:integer*"/>
+          <xsl:if test="exists($col-range)">
             <xsl:processing-instruction name="cals2tabular" 
-                                        select="if($table-grid eq 'yes') then concat('&#x20;\cline{', position(), '-') else ()"/>  
-          </xsl:if>
-          <xsl:if test="not(following-sibling::*[2]/position() = $positions)">
-            <xsl:processing-instruction name="cals2tabular" 
-                                        select="if($table-grid eq 'yes') then concat(position(), '}') else ()"/>  
+                                        select="concat('\cline{', 
+                                                       min($col-range), 
+                                                       '-',
+                                                       max($col-range),
+                                                       '}'
+                                                       )[$table-grid eq 'yes']"/>
           </xsl:if>
         </xsl:for-each>
       </xsl:when>
       <xsl:otherwise>
         <xsl:processing-instruction name="cals2tabular" 
-                                    select="if($table-grid eq 'yes') then '\hline&#x20;' else ()"/>
+                                    select="'\hline&#x20;'[$table-grid eq 'yes']"/>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:text>&#xa;</xsl:text>
