@@ -26,7 +26,7 @@
     </p:inline>
   </p:input>
 
-  <p:output port="result" primary="true"/>
+  <p:output port="result"/>
   
   <p:serialization port="result" method="text" media-type="text/plain" encoding="utf8"/>
   
