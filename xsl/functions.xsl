@@ -247,6 +247,7 @@
     <xsl:value-of select="     if($lang eq 'da') then 'danish'
                           else if($lang eq 'de') then 'ngerman'
                           else if($lang eq 'en') then 'english'
+                          else if($lang eq 'nl') then 'dutch'
                           else if($lang eq 'fr') then 'french'
                           else if($lang eq 'fi') then 'finnish'
                           else if($lang eq 'hu') then 'magyar'
