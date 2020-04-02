@@ -25,6 +25,9 @@
       <c:param-set/>
     </p:inline>
   </p:input>
+  <p:input port="additional-source"  primary="false">
+    <p:empty/>
+  </p:input>
 
   <p:output port="result"/>
   
@@ -403,7 +406,13 @@
     <p:with-option name="prefix" select="concat($prefix, '10')"/>
   </tr:xslt-mode>
   
+  <p:sink/>
+  
   <tr:xslt-mode msg="yes" mode="apply-xpath" name="apply-xpath">
+    <p:input port="source">
+      <p:pipe port="result" step="dissolve-pi"/>
+      <p:pipe port="additional-source" step="xml2tex"/>
+    </p:input>
     <p:input port="stylesheet">
       <p:pipe port="result" step="conf2xsl"/>
     </p:input>
