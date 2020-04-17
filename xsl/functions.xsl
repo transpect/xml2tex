@@ -227,7 +227,7 @@
                                   )"/>
   </xsl:function>
   
-  <xsl:function name="xml2tex:langs-to-latex-pkg" as="xs:string?">
+  <xsl:function name="xml2tex:langs-to-latex-pkg" as="xs:string+">
     <xsl:param name="langs" as="xs:string*"/>
     <xsl:variable name="babel-langs" as="xs:string*"
                   select="for $i in $langs 
