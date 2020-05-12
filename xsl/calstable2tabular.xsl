@@ -147,8 +147,9 @@
           <xsl:processing-instruction name="cals2tabular" select="'}'"/>
         </xsl:when>
         <xsl:otherwise>
+          <xsl:apply-templates select="@*" mode="#current"/>
           <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
-          <xsl:apply-templates select="@*, node()" mode="#current"/>
+          <xsl:apply-templates select="node()" mode="#current"/>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:copy>
