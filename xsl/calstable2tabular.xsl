@@ -124,27 +124,30 @@
   <!-- MODE cals2tabular:multicolumn -->
   
   <xsl:template match="*:entry[@xml:id]" mode="cals2tabular:multicolumn">
+    <xsl:variable name="pos" select="count(preceding-sibling::*:entry) + 1" as="xs:integer"/>
     <xsl:variable name="entry-id" select="@xml:id" as="xs:string"/>
     <!-- count sibling entries with a corresponding id reference -->
     <xsl:variable name="colspan" select="count(following-sibling::*:entry[$entry-id eq @linkend]) + 1" as="xs:integer"/>
-    <xsl:variable name="text-align" as="xs:string" 
-                  select="if(@css:text-align eq 'center') then 'c' 
-                          else if(@css:text-align eq 'right') then 'r'
-                          else 'l'"/>
-    <xsl:variable name="cell-declaration" as="xs:string"
-                  select="concat(if(not(preceding-sibling::*[1])) then $line-separator else (), 
-                                 $text-align,
-                                 $line-separator)"/>
     <xsl:copy>
       <xsl:choose>
         <xsl:when test="$colspan gt 1">
+          <xsl:variable name="col-count" select="cals2tabular:col-count(ancestor::*[3][self::*:tgroup])" as="xs:integer"/>
+          <xsl:variable name="col-widths" select="cals2tabular:col-widths(ancestor::*[3][self::*:tgroup]/*:colspec)" as="xs:decimal*"/>
+          <xsl:variable name="multicol-width" as="xs:decimal" 
+                        select="sum(for $i in ($pos to $pos + $colspan - 1) return $col-widths[$i])"/>
+          <xsl:variable name="cell-declaration" as="xs:string"
+                        select="concat(if(not(preceding-sibling::*[1])) then $line-separator else (), 
+                                       cals2tabular:cell-declaration($multicol-width, $table-grid eq 'yes', $pos),
+                                       $line-separator)"/>
           <xsl:apply-templates select="@*" mode="#current"/>
           <xsl:processing-instruction name="cals2tabular" 
                                       select="concat('\multicolumn{', $colspan, '}{', $cell-declaration , '}{')"/>
+          <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
           <xsl:apply-templates select="node()" mode="#current"/>
           <xsl:processing-instruction name="cals2tabular" select="'}'"/>
         </xsl:when>
         <xsl:otherwise>
+          <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
           <xsl:apply-templates select="@*, node()" mode="#current"/>
         </xsl:otherwise>
       </xsl:choose>
@@ -281,39 +284,14 @@
   </xsl:template>
   
   <xsl:template match="*:tgroup" mode="cals2tabular:final">
-    <xsl:variable name="col-count" 
-                  select="(
-                            (count(*:colspec), 
-                             for $cols in @cols[. castable as xs:integer] 
-                             return xs:integer($cols),
-                             xs:integer(max(for $row in (*:row, */*:row) return count($row/*)))
-                            )[not(. = 0)][1],
-                           0
-                           )[1]" as="xs:integer"/>
-    <xsl:variable name="col-widths" as="xs:decimal*"
-                  select="for $i in *:colspec/@colwidth
-                          return xs:decimal(replace(replace($i, '[a-z\*%]', ''), '^\.', '0.'))"/>
-    <xsl:variable name="table-width" select="sum($col-widths)" as="xs:decimal"/>
-    <xsl:variable name="rel-col-widths" as="xs:decimal*"
-                  select="for $i in $col-widths[not(position() eq last())]
-                          return round-half-to-even($i div $table-width, 2)"/>
-    <xsl:variable name="last-col-width" select="1 - sum($rel-col-widths)" as="xs:decimal*"/>
-    <xsl:variable name="final-col-widths" select="($rel-col-widths, $last-col-width)" as="xs:decimal*"/>
+    <xsl:variable name="col-count" select="cals2tabular:col-count(.)" as="xs:integer"/>
+    <xsl:variable name="col-widths" select="cals2tabular:col-widths(*:colspec)" as="xs:decimal*"/>
     <xsl:variable name="col-declaration" as="xs:string"
                   select="concat($line-separator,
                                  string-join(for $i in (1 to $col-count)
                                              return if(exists($col-widths))
                                                     then concat('&#xa;',
-                                                                'p',
-                                                                '{\dimexpr ', 
-                                                                $final-col-widths[$i],
-                                                                '\linewidth-2\tabcolsep',
-                                                                if($table-grid eq 'yes') 
-                                                                then concat('-', 
-                                                                            if($i eq 1) then '2' else (),
-                                                                            '\arrayrulewidth')
-                                                                else (),
-                                                                '}')
+                                                                cals2tabular:cell-declaration($col-widths[$i], $table-grid eq 'yes', $i))
                                                     else 'l', 
                                              $line-separator), 
                                  $line-separator)"/>
@@ -336,5 +314,44 @@
                                                  '}')"/>
     </xsl:copy>
   </xsl:template>
+  
+  <xsl:function name="cals2tabular:col-count" as="xs:integer">
+    <xsl:param name="tgroup" as="element()"/>
+    <xsl:sequence select="((count($tgroup/*:colspec), 
+                            $tgroup/@cols[. castable as xs:integer]/xs:integer($tgroup/@cols),
+                            xs:integer(max(for $rows in $tgroup/*/*:row
+                                           return count($rows/*)))
+                            ), 
+                           0)[1]"/>
+  </xsl:function>
+  
+  <xsl:function name="cals2tabular:col-widths" as="xs:decimal*">
+    <xsl:param name="colspec" as="element()*"/>
+    <xsl:variable name="col-widths" as="xs:decimal*"
+                  select="for $i in $colspec/@colwidth
+                          return xs:decimal(replace(replace($i, '[a-z\*%]', ''), '^\.', '0.'))"/>
+    <xsl:variable name="table-width" select="sum($col-widths)" as="xs:decimal"/>
+    <xsl:variable name="rel-col-widths" as="xs:decimal*"
+                  select="for $i in $col-widths[not(position() eq last())]
+                          return round-half-to-even($i div $table-width, 2)"/>
+    <xsl:variable name="last-col-width" select="1 - sum($rel-col-widths)" as="xs:decimal*"/>
+    <xsl:variable name="final-col-widths" select="($rel-col-widths, $last-col-width)" as="xs:decimal*"/>
+    <xsl:sequence select="$final-col-widths"/>
+  </xsl:function>
+  
+  <xsl:function name="cals2tabular:cell-declaration" as="xs:string">
+    <xsl:param name="col-width" as="xs:decimal"/>
+    <xsl:param name="table-grid" as="xs:boolean"/>
+    <xsl:param name="pos" as="xs:integer"/>
+    <xsl:sequence select="concat('p{\dimexpr ', 
+                                 $col-width,
+                                 '\linewidth-2\tabcolsep',
+                                 if($table-grid) 
+                                 then concat('-', 
+                                             if($pos eq 1) then '2' else (),
+                                             '\arrayrulewidth')
+                                 else (),
+                                 '}')"/>
+  </xsl:function>
   
 </xsl:stylesheet>
