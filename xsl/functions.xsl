@@ -87,7 +87,7 @@
       <mark hex="&#x328;" tex="\k"/>          <!-- ogonek -->
       <mark hex="&#x331;" tex="\b"/>          <!-- macron below -->
       <mark hex="&#x332;" tex="\b"/>          <!-- low line -->
-      <mark hex="&#x324;" tex="\~"/>          <!-- greek perispomeni -->
+      <mark hex="&#x342;" tex="\~"/>          <!-- greek perispomeni -->
       <mark hex="&#x2044;" tex="\frac"/>      <!-- fraction slash -->
     </diacrits>
   </xsl:variable>
