@@ -245,6 +245,7 @@
   <xsl:function name="xml2tex:lang-to-babel-lang" as="xs:string?">
     <xsl:param name="lang" as="xs:string?"/>
     <xsl:value-of select="     if(matches($lang, '^(af|nl)'))       then 'dutch'
+                          else if(starts-with($lang, 'az'))         then 'azerbaijani'
                           else if(starts-with($lang, 'bg'))         then 'bulgarian'
                           else if(starts-with($lang, 'ca'))         then 'catalan'
                           else if(starts-with($lang, 'cs'))         then 'czech'
@@ -256,6 +257,7 @@
                           else if(starts-with($lang, 'el'))         then 'greek'
                           else if($lang eq           'en-GB')       then 'british'
                           else if(starts-with($lang, 'en'))         then 'english'
+                          else if(starts-with($lang, 'eo'))         then 'esperanto'
                           else if($lang eq           'es-MX')       then 'spanish,mexico'
                           else if(starts-with($lang, 'es'))         then 'spanish'
                           else if(starts-with($lang, 'et'))         then 'estonian'
@@ -268,6 +270,8 @@
                           else if(starts-with($lang, 'he'))         then 'hebrew'
                           else if(starts-with($lang, 'hr'))         then 'croatian'
                           else if(starts-with($lang, 'hu'))         then 'magyar'
+                          else if(starts-with($lang, 'ka'))         then 'georgian'
+                          else if(starts-with($lang, 'ia'))         then 'interlingua'
                           else if(matches($lang, '^(id|ms)'))       then 'bahasa'
                           else if(matches($lang, '^(is|fo)'))       then 'icelandic'
                           else if(starts-with($lang, 'it'))         then 'italian'
@@ -283,8 +287,10 @@
                           else if(matches($lang, '^(sr|bs|hr|sr)')) then 'serbian'
                           else if(starts-with($lang, 'sk'))         then 'slovak'
                           else if(starts-with($lang, 'sv'))         then 'swedish'
+                          else if(starts-with($lang, 'th'))         then 'thai'
                           else if(starts-with($lang, 'tr'))         then 'turkish'
                           else if(starts-with($lang, 'uk'))         then 'ukrainian'
+                          else if(starts-with($lang, 'vi'))         then 'vietnamese'
                           else ()"/>
   </xsl:function>
   
