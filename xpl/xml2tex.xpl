@@ -197,7 +197,7 @@
   </p:xslt>
   
   <tr:store-debug name="debug-conf" extension="xsl">
-    <p:with-option name="pipeline-step" select="concat($prefix, '01.config')"/>
+    <p:with-option name="pipeline-step" select="concat($prefix, '08.config')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -240,7 +240,7 @@
         <p:with-option name="debug" select="$debug"/>
         <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
         <p:with-option name="fail-on-error" select="$fail-on-error"/>
-        <p:with-option name="prefix" select="concat($prefix, '02')"/>
+        <p:with-option name="prefix" select="concat($prefix, '10')"/>
       </tr:xslt-mode>
     </p:when>
     <p:otherwise>
@@ -264,7 +264,7 @@
   </p:choose>
   
   <tr:store-debug name="debug-calstables">
-    <p:with-option name="pipeline-step" select="concat($prefix, '03.normalize-calstables')"/>
+    <p:with-option name="pipeline-step" select="concat($prefix, '14.normalize-calstables')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -303,7 +303,7 @@
   </p:xslt>
   
   <tr:store-debug name="debug-cals2tabular">
-    <p:with-option name="pipeline-step" select="concat($prefix, '04.cals2tabular')"/>
+    <p:with-option name="pipeline-step" select="concat($prefix, '18.cals2tabular')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -333,7 +333,7 @@
   </mml2tex:convert>
   
   <tr:store-debug name="debug-mml2tex">
-    <p:with-option name="pipeline-step" select="concat($prefix, '05.mml2tex')"/>
+    <p:with-option name="pipeline-step" select="concat($prefix, '20.mml2tex')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
@@ -361,56 +361,14 @@
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
-    <p:with-option name="prefix" select="concat($prefix, '06')"/>
-  </tr:xslt-mode>
-  
-  <tr:xslt-mode msg="yes" mode="apply-regex" name="apply-regex">
-    <p:input port="stylesheet">
-      <p:pipe port="result" step="conf2xsl"/>
-    </p:input>
-    <p:input port="parameters">
-      <p:pipe port="paths" step="xml2tex"/>
-    </p:input>
-    <p:input port="models"><p:empty/></p:input>
-    <p:with-option name="debug" select="$debug"/>
-    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-    <p:with-option name="fail-on-error" select="$fail-on-error"/>
-    <p:with-option name="prefix" select="concat($prefix, '07')"/>
-  </tr:xslt-mode>
-  
-  <tr:xslt-mode msg="yes" mode="replace-chars" name="replace-chars">
-    <p:input port="stylesheet">
-      <p:pipe port="result" step="conf2xsl"/>
-    </p:input>
-    <p:input port="parameters">
-      <p:pipe port="paths" step="xml2tex"/>
-    </p:input>
-    <p:input port="models"><p:empty/></p:input>
-    <p:with-option name="debug" select="$debug"/>
-    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-    <p:with-option name="fail-on-error" select="$fail-on-error"/>
-    <p:with-option name="prefix" select="concat($prefix, '09')"/>
-  </tr:xslt-mode>
-  
-  <tr:xslt-mode msg="yes" mode="dissolve-pi" name="dissolve-pi">
-    <p:input port="stylesheet">
-      <p:pipe port="result" step="conf2xsl"/>
-    </p:input>
-    <p:input port="parameters">
-      <p:pipe port="paths" step="xml2tex"/>
-    </p:input>
-    <p:input port="models"><p:empty/></p:input>
-    <p:with-option name="debug" select="$debug"/>
-    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-    <p:with-option name="fail-on-error" select="$fail-on-error"/>
-    <p:with-option name="prefix" select="concat($prefix, '10')"/>
+    <p:with-option name="prefix" select="concat($prefix, '30')"/>
   </tr:xslt-mode>
   
   <p:sink/>
   
-  <tr:xslt-mode msg="yes" mode="apply-xpath" name="apply-xpath">
+  <tr:xslt-mode msg="yes" mode="xml2tex" name="xm2tex-mode">
     <p:input port="source">
-      <p:pipe port="result" step="dissolve-pi"/>
+      <p:pipe port="result" step="escape-bad-chars"/>
       <p:pipe port="additional-source" step="xml2tex"/>
     </p:input>
     <p:input port="stylesheet">
@@ -423,7 +381,7 @@
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
-    <p:with-option name="prefix" select="concat($prefix, '11')"/>
+    <p:with-option name="prefix" select="concat($prefix, '33')"/>
   </tr:xslt-mode>
   
   <tr:xslt-mode msg="yes" mode="clean" name="clean">
@@ -437,7 +395,7 @@
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
-    <p:with-option name="prefix" select="concat($prefix, '12')"/>
+    <p:with-option name="prefix" select="concat($prefix, '36')"/>
   </tr:xslt-mode>
   
   <p:viewport match="/c:data//c:data" name="store-additional-outputs">

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet 
-  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xlink="http://www.w3.org/1999/xlink"
   xmlns:xml2tex="http://transpect.io/xml2tex"
@@ -49,7 +48,7 @@
 
       <xsl:apply-templates select="xsl:* except (xsl:import|xsl:param|xsl:key)"/>
 
-      <xso:template match="/" mode="apply-xpath">
+      <xso:template match="/" mode="xml2tex">
         <!-- The c:data-section is necessary for XProc text output. -->
         <c:data content-type="text/plain">
           <xsl:if test="$only-tex-body eq 'no'">
@@ -73,24 +72,12 @@
         <xso:apply-templates select="root()" mode="escape-bad-chars"/>
       </xso:variable>
 
-      <xso:variable name="apply-regex">
-        <xso:apply-templates select="$escape-bad-chars" mode="apply-regex"/>
-      </xso:variable>
-
-      <xso:variable name="replace-chars">
-        <xso:apply-templates select="$apply-regex" mode="replace-chars"/>
-      </xso:variable>
-
-      <xso:variable name="dissolve-pi">
-        <xso:apply-templates select="$replace-chars" mode="dissolve-pi"/>
-      </xso:variable>
-
-      <xso:variable name="apply-xpath">
-        <xso:apply-templates select="$dissolve-pi" mode="apply-xpath"/>
+      <xso:variable name="xml2tex">
+        <xso:apply-templates select="$escape-bad-chars" mode="xml2tex"/>
       </xso:variable>
       
       <xso:variable name="clean">
-        <xso:apply-templates select="$apply-xpath" mode="clean"/>
+        <xso:apply-templates select="$xml2tex" mode="clean"/>
       </xso:variable>
 
       <!-- main template for generated stylesheet -->
@@ -100,22 +87,13 @@
         <xso:sequence select="$clean"/>
         <!-- debugging -->
         <xso:if test="{$debug eq 'yes'}()">
-          <xso:result-document href="{$debug-dir-uri}/xml2tex/00_escape-bad-chars.xml" indent="yes" method="xml">
+          <xso:result-document href="{$debug-dir-uri}/xml2tex/30_escape-bad-chars.xml" indent="yes" method="xml">
             <xso:sequence select="$escape-bad-chars"/>
           </xso:result-document>
-          <xso:result-document href="{$debug-dir-uri}/xml2tex/05_apply-regex.xml" indent="yes" method="text">
-            <xso:sequence select="$apply-regex"/>
+          <xso:result-document href="{$debug-dir-uri}/xml2tex/33_xml2tex.xml" indent="yes" method="xml">
+            <xso:sequence select="$xml2tex"/>
           </xso:result-document>
-          <xso:result-document href="{$debug-dir-uri}/xml2tex/10_replace-chars.xml" indent="yes" method="xml">
-            <xso:sequence select="$replace-chars"/>
-          </xso:result-document>
-          <xso:result-document href="{$debug-dir-uri}/xml2tex/15_dissolve-pi.xml" indent="yes" method="xml">
-            <xso:sequence select="$dissolve-pi"/>
-          </xso:result-document>
-          <xso:result-document href="{$debug-dir-uri}/xml2tex/20_apply-xpath.xml" indent="yes" method="xml">
-            <xso:sequence select="$apply-xpath"/>
-          </xso:result-document>
-          <xso:result-document href="{$debug-dir-uri}/xml2tex/25_clean.xml" indent="yes" method="xml">
+          <xso:result-document href="{$debug-dir-uri}/xml2tex/36_clean.xml" indent="yes" method="xml">
             <xso:sequence select="$clean"/>
           </xso:result-document>
         </xso:if>
@@ -141,8 +119,9 @@
 
       <!-- apply regex from conf file -->
       <xsl:if test="xml2tex:regex">        
-        <xso:template match="text()[matches(., '({string-join(//xml2tex:regex/@regex, ')|(')})')]" mode="apply-regex">
-          <xso:variable name="content" select="." as="xs:string"/>
+        <xso:template match="text()[matches(., '({string-join(//xml2tex:regex/@regex, ')|(')})')]" mode="xml2tex">
+          <xso:variable name="content" as="xs:string"
+                        select="string-join(xml2tex:utf2tex(.., ., $charmap, (), $texregex), '')"/>
           <xsl:for-each select="xml2tex:regex">
             <xsl:variable name="pattern" select="concat('''', @regex, '''')" as="xs:string"/>
             <xsl:variable name="type"
@@ -167,32 +146,20 @@
           <xso:processing-instruction name="latex" select="$content"/>
         </xso:template>
       </xsl:if>
-      
-      <xso:template match="processing-instruction()" mode="clean"/>
-      
-      <xso:template match="text()" mode="clean">
-        <xso:variable name="normalize-linebreaks" select="replace(., '\n\n\n+', '&#xa;&#xa;', 'm')" as="xs:string"/>
-        <xso:variable name="remove-newlines-before-linebreaks" select="replace(., '(\n)+\s*(\\newline)', '$2$1', 'm')" as="xs:string"/>        
-        <xso:value-of select="$remove-newlines-before-linebreaks"/>
-      </xso:template>
-      
-      <!-- dissolve pis created by calstable-normalize -->
-      <xso:template match="processing-instruction('cals2tabular')
-                          |processing-instruction('mml2tex')
-                          |processing-instruction('latex')
-                          |processing-instruction('mathtype')" mode="dissolve-pi">
-        <xso:value-of select="replace(., '\s\s+', ' ')"/>
-      </xso:template>
             
       <!-- dissolve elements which are not matched by other templates -->
       
-      <xso:template match="*" mode="apply-xpath">
+      <xso:template match="*" mode="xml2tex">
         <xso:apply-templates mode="#current"/>
       </xso:template>
       
       <xsl:apply-templates select="xml2tex:* except (xml2tex:ns, xml2tex:preamble, xml2tex:front, xml2tex:back)"/>
       
-      <xsl:call-template name="replace-chars-mode"/>
+      <xsl:call-template name="replace-chars"/>
+      
+      <xsl:call-template name="unwrap-pis"/>
+      
+      <xsl:call-template name="clean"/>
 
     </xso:stylesheet>
   </xsl:template>
@@ -233,29 +200,11 @@
           * -->
     <xsl:variable name="template-priority" select="(index-of($rule-indexes, generate-id(.)), 1)[1]" as="xs:integer"/>
 
-    <xso:template match="{@context}" mode="apply-xpath" priority="{$template-priority}">
+    <xso:template match="{@context}" mode="xml2tex" priority="{$template-priority}">
       <!-- if no tex child is present, then matched node will be discarded -->
       <xsl:apply-templates/>
     </xso:template>
-
-    <!--  *
-          * set '$' around content and remove dollar characters within to prevent nested math mode sections 
-          * -->
-    <xsl:if test="xml2tex:rule/@mathmode eq 'true'">
-      <xso:template match="{string-join(for $i in tokenize(@context, '\|') 
-                                        return concat($i, '/text()'),
-                                        '|')}" mode="dissolve-pi" priority="{$template-priority}">
-        <xso:analyze-string select="." regex="\\\$">
-          <xso:matching-substring>
-            <xso:value-of select="."/>
-          </xso:matching-substring>
-          <xso:non-matching-substring>
-            <xso:value-of select="replace(., '\$', '')"/>
-          </xso:non-matching-substring>
-        </xso:analyze-string>
-      </xso:template>
-    </xsl:if>
-
+    
   </xsl:template>
 
   <xsl:template match="xml2tex:regex/xml2tex:rule"/>
@@ -265,7 +214,7 @@
   <xsl:template match="xml2tex:style">
     <xsl:variable name="template-priority" select="count($rule-indexes) + position()" as="xs:integer"/>
     <xso:template match="*[@{$style-attribute} eq '{@name}']" 
-                  mode="apply-xpath" priority="{$template-priority}">
+                  mode="xml2tex" priority="{$template-priority}">
       <xso:value-of select="'{@start}'"/>
       <xso:apply-templates mode="#current"/>
       <xso:value-of select="'{@end}'"/>
@@ -386,9 +335,9 @@
       </xsl:choose>
   </xsl:template>
 
-  <!-- mode replace-chars -->
+  <!-- replace chars via character map -->
   
-  <xsl:template name="replace-chars-mode">
+  <xsl:template name="replace-chars">
         
     <xso:variable name="texregex" select="{concat('''', 
                                                   if(/xml2tex:set/xml2tex:charmap//xml2tex:char)
@@ -415,7 +364,7 @@
                                 or matches(., $xml2tex:simpleeq-regex)
                                 or matches(., $xml2tex:root-regex)
                                 or matches(normalize-unicode(., 'NFD'),  $xml2tex:diacrits-regex)
-                                or matches(normalize-unicode(., 'NFKD'), $xml2tex:fraction-regex)]" mode="replace-chars">
+                                or matches(normalize-unicode(., 'NFKD'), $xml2tex:fraction-regex)]" mode="xml2tex">
       <!-- this function needs to run before any character mapping, because of roots e.g. -->
       <xso:variable name="simplemath" select="normalize-unicode(string-join(xml2tex:convert-simplemath(.), ''))" as="xs:string"/>
       <!-- maps unicode to latex -->
@@ -454,6 +403,29 @@
         </xso:choose>
       </xso:template>
     </xsl:for-each-group>
+    
+  </xsl:template>
+  
+  <xsl:template name="unwrap-pis">
+    
+    <xso:template match="processing-instruction('cals2tabular')
+                        |processing-instruction('mml2tex')
+                        |processing-instruction('latex')
+                        |processing-instruction('mathtype')" mode="xml2tex">
+      <xso:value-of select="replace(., '\s\s+', ' ')"/>
+    </xso:template>
+    
+  </xsl:template>
+  
+  <xsl:template name="clean">
+    
+    <xso:template match="processing-instruction()" mode="clean"/>
+    
+    <xso:template match="text()" mode="clean">
+      <xso:variable name="normalize-linebreaks" select="replace(., '\n\n\n+', '&#xa;&#xa;', 'm')" as="xs:string"/>
+      <xso:variable name="remove-newlines-before-linebreaks" select="replace(., '(\n)+\s*(\\newline)', '$2$1', 'm')" as="xs:string"/>        
+      <xso:value-of select="$remove-newlines-before-linebreaks"/>
+    </xso:template>
     
   </xsl:template>
 
