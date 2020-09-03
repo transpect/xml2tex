@@ -105,6 +105,7 @@ Here is an example for a very basic configuration:
   </charmap>
 </set>
 ```
+
 ### Preamble
 The LaTeX preamble is constructed with the `preamble` element. Enter static text such as document class name, package
 declarations and other stuff you may need.
@@ -268,7 +269,7 @@ Some LaTeX processors are only able to handle constrained character sets. Theref
 A character map is wrapped by a `charmap` element. It can contain multiple character mapping entries, each specified with a `char` element. The attribute `@character` contains the character to be replaced with the value of `@string`. An optional `@context` attribute can be used to restrict the replacement to a certain XML context.
 ```xml
 <charmap>
-	<char character="&#xad;" string="&quot;-"/>
+  <char character="&#xad;" string="&quot;-"/>
   <char character="Ä" string="\&#34;A" context="dbk:phrase, dbk:section|dbk:para, dbk:entry"/>
   <char character="ä" string="\&#34;a"/>
   <char character="Ö" string="\&#34;O"/>
@@ -278,6 +279,32 @@ A character map is wrapped by a `charmap` element. It can contain multiple chara
   <char character="ß" string="\ss{}" />
 </charmap>
 ```
+
+Please note: we use per default an irreversible unicode decomposition of diacritical characters to convert fractions or german Umlauts to
+their respective latex representations, e.g. `ü => \"u`. This unicode decomposition is just performed for characters which actually
+contain diacritical characters. For some languages e.g. with a kyrillic alphabet this can cause issues with TeX renderers who don't
+understand Unicode combining characters. There are two ways to suppress this Unicode normalization:
+
+#### 1. The sane way: Selectively add characters which can decomposited into a character and a combining character. Just add the character to the `charmap`
+and "replace" it with itself:
+
+```
+<charmap>
+  <char character="ü" string="ü"/>
+  <!-- (...) -->
+</charmap>
+```
+
+#### 2. Your gun, your foot: Deactivate character decomposition globally
+
+Just add the attribute `decompose-diacritics="no"` to the `xml2tex` root element.
+
+```
+<set xmlns="http://transpect.io/xml2tex" decompose-diacritics="no"
+  <!-- (...) -->
+</set>
+```
+
 ### Import other configurations
 
 In most cases it's more applicable to import an existing configuration than to write a new one from scratch or fork an existing one. There is a convenient method for importing other configurations. You just have to add at the top of your configuration an import statement which points to the location of the imported configuration. Here is an example:

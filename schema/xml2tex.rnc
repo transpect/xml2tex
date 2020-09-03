@@ -410,6 +410,7 @@ xml2tex.option =
 xml2tex.set.attributes =
   attribute xml:base { xsd:anyURI }?
   & attribute style-attribute { text }?
+  & attribute decompose-diacritics { "yes" | "no" }?
 xml2tex.atom.attributes =
   ([
      a:documentation [

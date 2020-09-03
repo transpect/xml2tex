@@ -43,7 +43,10 @@
       <xso:import href="http://transpect.io/xml2tex/xsl/functions.xsl"/>
 
       <xsl:apply-templates select="xsl:import, xsl:param, xsl:key"/>
-
+      
+      <xso:param name="decompose-diacritics" as="xs:boolean"
+                 select="{not(@decompose-diacritics eq 'no')}()"/>
+      
       <xso:output method="text" media-type="text/plain" encoding="UTF8"/>
 
       <xsl:apply-templates select="xsl:* except (xsl:import|xsl:param|xsl:key)"/>
@@ -380,7 +383,9 @@
       </xsl:choose>
       <!-- has to run last because it resolves combined unicode characters -->
       <xso:variable name="diacrits" as="xs:string"
-                    select="string-join(xml2tex:convert-diacrits($utf2tex, $texregex, $xml2tex:diacrits), '')"/>
+                    select="if($decompose-diacritics) 
+                            then string-join(xml2tex:convert-diacrits($utf2tex, $texregex, $xml2tex:diacrits), '')
+                            else string-join($utf2tex, '')"/>
       <xso:value-of select="$diacrits"/>
     </xso:template>
     

@@ -240,6 +240,14 @@
           <text/>
         </attribute>
       </optional>
+      <optional>
+        <attribute name="decompose-diacritics">
+          <choice>
+            <value>yes</value>
+            <value>no</value>
+          </choice>
+        </attribute>
+      </optional>
     </interleave>
   </define>
 
