@@ -285,8 +285,9 @@ their respective latex representations, e.g. `ü => \"u`. This unicode decomposi
 can be decomposited into combining characters. For some languages e.g. with a kyrillic alphabet this can cause issues with TeX renderers who don't
 understand Unicode combining characters. There are two ways to suppress this Unicode normalization:
 
-#### 1. The sane way: Selectively add characters which can decomposited into a character and a combining character. Just add the character to the `charmap`
-and "replace" it with itself:
+#### 1. The sane way
+
+Selectively add characters which can decomposited into a character and a combining character. Just add the character to the `charmap` and "replace" it with itself:
 
 ```
 <charmap>
@@ -295,9 +296,9 @@ and "replace" it with itself:
 </charmap>
 ```
 
-#### 2. Your gun, your foot: Deactivate character decomposition globally
+#### 2. Your gun, your foot
 
-Just add the attribute `decompose-diacritics="no"` to the `xml2tex` root element.
+Deactivate character decomposition globally by just adding `decompose-diacritics="no"` to the `xml2tex` root element.
 
 ```
 <set xmlns="http://transpect.io/xml2tex" decompose-diacritics="no"
