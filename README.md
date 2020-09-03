@@ -282,7 +282,7 @@ A character map is wrapped by a `charmap` element. It can contain multiple chara
 
 Please note: we use per default an irreversible unicode decomposition of diacritical characters to convert fractions or german Umlauts to
 their respective latex representations, e.g. `ü => \"u`. This unicode decomposition is just performed for characters which actually
-contain diacritical characters. For some languages e.g. with a kyrillic alphabet this can cause issues with TeX renderers who don't
+can be decomposited into combining characters. For some languages e.g. with a kyrillic alphabet this can cause issues with TeX renderers who don't
 understand Unicode combining characters. There are two ways to suppress this Unicode normalization:
 
 #### 1. The sane way: Selectively add characters which can decomposited into a character and a combining character. Just add the character to the `charmap`
