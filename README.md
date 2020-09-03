@@ -301,7 +301,7 @@ Selectively add characters which can decomposited into a character and a combini
 Deactivate character decomposition globally by just adding `decompose-diacritics="no"` to the `xml2tex` root element.
 
 ```
-<set xmlns="http://transpect.io/xml2tex" decompose-diacritics="no"
+<set xmlns="http://transpect.io/xml2tex" decompose-diacritics="no">
   <!-- (...) -->
 </set>
 ```
