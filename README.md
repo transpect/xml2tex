@@ -287,7 +287,8 @@ understand Unicode combining characters. There are two ways to suppress this Uni
 
 #### 1. The sane way
 
-Selectively add characters which can decomposited into a character and a combining character. Just add the character to the `charmap` and "replace" it with itself:
+Selectively add characters which can be decomposited into a character and its respective combining character. Just add the character to the
+`charmap` and "replace" it with itself:
 
 ```
 <charmap>
