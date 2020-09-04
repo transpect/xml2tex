@@ -112,7 +112,9 @@
     <!-- decompose diacritical marks -->
     <xsl:variable name="split-string-to-chars" as="xs:string+"
                   select="xml2tex:pair-char-and-diacrits(for $char in string-to-codepoints($string) 
-                                                         return codepoints-to-string($char))"/>
+                                                         return codepoints-to-string($char),
+                                                         $xml2tex:base-chars-regex,
+                                                         $xml2tex:diacritical-marks-regex)"/>
     <xsl:variable name="replace-per-char">
       <xsl:for-each select="$split-string-to-chars[not(substring(., 1, 1) = $charmap/xml2tex:char/@string)]">
         <xsl:variable name="normalize-unicode-NFD" select="normalize-unicode(., 'NFD')" as="xs:string"/>
@@ -162,15 +164,16 @@
   
   <xsl:function name="xml2tex:pair-char-and-diacrits" as="xs:string+">
     <xsl:param name="char-seq" as="xs:string+"/>
-    <xsl:variable name="diacrits-regex" select="'[&#x300;-&#x36f;]'" as="xs:string"/>
+    <xsl:param name="base-chars-regex" as="xs:string"/>
+    <xsl:param name="diacritical-marks-regex" as="xs:string"/>
     <xsl:for-each select="$char-seq">
       <xsl:variable name="pos" select="position()" as="xs:integer"/>
       <xsl:variable name="prev-char" select="$char-seq[$pos - 1]" as="xs:string?"/>
       <xsl:variable name="next-char" select="$char-seq[$pos + 1]" as="xs:string?"/>
-      <xsl:variable name="joined" select="string-join((.[   not(matches(., $diacrits-regex)) 
-                                           or $prev-char[matches(., $diacrits-regex)]],
-                                         $next-char[matches(., $diacrits-regex)]
-                                         ), '')"/>
+      <xsl:variable name="joined" as="xs:string?" 
+                    select="if(matches(., $xml2tex:base-chars-regex) and matches($next-char, $diacritical-marks-regex))
+                                        then concat(., $next-char)
+                                        else .[not(matches(., $diacritical-marks-regex))]"/>
       <xsl:value-of select="$joined"/>
     </xsl:for-each>
   </xsl:function>
