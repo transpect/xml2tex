@@ -384,7 +384,7 @@
       <!-- has to run last because it resolves combined unicode characters -->
       <xso:variable name="diacrits" as="xs:string"
                     select="if($decompose-diacritics) 
-                            then string-join(xml2tex:convert-diacrits($utf2tex, $texregex, $xml2tex:diacrits), '')
+                            then string-join(xml2tex:convert-diacrits($utf2tex, $texregex, $xml2tex:diacrits, $charmap), '')
                             else string-join($utf2tex, '')"/>
       <xso:value-of select="$diacrits"/>
     </xso:template>

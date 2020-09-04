@@ -50,7 +50,9 @@
             <xsl:variable name="seen" select="concat($seen, $pattern)" as="xs:string"/>
             <xsl:choose>
               <xsl:when test="matches($result, $texregex)
-                and not(($pattern = $seen) or matches($result, '^[a-z0-9A-Z\$\\%_&amp;\{\}\[\]#\|]+$'))">
+                              and not(   $pattern = $seen 
+                                      or matches($result, '^[a-z0-9A-Z\$\\%_&amp;\{\}\[\]#\|]+$')
+                                      )">
                 <xsl:value-of select="string-join(xml2tex:utf2tex($context, $result, $charmap, ($seen, $pattern), $texregex), '')"/>
               </xsl:when>
               <xsl:otherwise>
@@ -92,7 +94,12 @@
     </diacrits>
   </xsl:variable>
   
-  <xsl:variable name="xml2tex:diacrits-regex" select="'([a-zA-Z])([&#x300;-&#x36F;])'" as="xs:string"/>
+  <xsl:variable name="xml2tex:base-chars-regex" as="xs:string"
+                select="'[a-zA-Z&#x410;&#x44f;]'" />
+  <xsl:variable name="xml2tex:diacritical-marks-regex" as="xs:string"
+                select="'[&#x300;-&#x36F;]'" />
+  <xsl:variable name="xml2tex:diacrits-regex" as="xs:string"
+                select="concat('(', $xml2tex:base-chars-regex, ')(', $xml2tex:diacritical-marks-regex, ')')" />
   <xsl:variable name="xml2tex:fraction-regex" select="'(\d)([&#x2044;])(\d+)'" as="xs:string"/>
   
   <!-- convert unicode characters combined with diacritical marks -->
@@ -101,44 +108,71 @@
     <xsl:param name="string" as="xs:string"/>
     <xsl:param name="texregex" as="xs:string"/>
     <xsl:param name="diacritical-marks" as="element()"/>
-    <xsl:variable name="normalize-unicode-NFD" select="normalize-unicode($string, 'NFD')" as="xs:string"/>
-    <xsl:variable name="normalize-unicode-NFKD" select="normalize-unicode($string, 'NFKD')" as="xs:string"/>
+    <xsl:param name="charmap" as="element(xml2tex:char)*"/><!-- avoid that characters in the character map are replaced -->
     <!-- decompose diacritical marks -->
-    <xsl:choose>
-      <xsl:when test="matches($normalize-unicode-NFD, $xml2tex:diacrits-regex)">
-        <xsl:analyze-string select="$normalize-unicode-NFD" regex="{$xml2tex:diacrits-regex}" flags="i">
-          <xsl:matching-substring>
-            <xsl:variable name="char" select="concat('{', regex-group(1), '}')" as="xs:string"/>
-            <xsl:variable name="mark" select="regex-group(2)" as="xs:string"/>
-            <xsl:variable name="tex-instr" select="$xml2tex:diacrits//mark[@hex eq $mark]/@tex" as="xs:string*"/>
-            <xsl:value-of select="if(string-length($tex-instr) gt 0 and not(matches(normalize-unicode(.), $texregex)))
-              then concat($tex-instr, $char)
-              else normalize-unicode(.)"/>
-          </xsl:matching-substring>
-          <xsl:non-matching-substring>
+    <xsl:variable name="split-string-to-chars" as="xs:string+"
+                  select="xml2tex:pair-char-and-diacrits(for $char in string-to-codepoints($string) 
+                                                         return codepoints-to-string($char))"/>
+    <xsl:variable name="replace-per-char">
+      <xsl:for-each select="$split-string-to-chars[not(. = $charmap/xml2tex:char/@string)]">
+        <xsl:variable name="normalize-unicode-NFD" select="normalize-unicode(., 'NFD')" as="xs:string"/>
+        <xsl:variable name="normalize-unicode-NFKD" select="normalize-unicode(., 'NFKD')" as="xs:string"/>
+        <xsl:choose>
+          <xsl:when test="matches($normalize-unicode-NFD, $xml2tex:diacrits-regex)">
+            <xsl:analyze-string select="$normalize-unicode-NFD" regex="{$xml2tex:diacrits-regex}" flags="i">
+              <xsl:matching-substring>
+                <xsl:variable name="char" select="concat('{', regex-group(1), '}')" as="xs:string"/>
+                <xsl:variable name="mark" select="regex-group(2)" as="xs:string"/>
+                <xsl:variable name="tex-instr" select="$xml2tex:diacrits//mark[@hex eq $mark]/@tex" as="xs:string*"/>
+                <xsl:value-of select="if(string-length($tex-instr) gt 0 and not(matches(normalize-unicode(.), $texregex)))
+                  then concat($tex-instr, $char)
+                  else normalize-unicode(.)"/>
+              </xsl:matching-substring>
+              <xsl:non-matching-substring>
+                <xsl:value-of select="."/>
+              </xsl:non-matching-substring>
+            </xsl:analyze-string>    
+          </xsl:when>
+          <!-- simple fractions -->
+          <xsl:when test="matches($normalize-unicode-NFKD, $xml2tex:fraction-regex)">
+            <xsl:analyze-string select="$normalize-unicode-NFKD" regex="{$xml2tex:fraction-regex}" flags="i">
+              <xsl:matching-substring>
+                <xsl:variable name="args" select="concat('{', regex-group(1), '}{', regex-group(3), '}')" as="xs:string"/>
+                <xsl:variable name="mark" select="'&#x2044;'" as="xs:string"/>
+                <xsl:variable name="tex-instr" select="$xml2tex:diacrits//mark[@hex eq $mark]/@tex" as="xs:string*"/>
+                <xsl:value-of select="concat('$', $tex-instr, $args, '$')"/>
+              </xsl:matching-substring>
+              <xsl:non-matching-substring>
+                <xsl:value-of select="."/>
+              </xsl:non-matching-substring>
+            </xsl:analyze-string>
+          </xsl:when>
+          <xsl:otherwise>
             <xsl:value-of select="."/>
-          </xsl:non-matching-substring>
-        </xsl:analyze-string>    
-      </xsl:when>
-      <!-- simple fractions -->
-      <xsl:when test="matches($normalize-unicode-NFKD, $xml2tex:fraction-regex)">
-        <xsl:analyze-string select="$normalize-unicode-NFKD" regex="{$xml2tex:fraction-regex}" flags="i">
-          <xsl:matching-substring>
-            <xsl:variable name="args" select="concat('{', regex-group(1), '}{', regex-group(3), '}')" as="xs:string"/>
-            <xsl:variable name="mark" select="'&#x2044;'" as="xs:string"/>
-            <xsl:variable name="tex-instr" select="$xml2tex:diacrits//mark[@hex eq $mark]/@tex" as="xs:string*"/>
-            <xsl:value-of select="concat('$', $tex-instr, $args, '$')"/>
-          </xsl:matching-substring>
-          <xsl:non-matching-substring>
-            <xsl:value-of select="."/>
-          </xsl:non-matching-substring>
-        </xsl:analyze-string>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:value-of select="$string"/>
-      </xsl:otherwise>
-    </xsl:choose>
-    
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:for-each>
+    </xsl:variable>
+    <xsl:value-of select="string-join($replace-per-char, '')"/>
+  </xsl:function>
+  
+  <!-- function takes a sequence of characters like and combine 
+       character and diacritial mark to one string, e.g.
+       ('a', '&#x308;', 'b' ) => ('a&#x308;', 'b')  -->
+  
+  <xsl:function name="xml2tex:pair-char-and-diacrits" as="xs:string+">
+    <xsl:param name="char-seq" as="xs:string+"/>
+    <xsl:variable name="diacrits-regex" select="'[&#x300;-&#x36f;]'" as="xs:string"/>
+    <xsl:for-each select="$char-seq">
+      <xsl:variable name="pos" select="position()" as="xs:integer"/>
+      <xsl:variable name="prev-char" select="$char-seq[$pos - 1]" as="xs:string?"/>
+      <xsl:variable name="next-char" select="$char-seq[$pos + 1]" as="xs:string?"/>
+      <xsl:variable name="joined" select="string-join((.[   not(matches(., $diacrits-regex)) 
+                                           or $prev-char[matches(., $diacrits-regex)]],
+                                         $next-char[matches(., $diacrits-regex)]
+                                         ), '')"/>
+      <xsl:value-of select="$joined"/>
+    </xsl:for-each>
   </xsl:function>
 
   <xsl:variable name="xml2tex:root-regex" select="'([&#x221a;&#x221b;&#x221c;])(\d+)'" as="xs:string"/>
