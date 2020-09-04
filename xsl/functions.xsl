@@ -114,7 +114,7 @@
                   select="xml2tex:pair-char-and-diacrits(for $char in string-to-codepoints($string) 
                                                          return codepoints-to-string($char))"/>
     <xsl:variable name="replace-per-char">
-      <xsl:for-each select="$split-string-to-chars[not(. = $charmap/xml2tex:char/@string)]">
+      <xsl:for-each select="$split-string-to-chars[not(substring(., 1, 1) = $charmap/xml2tex:char/@string)]">
         <xsl:variable name="normalize-unicode-NFD" select="normalize-unicode(., 'NFD')" as="xs:string"/>
         <xsl:variable name="normalize-unicode-NFKD" select="normalize-unicode(., 'NFKD')" as="xs:string"/>
         <xsl:choose>
