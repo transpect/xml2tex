@@ -363,7 +363,8 @@
       </xso:variable>
     
     <!-- replacement with xpath context -->
-    <xso:template match="text()[   matches(., $texregex) 
+    <xso:template match="node()[self::text() or self::processing-instruction()]
+                               [   matches(., $texregex) 
                                 or matches(., $xml2tex:simpleeq-regex)
                                 or matches(., $xml2tex:root-regex)
                                 or matches(normalize-unicode(., 'NFD'),  $xml2tex:diacrits-regex)
@@ -386,7 +387,16 @@
                     select="if($decompose-diacritics) 
                             then string-join(xml2tex:convert-diacrits($utf2tex, $texregex, $xml2tex:diacrits, $charmap), '')
                             else string-join($utf2tex, '')"/>
-      <xso:value-of select="$diacrits"/>
+      <xso:choose>
+        <xso:when test="self::processing-instruction()">
+          <xso:processing-instruction name="latex" >
+            <xso:value-of select="$diacrits"/>
+          </xso:processing-instruction>
+        </xso:when>
+        <xso:otherwise>
+          <xso:value-of select="$diacrits"/>
+        </xso:otherwise>
+      </xso:choose>
     </xso:template>
     
     <xso:template match="text()" mode="char-context"/>
