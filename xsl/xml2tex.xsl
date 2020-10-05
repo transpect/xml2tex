@@ -434,7 +434,9 @@
   
   <xsl:template name="clean">
     
-    <xso:template match="processing-instruction()" mode="clean"/>
+    <xso:template match="processing-instruction()" mode="clean">
+      <xso:apply-templates mode="#current"/>
+    </xso:template>
     
     <xso:template match="text()" mode="clean">
       <xso:variable name="normalize-linebreaks" select="replace(., '\n\n\n+', '&#xa;&#xa;', 'm')" as="xs:string"/>
