@@ -146,7 +146,7 @@
                                                ''','''')'), '')"/>
             <xso:variable name="content" select="replace($content, {$pattern}, {replace($replace, '\\', '\\\\')})" as="xs:string"/>
           </xsl:for-each>
-          <xso:processing-instruction name="latex" select="$content"/>
+          <xso:value-of select="$content"/>
         </xso:template>
       </xsl:if>
             
@@ -434,9 +434,7 @@
   
   <xsl:template name="clean">
     
-    <xso:template match="processing-instruction()" mode="clean">
-      <xso:value-of select="replace(., '\s\s+', ' ')"/>
-    </xso:template>
+    <xso:template match="processing-instruction()" mode="clean"/>
     
     <xso:template match="text()" mode="clean">
       <xso:variable name="normalize-linebreaks" select="replace(., '\n\n\n+', '&#xa;&#xa;', 'm')" as="xs:string"/>
