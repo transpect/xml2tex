@@ -435,7 +435,7 @@
   <xsl:template name="clean">
     
     <xso:template match="processing-instruction()" mode="clean">
-      <xso:apply-templates mode="#current"/>
+      <xso:value-of select="replace(., '\s\s+', ' ')"/>
     </xso:template>
     
     <xso:template match="text()" mode="clean">
