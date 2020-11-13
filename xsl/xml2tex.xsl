@@ -363,7 +363,7 @@
       </xso:variable>
     
     <!-- replacement with xpath context -->
-    <xso:template match="node()[self::text() or self::processing-instruction()]
+    <xso:template match="node()[self::text()]
                                [   matches(., $texregex) 
                                 or matches(., $xml2tex:simpleeq-regex)
                                 or matches(., $xml2tex:root-regex)
