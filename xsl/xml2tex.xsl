@@ -122,7 +122,7 @@
 
       <!-- apply regex from conf file -->
       <xsl:if test="xml2tex:regex">        
-        <xso:template match="text()[matches(., '({string-join(//xml2tex:regex/@regex, ')|(')})')]" mode="xml2tex">
+        <xso:template match="text()[matches(., '({string-join(//xml2tex:regex/@regex, ')|(')})')]" mode="xml2tex" priority="100000">
           <xso:variable name="content" as="xs:string"
                         select="string-join(xml2tex:utf2tex(.., ., $charmap, (), $texregex), '')"/>
           <xsl:for-each select="xml2tex:regex">
