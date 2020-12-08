@@ -74,6 +74,18 @@
       Draw table cell borders.
     </p:documentation>
   </p:option>
+  
+  <p:option name="no-table-grid-att" select="'role'" required="false">
+    <p:documentation>
+      Attribute that defines a table to be displayed without grid
+    </p:documentation>
+  </p:option>
+  
+  <p:option name="no-table-grid-style" select="'blind-table'" required="false">
+    <p:documentation>
+      Attribute value that defines a table to be displayed without grid
+    </p:documentation>
+  </p:option>
 
   <p:option name="nested-tables" select="'no'" required="false">
     <p:documentation>
@@ -298,6 +310,8 @@
     </p:input>
     <p:with-param name="table-model" select="$table-model"/>
     <p:with-param name="table-grid" select="$table-grid"/>
+    <p:with-param name="no-table-grid-att" select="$no-table-grid-att"/>
+    <p:with-param name="no-table-grid-style" select="$no-table-grid-style"/>
     <p:with-param name="debug" select="$debug"/>
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
   </p:xslt>

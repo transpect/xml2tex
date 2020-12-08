@@ -16,6 +16,8 @@
   <xsl:param name="table-model" select="'tabularx'" as="xs:string"/><!-- tabularx | tabular -->
   <xsl:param name="table-grid" select="'yes'" as="xs:string"/>
   <xsl:param name="line-separator" select="if($table-grid eq 'yes') then '|' else ''" as="xs:string"/>
+  <xsl:param name="no-table-grid-att" select="'role'"/>
+  <xsl:param name="no-table-grid-style" select="'blind-table'"/>
   
   <xsl:param name="debug" select="'no'"/>
   <xsl:param name="debug-dir-uri" select="'debug'"/>
@@ -126,6 +128,8 @@
   <xsl:template match="*:entry[@xml:id]" mode="cals2tabular:multicolumn">
     <xsl:variable name="pos" select="count(preceding-sibling::*:entry) + 1" as="xs:integer"/>
     <xsl:variable name="entry-id" select="@xml:id" as="xs:string"/>
+    <xsl:variable name="line-separator" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then '' else $line-separator"/>
+    <xsl:variable name="table-grid" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then 'no' else $table-grid"/>
     <!-- count sibling entries with a corresponding id reference -->
     <xsl:variable name="colspan" select="count(following-sibling::*:entry[$entry-id eq @linkend]) + 1" as="xs:integer"/>
     <xsl:copy>
@@ -156,6 +160,8 @@
   </xsl:template>
   
   <xsl:template match="*:entry[@linkend]" mode="cals2tabular:multicolumn">
+    <xsl:variable name="line-separator" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then '' else $line-separator"/>
+    <xsl:variable name="table-grid" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then 'no' else $table-grid"/>
     <xsl:variable name="entry-idref" select="@linkend" as="xs:string"/>
     <xsl:variable name="is-rowspan-and-colspan-ref" as="xs:boolean"
                   select="@morerows 
@@ -241,6 +247,7 @@
   </xsl:function>
   
   <xsl:template match="*:row" mode="cals2tabular:final">
+    <xsl:variable name="table-grid" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then 'no' else $table-grid"/>
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
@@ -285,6 +292,8 @@
   </xsl:template>
   
   <xsl:template match="*:tgroup" mode="cals2tabular:final">
+    <xsl:variable name="line-separator" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then '' else $line-separator"/>
+    <xsl:variable name="table-grid" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then 'no' else $table-grid"/>
     <xsl:variable name="col-count" select="cals2tabular:col-count(.)" as="xs:integer"/>
     <xsl:variable name="col-widths" select="cals2tabular:col-widths(*:colspec)" as="xs:decimal*"/>
     <xsl:variable name="col-declaration" as="xs:string"
