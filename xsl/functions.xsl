@@ -91,6 +91,19 @@
       <mark hex="&#x332;" tex="\b"/>          <!-- low line -->
       <mark hex="&#x342;" tex="\~"/>          <!-- greek perispomeni -->
       <mark hex="&#x2044;" tex="\frac"/>      <!-- fraction slash -->
+      <mark hex="&#x363;" tex="\overset{{\mathrm{{a}}}}"/>
+      <mark hex="&#x364;" tex="\overset{{\mathrm{{e}}}}"/>
+      <mark hex="&#x365;" tex="\overset{{\mathrm{{i}}}}"/>
+      <mark hex="&#x366;" tex="\overset{{\mathrm{{o}}}}"/>
+      <mark hex="&#x367;" tex="\overset{{\mathrm{{u}}}}"/>
+      <mark hex="&#x368;" tex="\overset{{\mathrm{{c}}}}"/>
+      <mark hex="&#x369;" tex="\overset{{\mathrm{{d}}}}"/>
+      <mark hex="&#x36a;" tex="\overset{{\mathrm{{h}}}}"/>
+      <mark hex="&#x36b;" tex="\overset{{\mathrm{{m}}}}"/>
+      <mark hex="&#x36c;" tex="\overset{{\mathrm{{r}}}}"/>
+      <mark hex="&#x36d;" tex="\overset{{\mathrm{{t}}}}"/>
+      <mark hex="&#x36e;" tex="\overset{{\mathrm{{v}}}}"/>
+      <mark hex="&#x36a;" tex="\overset{{\mathrm{{x}}}}"/>
     </diacrits>
   </xsl:variable>
   
@@ -119,16 +132,24 @@
       <xsl:for-each select="$split-string-to-chars[not(substring(., 1, 1) = $charmap/xml2tex:char/@string)]">
         <xsl:variable name="normalize-unicode-NFD" select="normalize-unicode(., 'NFD')" as="xs:string"/>
         <xsl:variable name="normalize-unicode-NFKD" select="normalize-unicode(., 'NFKD')" as="xs:string"/>
+        <xsl:variable name="overset-letter-regex" select="'[&#x363;-&#x36f;]'" as="xs:string"/>
         <xsl:choose>
           <xsl:when test="matches($normalize-unicode-NFD, $xml2tex:diacrits-regex)">
             <xsl:analyze-string select="$normalize-unicode-NFD" regex="{$xml2tex:diacrits-regex}" flags="i">
               <xsl:matching-substring>
-                <xsl:variable name="char" select="concat('{', regex-group(1), '}')" as="xs:string"/>
                 <xsl:variable name="mark" select="regex-group(2)" as="xs:string"/>
+                <xsl:variable name="mark-is-overset-letter" select="matches($mark, $overset-letter-regex)" as="xs:boolean"/>
+                <xsl:variable name="char" as="xs:string" 
+                              select="if($mark-is-overset-letter)
+                                      then concat('{\mathrm{', regex-group(1), '}}')
+                                      else concat('{', regex-group(1), '}')"/>
                 <xsl:variable name="tex-instr" select="$xml2tex:diacrits//mark[@hex eq $mark]/@tex" as="xs:string*"/>
                 <xsl:value-of select="if(string-length($tex-instr) gt 0 and not(matches(normalize-unicode(.), $texregex)))
-                  then concat($tex-instr, $char)
-                  else normalize-unicode(.)"/>
+                                      then concat('$'[$mark-is-overset-letter], 
+                                                  $tex-instr, 
+                                                  $char, 
+                                                  '$'[$mark-is-overset-letter])
+                                      else normalize-unicode(.)"/>
               </xsl:matching-substring>
               <xsl:non-matching-substring>
                 <xsl:value-of select="."/>
