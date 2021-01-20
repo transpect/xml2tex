@@ -238,7 +238,7 @@
     </c:data>
   </xsl:template>
 
-  <xsl:template match="xml2tex:template/xml2tex:rule">
+  <xsl:template match="xml2tex:template//xml2tex:rule">
     <xsl:variable name="rule" select="." as="element(xml2tex:rule)"/>
       <!-- three types: 
             env   ==> environment, eg. e.g. begin{bla} ... end{bla}
