@@ -5,15 +5,26 @@
      xmlns:tr="http://transpect.io"
      xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   
+  <xsl:import href="http://transpect.io/mml2tex/xsl/mml2tex.xsl"/>
   <xsl:import href="http://transpect.io/xslt-util/colors/xsl/colors.xsl"/>
   <xsl:import href="http://transpect.io/xslt-util/paths/xsl/paths.xsl"/>
   <xsl:import href="http://transpect.io/xslt-util/roman-numerals/xsl/roman2int.xsl"/>
   
   <xsl:variable name="path" select="tr:path(base-uri())" as="xs:string"/>
-  <xsl:variable name="basename" select="tr:basename(base-uri())" as="xs:string"/>
+  <xsl:variable name="basename" select="tr:basename(/dbk:hub/@xml:base)" as="xs:string"/>
+  <xsl:variable name="colors" 
+                select="(//@css:background-color,
+                         //@css:color[not(every $i in  tr:hex-rgb-color-to-ints(.) satisfies $i &lt; 35  
+                                          or parent::*[(@role, @name) = ('ZFinlineequation', 'ZFequation')]
+                                          or ancestor::dbk:para/dbk:phrase[@role = ('ZFinlineequation', 'ZFequation', 'Hyperlink')]
+                                          or ancestor-or-self::dbk:link
+                                          or parent::*[@native-name eq 'Hyperlink'])])"/>
+  <xsl:variable name="langs" select="distinct-values(//@xml:lang)" as="xs:string*"/>
+  
+  <xsl:variable name="footnotes" select="//dbk:footnote" as="element(dbk:footnote)*"/>
   
   <!-- tex document header, set declarations such as documentclass and usepackage -->
-  <preamble>% docx2tex 1.1 --- ``Escape from MS Island''
+  <preamble>% docx2tex 1.6 --- ``The last thing your Word file sees before the recycle bin.''
     %
     % docx2tex is Open Source and 
     % you can download it on GitHub:
@@ -28,6 +39,14 @@
     \usepackage{tabularx}
     \usepackage{color}
     \usepackage{textcomp}
+    <xsl:choose>
+      <xsl:when test="//dbk:div[@role eq 'hub:index'][1]">
+        <xsl:text>\usepackage[safe]{tipa}&#xa;</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:text>\usepackage{tipa}&#xa;</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
     \usepackage{amsmath}
     \usepackage{amssymb}
     \usepackage{amsfonts}
@@ -37,76 +56,18 @@
     \usepackage{mathtools}
     \usepackage{txfonts}
     \usepackage{upgreek}
-    \usepackage{tipa}
     \usepackage{enumerate}
     \usepackage{tensor}
     \usepackage{pifont}
     \usepackage{soul}
+    \usepackage{arydshln}
     <xsl:if test="//dbk:div[@role eq 'hub:index'][1]">
       <xsl:text>\usepackage{makeidx}&#xa;\makeindex&#xa;</xsl:text>
     </xsl:if>
-    <xsl:choose>
-      <xsl:when test="/dbk:hub/@xml:lang eq 'de'">
-        <xsl:text>\usepackage[ngerman]{babel}</xsl:text>
-      </xsl:when>
-      <xsl:when test="/dbk:hub/@xml:lang eq 'fr'">
-        <xsl:text>\usepackage[frenchb]{babel}</xsl:text>
-      </xsl:when>
-      <xsl:when test="/dbk:hub/@xml:lang eq 'it'">
-        <xsl:text>\usepackage[italian]{babel}</xsl:text>
-      </xsl:when>
-      <xsl:when test="/dbk:hub/@xml:lang eq 'es'">
-        <xsl:text>\usepackage[spanish]{babel}</xsl:text>
-      </xsl:when>
-      <xsl:when test="/dbk:hub/@xml:lang eq 'cs'">
-        <xsl:text>\usepackage[czech]{babel}</xsl:text>
-      </xsl:when>
-      <xsl:when test="/dbk:hub/@xml:lang eq 'fi'">
-        <xsl:text>\usepackage[finnish]{babel}</xsl:text>
-      </xsl:when>
-      <xsl:when test="/dbk:hub/@xml:lang eq 'el'">
-        <xsl:text>\usepackage[english,greek]{babel}</xsl:text>
-      </xsl:when>
-      <xsl:when test="/dbk:hub/@xml:lang eq 'hu'">
-        <xsl:text>\usepackage[magyar]{babel}</xsl:text>
-      </xsl:when>
-      <xsl:when test="/dbk:hub/@xml:lang eq 'is'">
-        <xsl:text>\usepackage[icelandic]{babel}</xsl:text>
-      </xsl:when>
-      <xsl:when test="/dbk:hub/@xml:lang eq 'pl'">
-        <xsl:text>\usepackage[polish]{babel}</xsl:text>
-      </xsl:when>
-      <xsl:when test="/dbk:hub/@xml:lang eq 'pt'">
-        <xsl:text>\usepackage[portuguese]{babel}</xsl:text>
-      </xsl:when>
-      <xsl:when test="/dbk:hub/@xml:lang = ('ar', 'fa', 'ur', 'ps', 'ku', 'ug')">
-        <xsl:text>\usepackage{arabtex}</xsl:text>
-      </xsl:when>
-      <xsl:when test="/dbk:hub/@xml:lang = ('ar', 'fa', 'ur', 'ps', 'ku', 'ug')">
-        <xsl:text>\usepackage[english,bulgarian,russian,ukrainian]{babel}</xsl:text>
-      </xsl:when>
-      <xsl:when test="/dbk:hub/@xml:lang eq 'zh'">
-        <xsl:text>\usepackage{CJK}</xsl:text>
-      </xsl:when>
-    </xsl:choose>
-    <xsl:variable name="colors" 
-                  select="distinct-values((//@css:background-color,
-                                           //@css:color[not(every $i in  tr:hex-rgb-color-to-ints(.) satisfies $i &lt; 35  
-                                                           or parent::*[(@role, @name) = ('ZFinlineequation', 'ZFequation')]
-                                                           or ancestor::dbk:para/dbk:phrase[@role = ('ZFinlineequation', 'ZFequation', 'Hyperlink')]
-                                                           or ancestor-or-self::dbk:link
-                                                           or parent::*[@native-name eq 'Hyperlink']
-                                                           )]))" as="xs:string*"/>
-    <!-- iterate over colors and generate global color declaration -->
-    <xsl:for-each select="$colors">
-      <xsl:text>&#xa;</xsl:text>
-      <xsl:value-of select="concat('\definecolor{',
-                                   for $i in . return concat('color-', index-of($colors, $i)),
-                                   '}{rgb}{',
-                                   string-join(for $i in tr:hex-rgb-color-to-ints(.) 
-                                               return xs:string(round-half-to-even($i div 255, 2)),
-                                               ','),
-                                   '}')"/>
+    <xsl:sequence select="xml2tex:langs-to-latex-pkg( $langs )"/>
+    <xsl:text>&#xa;</xsl:text>
+    <xsl:for-each select="xml2tex:rgb-to-tex-color( $colors )">        
+      <xsl:value-of select="concat('\define', ., '&#xa;')"/>
     </xsl:for-each>
   </preamble>
 
@@ -115,6 +76,7 @@
   <ns prefix="dbk" uri="http://docbook.org/ns/docbook"/>
   <ns prefix="css" uri="http://www.w3.org/1996/css"/>
   <ns prefix="docx2tex" uri="http://transpect.io/docx2tex"/>
+  <ns prefix="mml2tex" uri="http://transpect.io/mml2tex"/>
   <ns prefix="tr" uri="http://transpect.io"/>
 
   <!-- drop metadata -->
@@ -124,16 +86,41 @@
   <!-- regular paras -->
 
   <template context="dbk:para[not(parent::dbk:entry)]
-                             [not(parent::dbk:footnote)]
                              [not(following-sibling::*[1][self::dbk:orderedlist])]
                              [not(following-sibling::*[1][self::dbk:itemizedlist])]
                              [not(following-sibling::*[1][self::dbk:variablelist])]
-                             [not(.//dbk:equation)]
-                             [not(.//dbk:equation and following-sibling::*[1][self::dbk:para[xs:decimal(replace(@css:text-indent, '[a-z]+$', '')) gt 0]])]">
+                             [not(following-sibling::*[1][self::dbk:figure])]
+                             [not(following-sibling::*[1][self::dbk:equation])]
+                             [not(following-sibling::*[1][self::dbk:dialogue])]
+                             [not(following-sibling::*[1][self::dbk:blockquote])]">
     <rule break-after="2">
       <text/>
     </rule>
   </template>
+
+  <template context="dbk:para[@css:text-align='center'
+                              or exists(for $i in ./@role 
+                                        return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@css:text-align eq 'center'])]
+                             [not(parent::dbk:entry)]">
+    <rule name="center" type="env" break-after="2">
+      <text/>
+    </rule>
+  </template>
+  
+  <template context="dbk:para[@css:text-align='right'
+                              or exists(for $i in ./@role 
+                                        return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@css:text-align eq 'right'])]
+                             [not(parent::dbk:entry)]">
+    <rule name="flushright" type="env" break-after="2">
+      <text/>
+    </rule>
+  </template>
+
+  <template context="dbk:para[@css:page-break-before='always']">
+    <xsl:text>\pagebreak&#xa;</xsl:text>
+    <xsl:next-match/>
+  </template>
+    
   
   <!-- carriage returns -->
   
@@ -146,13 +133,13 @@
   <template context="dbk:br">
     <rule name="newline" type="cmd" break-after="1"/>
   </template>
+  
+  <template context="dbk:br[following-sibling::node()[1][self::dbk:br]]">
+    <rule name="newline" type="cmd"/>
+  </template>
 
   <template context="dbk:title/dbk:br">
     <rule name="protect\newline" type="cmd" break-after="1"/>
-  </template>
-  
-  <template context="text()[following-sibling::node()[1][self::dbk:br]]">
-    <xsl:value-of select="replace(. ,'\s+$', '')"/>
   </template>
   
   <template context="dbk:entry//dbk:br">
@@ -233,9 +220,9 @@
       <text select="if(starts-with((parent::*/@css:top, for $i in parent::*/@role return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]/@css:top)[1], '-'))
                     then concat('\raisebox{', replace((parent::*/@css:top, for $i in parent::*/@role return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]/@css:top)[1], '^-', ''), '}')
                     else concat('\raisebox{-', (parent::*/@css:top, for $i in parent::*/@role return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]/@css:top)[1], '}')"/>
-      <text select="concat('{', ., '}')"/>
+      <param select="xml2tex:utf2tex(.., ., $charmap, (), $texregex)"/>
     </rule>
-  </template>  
+  </template>
   
   <!-- tabs -->
   
@@ -254,7 +241,7 @@
   <!-- tables and figures -->
 
   <template context="dbk:table|dbk:informaltable">
-    <rule name="table" type="env" break-after="1">
+    <rule name="table" type="env" break-after="0">
       <text/>
     </rule>
   </template>
@@ -275,7 +262,7 @@
   
   <template context="dbk:alt"/>
 
-  <template context="dbk:imagedata">
+  <template context="dbk:imagedata[@fileref]">
     <rule name="includegraphics" type="cmd">
       <option select="concat('width=', 1 div count(ancestor::*[dbk:mediaobject|dbk:inlinemediaobject]/*[local-name() = ('mediaobject', 'inlinemediaobject')]),'\textwidth')"/>
       <param select="replace(@fileref, '([%#])', '\\$1')"/>
@@ -286,13 +273,13 @@
   
   <template context="dbk:link[@xlink:href][matches(@xlink:href, '^(https?|ftp):')]">
     <rule name="href" type="cmd">
-      <param select="replace((@xlink:href, @url)[1], '([%#])', '\\$1')"/>
+      <param select="replace((@xlink:href, @url)[1], '([%#_\\])', '\\$1')"/>
       <param/>
     </rule>
   </template>
 
   <template context="dbk:link[@xlink:href][matches(@xlink:href, '^(https?|ftp):')]
-                             [@xlink:href = text()]
+                             [@xlink:href = replace(., '\\', '')]
                     |dbk:ulink">
     <rule name="url" type="cmd">
       <param select="replace((@xlink:href, @url)[1], '([%#])', '\\$1')"/>
@@ -329,6 +316,9 @@
   
   <template context="dbk:listitem[not(parent::dbk:varlistentry)]">
     <rule name="item" type="cmd">
+      <xsl:if test="@override">
+        <option select="@override"/>
+      </xsl:if>
       <text select="' '"/>
       <text/>
     </rule>
@@ -356,7 +346,8 @@
 
   <!-- text styles -->
   
-  <template context="dbk:phrase[not(every $i in  tr:hex-rgb-color-to-ints(@css:color) satisfies $i &lt; 35  
+  <template context="dbk:phrase[@css:color]
+                               [not(every $i in  tr:hex-rgb-color-to-ints(@css:color) satisfies $i &lt; 35  
                                     or @role = ('ZFinlineequation', 'ZFequation', 'Hyperlink')
                                     or preceding-sibling::*[@role = ('ZFinlineequation', 'ZFequation')]
                                     or following-sibling::*[@role = ('ZFinlineequation', 'ZFequation')]
@@ -380,25 +371,6 @@
                                                                         )),
                                                       $i)
                                    )"/><!-- xpath must be equivalent to preamble color definition -->
-      <param/>
-    </rule>
-  </template>
-  
-  <template context="dbk:phrase[not(@css:background-color eq '#FFFFFF')
-                                and (@css:background-color or exists(for $i in ./@role 
-                                                                     return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@css:background-color and not(@css:background-color eq '#FFFFFF') ]))]">
-    <rule name="colorbox" type="cmd">
-      <param select="for $i in (@css:background-color, for $j in @role return /dbk:hub/dbk:info/css:rules/css:rule[$j eq @name]/@css:background-color)[1] 
-                     return concat('color-', index-of(distinct-values((//@css:background-color,
-                                                                       //@css:color[not(. eq '#000000' 
-                                                                                        or parent::*[(@role, @name) = ('ZFinlineequation', 'ZFequation', 'Hyperlink')]
-                                                                                        or ancestor-or-self::dbk:link
-                                                                                        or parent::*[@native-name eq 'Hyperlink']
-                                                                                        )
-                                                                                     ]
-                                                                     )), 
-                                                      $i)
-                                  )"/>
       <param/>
     </rule>
   </template>
@@ -432,6 +404,13 @@
     <xsl:text>}</xsl:text>
   </template>
   
+  <template context="dbk:phrase[@css:font-style eq 'italic' or @css:font-weight eq 'bold']
+                               [matches(., '^[&#x393;&#x394;&#x398;&#x39b;&#x39e;&#x3a0;&#x3a3;&#x3a5;&#x3a6;&#x3a8;-&#x3be;&#x3c0;-&#x3f6;]$')]">
+    <rule>
+      <text/>
+    </rule>
+  </template>
+  
   <template context="dbk:phrase[@css:font-family = ('Consolas', 'Courier New', 'Courier')
                                 or exists(for $i in ./@role 
                                           return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]
@@ -441,19 +420,32 @@
     <xsl:text>}</xsl:text>
   </template>
 
-  <template context="dbk:phrase[(@css:text-decoration-line eq 'underline' 
+  <template context="dbk:phrase[@css:text-decoration-line ne 'none']
+                               [(@css:text-decoration-line[. eq 'underline'] 
                                 or exists(for $i in ./@role 
-                                          return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@css:text-decoration-line eq 'underline']))
-                                and not(@role eq 'Hyperlink' or parent::dbk:link)]">
-    <xsl:text>\underline{</xsl:text>
+                                          return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@css:text-decoration-line eq 'underline']))]
+                                [not(@role eq 'Hyperlink')] 
+                                [not(parent::dbk:link)]
+                                [not(.//dbk:link)]">
+    <xsl:text>\ul{</xsl:text>
       <xsl:next-match/>
     <xsl:text>}</xsl:text>
   </template>
 
   <template context="dbk:phrase[@css:text-decoration-line eq 'line-through'
                                 or exists(for $i in ./@role 
-                                          return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@css:text-decoration-line eq 'line-through'])]">
-    <xsl:text>\sout{</xsl:text>
+                                          return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]
+                                                                                     [@css:text-decoration-line eq 'line-through'])]">
+    <xsl:text>\st{</xsl:text>
+    <xsl:next-match/>
+    <xsl:text>}</xsl:text>
+  </template>
+
+  <template context="dbk:phrase[(@css:letter-spacing and xs:integer(replace(@css:letter-spacing, '[a-z]+$', '')) gt 0.5)
+                                or exists(for $i in ./@role 
+                                          return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]
+                                                                                     [xs:integer(replace(@css:letter-spacing, '[a-z]+$', '')) gt 0.5])]">
+    <xsl:text>\so{</xsl:text>
     <xsl:next-match/>
     <xsl:text>}</xsl:text>
   </template>
@@ -474,8 +466,24 @@
     <xsl:text>}</xsl:text>
   </template>
 
+
+  <template context="dbk:phrase[not(@css:background-color eq '#FFFFFF')
+                                and (@css:background-color or exists(for $i in ./@role 
+                                                                     return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]
+                                                                                                                [@css:background-color and not(@css:background-color eq '#FFFFFF') ]))]
+                               [not(.//dbk:footnote)]">
+    <rule name="colorbox" type="cmd">
+      <param select="for $i in (@css:background-color, for $j in @role return /dbk:hub/dbk:info/css:rules/css:rule[$j eq @name]/@css:background-color)[1] 
+                                                       return concat('color-', index-of(distinct-values($colors), $i))"/>
+      <xsl:text>{</xsl:text>
+      <xsl:next-match/>
+      <xsl:text>}</xsl:text>
+    </rule>
+  </template>
+
   <!-- no formatting for phrases which contain math environments -->
-  <template context="dbk:phrase[starts-with(., '$') and ends-with(., '$')]">
+  <template context="dbk:phrase[@css:font-style eq 'italic' or @css:font-weight eq 'bold']
+                               [starts-with(., '$') and ends-with(., '$')]">
     <rule>
       <text/>
     </rule>
@@ -486,11 +494,13 @@
   <template context="dbk:superscript[not(dbk:footnote)]
                     |dbk:subscript
                     |dbk:phrase[not(dbk:footnote)][exists(for $i in ./@role 
-                                                          return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@remap = ('superscript', 'subscript')])]">
+                                                          return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]
+                                                                                                     [@remap = ('superscript', 'subscript')])]">
     <rule mathmode="true">
       <text select="concat(if(local-name() eq 'subscript'
                            or exists(for $i in ./@role 
-                                     return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name][@remap = ('subscript')])
+                                     return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]
+                                                                                [@remap = ('subscript')])
                                      )
                            then '_'
                            else '^',
@@ -506,17 +516,56 @@
                            else '')"/>
       <text/>
       <text select="concat('}', 
-                          if(not(@css:font-style eq 'italic') and not(@css:font-weight eq 'bold') and matches(., '^[-\+&#x2212;\d\s{}]+$')) then ''
-                          else if(not(@css:font-style eq 'italic') or @css:font-weight eq 'bold') then '}' else '')"/>
+                          if(not(@css:font-style eq 'italic') and not(@css:font-weight eq 'bold') and matches(., '^[-\+&#x2212;\d\s{}]+$')) 
+                            then ''
+                          else if(not(@css:font-style eq 'italic') or @css:font-weight eq 'bold') 
+                            then '}' 
+                          else   ''  )"/>
     </rule>
   </template>
   
-  <template context="dbk:superscript[matches(., '^\{\\(textregistered|texttrademark)\}$')]">
-    <rule name="textsuperscript" type="cmd">
-      <text/>
+  <template context="dbk:superscript[not(dbk:footnote)]//text()
+                    |dbk:subscript//text()
+                    |dbk:phrase[not(dbk:footnote)][exists(for $i in ./@role 
+                                                          return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]
+                                                                                                     [@remap = ('superscript', 'subscript')])]//text()">
+    <rule>
+      <text select="mml2tex:utf2tex(replace(normalize-space(.), '\$', ''), (), $texmap)"/>
     </rule>
   </template>
   
+  <template context="dbk:superscript[not(dbk:footnote)]//dbk:phrase[@css:font-style eq 'italic' and not(@css:font-weight eq 'bold')]
+                    |dbk:subscript//dbk:phrase[@css:font-style eq 'italic' and not(@css:font-weight eq 'bold')]
+                    |dbk:phrase[not(dbk:footnote)][exists(for $i in ./@role 
+                                                          return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]
+                                                                                                     [@remap = ('superscript', 'subscript')])]//dbk:phrase[    @css:font-style eq 'italic' 
+                                                                                                                                                           and not(@css:font-weight eq 'bold')]">
+    <rule name="mathit" type="cmd">
+      <param/>
+    </rule>
+  </template>
+  
+  <template context="dbk:superscript[not(dbk:footnote)]//dbk:phrase[@css:font-weight eq 'bold' and not(@css:font-style eq 'italic')]
+                    |dbk:subscript//dbk:phrase[@css:font-weight eq 'bold' and not(@css:font-style eq 'italic')]
+                    |dbk:phrase[not(dbk:footnote)][exists(for $i in ./@role 
+                                                          return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]
+                                                                                                     [@remap = ('superscript', 'subscript')])]//dbk:phrase[    @css:font-style eq 'italic' 
+                                                                                                                                                           and not(@css:font-weight eq 'bold')]">
+    <rule name="mathbf" type="cmd">
+      <param/>
+    </rule>
+  </template>
+  
+  <template context="dbk:superscript[not(dbk:footnote)]//dbk:phrase[@css:font-weight eq 'bold' and @css:font-style eq 'italic']
+                    |dbk:subscript//dbk:phrase[@css:font-weight eq 'bold' and @css:font-style eq 'italic']
+                    |dbk:phrase[not(dbk:footnote)][exists(for $i in ./@role 
+                                                          return /dbk:hub/dbk:info/css:rules/css:rule[$i eq @name]
+                                                                                                     [@remap = ('superscript', 'subscript')])]//dbk:phrase[    @css:font-style eq 'italic' 
+                                                                                                                                                           and @css:font-weight eq 'bold']">
+    <rule name="mathbfit" type="cmd">
+      <param/>
+    </rule>
+  </template>
 
   <!-- headlines -->
   
@@ -563,12 +612,38 @@
     </rule>
   </template>
 
-  <!-- footnotes -->
-
   <template context="dbk:footnote">
+    <xsl:value-of select=".//dbk:phrase[@role eq 'hub:identifier'][1]
+                            /@xreflabel/concat('\renewcommand*{\thefootnote}{',
+                                                     if(matches(., '\*')) then '\fnsymbol'
+                                               else if(matches(., 'ivxlcdm')) then '\roman'
+                                               else if(matches(., 'IVXLCDM')) then '\Roman'
+                                               else if(matches(., '[a-z]')) then '\alph'
+                                               else if(matches(., '[A-Z]')) then '\Alph'
+                                               else if(matches(., '[\*†‡§]')) then '\fnsymbol'
+                                               else '\arabic',
+                                               '{footnote}}')"/>
     <rule name="footnote" type="cmd">
       <param/>
     </rule>
+    <xsl:value-of select=".//dbk:phrase[@role eq 'hub:identifier'][1]/@xreflabel/'\renewcommand*{\thefootnote}{\arabic{footnote}}'"/>
+  </template>
+  
+  <template context="dbk:informaltable//dbk:footnote
+                    |dbk:table//dbk:footnote">
+    <rule name="footnotemark" type="cmd">
+      <param select="()"/>
+    </rule>
+  </template>
+  
+  <template context="dbk:informaltable[.//dbk:footnote]
+                    |dbk:table[.//dbk:footnote]">
+    <xsl:next-match/>
+    <xsl:for-each select=".//dbk:footnote">
+      <xsl:value-of select="concat('\footnotetext[', index-of($footnotes, .), ']{')"/>
+      <xsl:apply-templates mode="#current"/>
+      <xsl:text>}&#xa;</xsl:text>
+    </xsl:for-each>
   </template>
 
   <template context="dbk:footnote/dbk:para[following-sibling::dbk:para]">
@@ -586,10 +661,10 @@
   <!-- remove whitespace at the beginning of footnotes -->
   
   <template context="dbk:footnote//text()[1][preceding-sibling::*[1][@role eq 'hub:identifier']][starts-with(., ' ')]
-                    |dbk:footnote/dbk:para[1]//dbk:phrase[not(@role eq 'hub:identifier')][1][preceding-sibling::*[last()][@role eq 'hub:identifier']][starts-with(., ' ')]/text()
+                    |dbk:footnote/dbk:para[1]//dbk:phrase[not(@role eq 'hub:identifier')][1][preceding-sibling::*[last()][@role eq 'hub:identifier']][starts-with(., ' ')]/text()[normalize-space()]
                     |dbk:footnote[not(.//dbk:phrase[@role eq 'hub:identifier'])]/dbk:para//text()[1][starts-with(., ' ')]">
     <rule>
-      <text select="replace(., '^\s', '')"/> 
+      <text select="replace(string-join(xml2tex:utf2tex(.., ., $charmap, (), $texregex), ''), '^\s', '')"/> 
     </rule>
   </template>
   
@@ -599,7 +674,10 @@
   
   <template context="dbk:footnote//dbk:tab[@role eq 'hub:separator']"/>
 
-  <template context="dbk:footnote//dbk:phrase[@role eq 'hub:identifier'][1]/node()[not(descendant-or-self::dbk:anchor or descendant-or-self::processing-instruction())]"/>
+  <template context="dbk:footnote/dbk:para[1]/dbk:phrase[@role eq 'hub:identifier'][1]//text()[1]
+                      [not(descendant-or-self::dbk:anchor or descendant-or-self::processing-instruction())]">
+    <xsl:value-of select="replace(., '^[\d*†‡§i\s]+\.?\s*', '', 'i')"/>
+  </template>
   
   <template context="dbk:footnote/dbk:para/*[1][local-name() eq 'superscript'][matches(., '\d+')]"/>
 
@@ -614,20 +692,23 @@
     </rule>
   </template>
 
-  <template context="dbk:equation[@condition eq 'numbered'][not(ancestor::dbk:table or ancestor::dbk:informaltable)]">
+  <template context="dbk:equation[@condition eq 'numbered']
+                                 [not(ancestor::dbk:table or ancestor::dbk:informaltable)]">
     <rule name="equation" type="env">
       <text/>
     </rule>
   </template>
   
-  <template context="dbk:equation[not(@condition eq 'numbered')][not(ancestor::dbk:table or ancestor::dbk:informaltable)]">
+  <template context="dbk:equation[not(@condition eq 'numbered')]
+                                 [not(ancestor::dbk:table or ancestor::dbk:informaltable)]">
     <rule name="equation*" type="env">
       <text/>
     </rule>
   </template>
   
   <template context="dbk:equation[@condition eq 'numbered'][not(ancestor::dbk:table or ancestor::dbk:informaltable)]
-                                 [contains(., '\\')]">
+                                 [not(some $i in processing-instruction() satisfies contains($i, '\begin{array}'))]
+                                 [some $i in processing-instruction() satisfies contains($i, '\\')]">
     <rule name="align" type="env">
       <text/>
     </rule>
@@ -635,9 +716,22 @@
   
   <template context="dbk:equation[not(@condition eq 'numbered')]
                                  [not(ancestor::dbk:table or ancestor::dbk:informaltable)]
-                                 [contains(., '\\')]">
+                                 [not(some $i in processing-instruction() satisfies contains($i, '\begin{array}'))]
+                                 [some $i in processing-instruction() satisfies contains($i, '\\')]">
     <rule name="align*" type="env">
       <text/>
+    </rule>
+  </template>
+  
+  <template context="processing-instruction('tr')[starts-with(., 'M2M_212')]">
+    <rule>
+      <text>% D2T: Equation not converted. See log for details!&#xa;</text>
+    </rule>
+  </template>
+  
+  <template context="processing-instruction('d2t')[starts-with(., 'D2T 001')]">
+    <rule>
+      <text>% D2T: Empty equation removed!&#xa;</text>
     </rule>
   </template>
   
@@ -704,6 +798,8 @@
     </rule>
   </template>
   
+  <template context="dbk:indexterm[not(normalize-space())]"/>
+  
   <template context="dbk:primary">
     <rule>
       <xsl:if test="@sortas">
@@ -713,7 +809,7 @@
     </rule>
   </template>
   
-  <template context="dbk:secondary|dbk:tertiary">
+  <template context="dbk:secondary|dbk:tertiary|dbk:quaternary|dbk:quinary|dbk:senary|dbk:septenary|dbk:octonary|dbk:nonary|dbk:denary">
     <rule>
       <text>!</text>
       <xsl:if test="@sortas">
@@ -725,20 +821,88 @@
 
   <template context="dbk:see|dbk:seealso">
     <rule>
-      <text select="concat('|', replace(., '^(see|voir|véase|vedi|ver|siehe|请参阅|ראה|انظر|참조)\s+(.+)$', 'see{$2}', 'i'))"/>
+      <text select="concat('|', replace(replace(., '!', '&quot;!'), 
+                                        '^(see|voir|véase|vedi|ver|siehe|请参阅|ראה|انظر|참조)\s+(.+)$', 
+                                        'see{$2}', 
+                                        'i'))"/>
+    </rule>
+  </template>
+  
+  <template context="dbk:primary//text()[contains(., '!')]
+                    |dbk:secondary//text()[contains(., '!')]
+                    |dbk:tertiary//text()[contains(., '!')]">
+    <rule>
+      <text select="replace(., '!', '&quot;!')"/>
+    </rule>
+  </template>
+  
+  <!-- static index -->
+  
+  <template context="dbk:index">
+    <xsl:variable name="index-path" select="concat($path, '/', $basename, '.ind')" as="xs:string"/>
+    <xsl:if test="dbk:title">
+      <xsl:value-of select="concat('\renewcommand{\indexname}{', dbk:title, '}&#xa;')"/>
+    </xsl:if>
+    <rule name="printindex" type="cmd" break-after="1"/>
+    <file href="{$index-path}" encoding="utf-8"/>
+  </template>
+  
+  <template context="dbk:index/node()">
+    <xsl:apply-templates mode="#current"/>
+  </template>
+  
+  <template context="dbk:index/dbk:title"/>
+
+  <template context="dbk:indexdiv">
+    <xsl:if test="not(preceding-sibling::dbk:indexdiv)">
+      <xsl:value-of select="string-join(('\begin{theindex}',
+                                         '  \providecommand*\lettergroupDefault[1]{}',
+                                         '  \providecommand*\lettergroup[1]{%',
+                                         '    \par\textbf{#1}\par',
+                                         '    \nopagebreak',
+                                         '  }'), 
+                                        '&#xa;')"/>
+    </xsl:if>
+    <xsl:value-of select="concat('&#xa;&#x20;&#x20;\indexspace&#xa;&#xa;&#x20;&#x20;\lettergroup{', dbk:title, '}\nopagebreak&#xa;&#xa;')"/>
+    <xsl:apply-templates select="dbk:indexentry" mode="#current"/>
+    <xsl:if test="not(following-sibling::dbk:indexdiv)">
+      <xsl:text>\end{theindex}</xsl:text>
+    </xsl:if>
+  </template>
+  
+  <template context="dbk:indexentry">
+    <xsl:text>&#x20;&#x20;</xsl:text>
+    <rule name="item" type="cmd" break-after="1">
+      <text>&#x20;</text>
+      <text/>
+    </rule>
+  </template>
+  
+  <template context="dbk:seeie">
+    <rule name="see" type="cmd" break-after="1">
+      <param/>
+      <param select="()"/>
+    </rule>
+  </template>
+  
+  <template context="dbk:primaryie/dbk:xref
+                    |dbk:seeie/dbk:xref">
+    <rule>
+      <text select="replace(@xlink:href, '^page-', '')"/>
     </rule>
   </template>
 
-  
   <!-- index listing -->
   
-  <template context="dbk:para[@role eq 'Index_Heading']"/>
+  <template context="dbk:para[@role = ('Index_Heading', 'Indexberschrift')]"/>
   
   <template context="dbk:div[@role eq 'hub:index']">
     <rule break-after="2">
-      <text select="if(//dbk:para[@role eq 'Index_Heading'][string-length() gt 0]) 
-        then concat('\renewcommand{\indexname}{', //dbk:para[@role eq 'Index_Heading'][string-length() gt 0][1], '}&#xa;\printindex')
-        else '\printindex'"/>
+      <text select="if(//dbk:para[@role = ('Index_Heading', 'Indexberschrift')][string-length() gt 0]) 
+                    then concat('\renewcommand{\indexname}{', 
+                                //dbk:para[@role = ('Index_Heading', 'Indexberschrift')][string-length() gt 0][1], 
+                                '}&#xa;\printindex')
+                    else '\printindex'"/>
     </rule>
   </template>
   
@@ -751,6 +915,30 @@
       <text>\end{minipage}}</text>
     </rule>
   </template>
+  
+  <!-- babel support -->
+  
+  <template context="dbk:phrase[@xml:lang]
+                               [@xml:lang ne $langs[1]]
+                               [normalize-space(.)]
+                               [not(ancestor::dbk:entry or self::dbk:term or self::dbk:listitem)]
+                               [not((*/local-name() = ('link', 'mediaobject', 'inlinemediaobject'))
+                                    and 
+                                    not(normalize-space(string-join(.//text()[not(ancestor::*/local-name() = ('link', 'mediaobject', 'inlinemediaobject'))], '')))
+                                   )]
+                               [not(matches(., '^[\p{P}\p{Z}\d&#x4e00;-&#x9fff;&#x530;-&#x58f;&#xfb13;-&#xfb17;]+$'))]">
+    <xsl:value-of select="concat('\foreignlanguage{', xml2tex:lang-to-babel-lang(@xml:lang), '}{')"/>
+    <xsl:next-match/>
+    <xsl:text>}</xsl:text>
+  </template>
+  
+  <template context="dbk:para[@xml:lang][not(@xml:lang = $langs[1])]">
+    <xsl:value-of select="concat('\selectlanguage{', xml2tex:lang-to-babel-lang(@xml:lang), '}&#xa;')"/>
+    <xsl:next-match/>
+    <xsl:value-of select="concat('\selectlanguage{', xml2tex:lang-to-babel-lang($langs[1]), '}')"/>
+  </template>
+  
+  <!-- bibliographies -->
   
   <template context="dbk:bibliography">
     <rule name="thebibliography" type="env" break-after="2" break-before="1">
@@ -791,7 +979,14 @@
   <template context="dbk:bibliography[@role eq 'Citavi']/dbk:biblioentry">
     <xsl:variable name="main-set" as="element(dbk:biblioset)"
                   select="(dbk:biblioset[@relation eq 'article'], dbk:biblioset[@relation eq 'inproceedings'], dbk:biblioset)[1]"/>
-    <xsl:value-of select="concat('@', $main-set/@relation, '{')"/>
+    <xsl:value-of select="concat('@', 
+                                 if(matches($main-set/@relation, 'thesis')) 
+                                   then 'phdthesis'
+                                 else if(matches($main-set/@relation, 'broadcast')) 
+                                   then 'misc'
+                                 else if($main-set/@relation) then $main-set/@relation
+                                 else 'misc', 
+                                 '{')"/>
     <xsl:value-of select="concat(@xml:id, ',&#xa;')"/>
     <xsl:apply-templates mode="#current"/>
     <xsl:text>}&#xa;</xsl:text>
@@ -837,7 +1032,7 @@
   </template>
   
   <template context="dbk:publisher">
-    <xsl:value-of select="concat('publisher={', dbk:publishername, '},&#xa;')"/>
+    <xsl:value-of select="concat('publisher={', dbk:publishername[1], '},&#xa;')"/>
   </template>
   
   <template context="dbk:pagenums">
@@ -900,7 +1095,7 @@
     <!--COPYRIGHT -->
     <char character="&#xa9;" string="{\textcopyright}"/>
     <!-- LEFT-POINTING DOUBLE ANGLE QUOTATION MARK -->
-    <char character="&#xab;" string="\guillemotleft{}"/>
+    <char character="&#xab;" string="&quot;&lt;"/>
     <!--= \lnot, NOT SIGN-->
     <char character="&#xac;" string="${\neg}$"/>
     <!--SOFT HYPHEN -->
@@ -924,7 +1119,7 @@
     <!-- MASCULINE ORDINAL INDICATOR  ^{\circ} -->
     <char character="&#xba;" string="$^{\circ}$"/>
     <!-- RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK -->
-    <char character="&#xbb;" string="\guillemotright{}"/>    
+    <char character="&#xbb;" string="&quot;&gt;"/>    
     <!-- INVERTED QUESTION MARK -->
     <char character="&#xbf;" string="{\textquestiondown}"/>
     <!--LATIN CAPITAL LETTER A WITH RING ABOVE -->    
@@ -936,7 +1131,7 @@
     <!--LATIN CAPITAL LETTER O WITH STROKE -->
     <char character="&#xd8;" string="\O{}"/>
     <!--LATIN SMALL LETTER SHARP S -->
-    <char character="&#xdf;" string="\ss{}"/>
+    <char character="&#xdf;" string="&quot;z"/>
     <!--LATIN SMALL LETTER A WITH RING ABOVE -->
     <char character="&#xe5;" string="\aa{}"/>
     <!--Latin Small Letter AE -->
@@ -951,8 +1146,10 @@
     <!-- *
          * Latin Extended-A
          * -->
-    
-    <!--imath-->
+
+    <!--LATIN SMALL LETTER H WITH STROKE-->
+    <char character="&#x127;" string="\textcrh{}"/>
+    <!--LATIN SMALL LETTER DOTLESS I, imath-->
     <char character="&#x131;" string="\i{}"/>
     <!--LATIN CAPITAL LETTER L WITH STROKE -->
     <char character="&#x141;" string="\L{}"/>
@@ -981,29 +1178,29 @@
     <!-- LATIN SMALL LETTER TURNED A -->
     <char character="&#x250;" string="\textturna{}"/>
     <!-- LATIN SMALL LETTER ALPHA  -->
-    <char character="&#x251;" string="\textscripta(A){}"/>
+    <char character="&#x251;" string="\textscripta{}"/>
     <!-- LATIN SMALL LETTER TURNED ALPHA -->
-    <char character="&#x252;" string="\textturnscripta(6){}"/>
+    <char character="&#x252;" string="\textturnscripta{}"/>
     <!-- LATIN SMALL LETTER B WITH HOOK  -->
-    <char character="&#x253;" string="\texthtb(\!b){}"/>
+    <char character="&#x253;" string="\texthtb{}"/>
     <!-- LATIN SMALL LETTER OPEN O  -->
-    <char character="&#x254;" string="\textopeno(O){}"/>
+    <char character="&#x254;" string="\textopeno{}"/>
     <!-- LATIN SMALL LETTER C WITH CURL  -->
-    <char character="&#x255;" string="\textctc(C){}"/>
+    <char character="&#x255;" string="\textctc{}"/>
     <!-- LATIN SMALL LETTER D WITH TAIL -->
-    <char character="&#x256;" string="\textrtaild(\:d){}"/>
+    <char character="&#x256;" string="\textrtaild{}"/>
     <!-- LATIN SMALL LETTER D WITH HOOK  -->
-    <char character="&#x257;" string="\texthtd(\!d){}"/>
+    <char character="&#x257;" string="\texthtd{}"/>
     <!-- LATIN SMALL LETTER REVERSED E -->
-    <char character="&#x258;" string="\textreve(9){}"/>
+    <char character="&#x258;" string="\textreve{}"/>
     <!-- LATIN SMALL LETTER SCHWA  -->
-    <char character="&#x259;" string="\textschwa(@){}"/>
+    <char character="&#x259;" string="\textschwa{}"/>
     <!-- LATIN SMALL LETTER SCHWA WITH HOOK -->
     <char character="&#x25a;" string="\textrhookschwa{}"/>
     <!-- LATIN SMALL LETTER OPEN E -->
-    <char character="&#x25b;" string="\textepsilon(E){}"/>
+    <char character="&#x25b;" string="\textepsilon{}"/>
     <!-- LATIN SMALL LETTER REVERSED OPEN E -->
-    <char character="&#x25c;" string="\textrevepsilon(3){}"/>
+    <char character="&#x25c;" string="\textrevepsilon{}"/>
     <!-- LATIN SMALL LETTER REVERSED OPEN E WITH HOOK -->
     <char character="&#x25d;" string="\textrhookrevepsilon{}"/>
     <!-- LATIN SMALL LETTER CLOSED REVERSED OPEN E -->
@@ -1011,133 +1208,133 @@
     <!-- LATIN SMALL LETTER DOTLESS J WITH STROKE -->
     <char character="&#x25f;" string="\textbardotlessj{}"/>
     <!-- LATIN SMALL LETTER G WITH HOOK  -->
-    <char character="&#x260;" string="\texthtg(\!g){}"/>
+    <char character="&#x260;" string="\texthtg{}"/>
     <!-- LATIN SMALL LETTER SCRIPT G  -->
-    <char character="&#x261;" string="\textg(g){}"/>
+    <char character="&#x261;" string="\textg{}"/>
     <!-- LATIN LETTER SMALL CAPITAL G -->
-    <char character="&#x262;" string="\textscg(\;G){}"/>
+    <char character="&#x262;" string="\textscg{}"/>
     <!-- LATIN SMALL LETTER GAMMA -->
     <char character="&#x263;" string="\textbabygamma{}"/>
     <!-- LATIN SMALL LETTER RAMS HORN  -->
-    <char character="&#x264;" string="textramshorns(7){}"/>
+    <char character="&#x264;" string="textramshorns{}"/>
     <!-- LATIN SMALL LETTER TURNED H -->
-    <char character="&#x265;" string="\textturnh(4){}"/>
+    <char character="&#x265;" string="\textturnh{}"/>
     <!-- LATIN SMALL LETTER H WITH HOOK  -->
-    <char character="&#x266;" string="\texthth(H){}"/>
+    <char character="&#x266;" string="\texthth{}"/>
     <!-- LATIN SMALL LETTER HENG WITH HOOK  -->
     <char character="&#x267;" string="\texththeng{}"/>
     <!-- LATIN SMALL LETTER I WITH STROKE  -->
-    <char character="&#x268;" string="\textbari(1){}"/>
+    <char character="&#x268;" string="\textbari{}"/>
     <!-- LATIN SMALL LETTER IOTA -->
     <char character="&#x269;" string="\textiota{}"/>
     <!-- LATIN LETTER SMALL CAPITAL I -->
-    <char character="&#x26a;" string="\textsci(I){}"/>
+    <char character="&#x26a;" string="\textsci{}"/>
     <!-- LATIN SMALL LETTER L WITH MIDDLE TILDE  -->
-    <char character="&#x26b;" string="\textltilde(\|~l){}"/>
+    <char character="&#x26b;" string="\textltilde{}"/>
     <!-- LATIN SMALL LETTER L WITH BELT -->
     <char character="&#x26c;" string="\textbeltl{}"/>
     <!-- LATIN SMALL LETTER L WITH RETROFLEX HOOK -->
-    <char character="&#x26d;" string="\textrtaill(\:l){}"/>
+    <char character="&#x26d;" string="\textrtaill{}"/>
     <!-- LATIN SMALL LETTER LEZH -->
     <char character="&#x26e;" string="\textlyoghlig{}"/>
     <!-- LATIN SMALL LETTER TURNED M -->
-    <char character="&#x26f;" string="\textturnm(W){}"/>
+    <char character="&#x26f;" string="\textturnm{}"/>
     <!-- LATIN SMALL LETTER TURNED M WITH LONG LEG -->
     <char character="&#x270;" string="\textturnmrleg{}"/>
     <!-- LATIN SMALL LETTER M WITH HOOK -->
-    <char character="&#x271;" string="\textltailm(M){}"/>
+    <char character="&#x271;" string="\textltailm{}"/>
     <!-- LATIN SMALL LETTER N WITH LEFT HOOK -->
     <char character="&#x272;" string="\textltailn{}"/>
     <!-- LATIN SMALL LETTER N WITH RETROFLEX HOOK -->
     <char character="&#x273;" string="\textnrleg{}"/>
     <!-- LATIN LETTER SMALL CAPITAL N -->
-    <char character="&#x274;" string="\textscn(\;N){}"/>
+    <char character="&#x274;" string="\textscn{}"/>
     <!-- LATIN SMALL LETTER BARRED O -->
-    <char character="&#x275;" string="\textbaro(8){}"/>
+    <char character="&#x275;" string="\textbaro{}"/>
     <!-- LATIN LETTER SMALL CAPITAL OE -->
-    <char character="&#x276;" string="\textscoelig(\OE){}"/>
+    <char character="&#x276;" string="\textscoelig{}"/>
     <!-- LATIN SMALL LETTER CLOSED OMEGA -->
     <char character="&#x277;" string="\textcloseomega{}"/>
     <!-- LATIN SMALL LETTER PHI  -->
-    <char character="&#x278;" string="\textphi(F){}"/>
+    <char character="&#x278;" string="\textphi{}"/>
     <!-- LATIN SMALL LETTER TURNED R -->
-    <char character="&#x279;" string="\textturnr(\*r){}"/>
+    <char character="&#x279;" string="\textturnr{}"/>
     <!-- LATIN SMALL LETTER TURNED R WITH LONG LEG -->
     <char character="&#x27a;" string="\textturnlonglegr{}"/>
     <!-- LATIN SMALL LETTER TURNED R WITH HOOK -->
-    <char character="&#x27b;" string="\textturnrrtail(\:R){}"/>
+    <char character="&#x27b;" string="\textturnrrtail{}"/>
     <!-- LATIN SMALL LETTER R WITH LONG LEG -->
     <char character="&#x27c;" string="\textlonglegr{}"/>
     <!-- LATIN SMALL LETTER R WITH TAIL -->
-    <char character="&#x27d;" string="\textrtailr(\:r){}"/>
+    <char character="&#x27d;" string="\textrtailr{}"/>
     <!-- LATIN SMALL LETTER R WITH FISHHOOK -->
-    <char character="&#x27e;" string="\textfishhookr(R){}"/>
+    <char character="&#x27e;" string="\textfishhookr{}"/>
     <!-- LATIN SMALL LETTER REVERSED R WITH FISHHOOK -->
     <!--<char character="&#x27f;" string=""/>-->
     <!-- LATIN LETTER SMALL CAPITAL R -->
-    <char character="&#x280;" string="\textscr(\;R){}"/>
+    <char character="&#x280;" string="\textscr{}"/>
     <!-- ATIN LETTER SMALL CAPITAL INVERTED R -->
-    <char character="&#x281;" string="\textinvscr(K){}"/>
+    <char character="&#x281;" string="\textinvscr{}"/>
     <!-- LATIN SMALL LETTER S WITH HOOK -->
-    <char character="&#x282;" string="\textrtails(\:s){}"/>
+    <char character="&#x282;" string="\textrtails{}"/>
     <!-- LATIN SMALL LETTER ESH -->
-    <char character="&#x283;" string="\textesh(S){}"/>
+    <char character="&#x283;" string="\textesh{}"/>
     <!-- LATIN SMALL LETTER DOTLESS J WITH STROKE AND HOOK -->
-    <char character="&#x284;" string="\texthtbardotlessj(\!j){}"/>
+    <char character="&#x284;" string="\texthtbardotlessj{}"/>
     <!-- LATIN SMALL LETTER SQUAT REVERSED ESH -->
     <!--<char character="&#x285;" string=""/>-->
     <!-- LATIN SMALL LETTER ESH WITH CURL -->
     <char character="&#x286;" string="\textctesh{}"/>
     <!-- LATIN SMALL LETTER TURNED T -->
-    <char character="&#x287;" string="\textturnt(\*t){}"/>
+    <char character="&#x287;" string="\textturnt{}"/>
     <!-- LATIN SMALL LETTER T WITH RETROFLEX HOOK -->
-    <char character="&#x288;" string="\textrtailt(\:t){}"/>
+    <char character="&#x288;" string="\textrtailt{}"/>
     <!-- LATIN SMALL LETTER U BAR -->
-    <char character="&#x289;" string="\textbaru(0){}"/>
+    <char character="&#x289;" string="\textbaru{}"/>
     <!-- LATIN SMALL LETTER UPSILON -->
-    <char character="&#x28a;" string="\textupsilon(U){}"/>
+    <char character="&#x28a;" string="\textupsilon{}"/>
     <!-- LATIN SMALL LETTER V WITH HOOK -->
-    <char character="&#x28b;" string="\textscriptv(V){}"/>
+    <char character="&#x28b;" string="\textscriptv{}"/>
     <!-- LATIN SMALL LETTER TURNED V -->
     <char character="&#x28c;" string="\textturnv{}"/>
     <!-- LATIN SMALL LETTER TURNED W -->
-    <char character="&#x28d;" string="\textturnw(\*w){}"/>
+    <char character="&#x28d;" string="\textturnw{}"/>
     <!-- LATIN SMALL LETTER TURNED Y -->
-    <char character="&#x28e;" string="\textturny(L){}"/>
+    <char character="&#x28e;" string="\textturny{}"/>
     <!-- LATIN LETTER SMALL CAPITAL Y -->
-    <char character="&#x28f;" string="\textscy(Y){}"/>
+    <char character="&#x28f;" string="\textscy{}"/>
     <!-- LATIN SMALL LETTER Z WITH RETROFLEX HOOK  -->
-    <char character="&#x290;" string="\textrtailz(\:z){}"/>
+    <char character="&#x290;" string="\textrtailz{}"/>
     <!-- LATIN SMALL LETTER Z WITH CURL -->
     <char character="&#x291;" string="\textctz{}"/>
     <!-- LATIN SMALL LETTER EZH -->
-    <char character="&#x292;" string="\textyogh(Z){}"/>
+    <char character="&#x292;" string="\textyogh{}"/>
     <!-- LATIN SMALL LETTER EZH WITH CURL -->
     <char character="&#x293;" string="\textctyogh{}"/>
     <!-- LATIN LETTER GLOTTAL STOP -->
-    <char character="&#x294;" string="\textglotstop(P){}"/>
+    <char character="&#x294;" string="\textglotstop{}"/>
     <!-- LATIN LETTER PHARYNGEAL VOICED FRICATIVE -->
-    <char character="&#x295;" string="\textrevglotstop(Q){}"/>
+    <char character="&#x295;" string="\textrevglotstop{}"/>
     <!-- LATIN LETTER INVERTED GLOTTAL STOP -->
     <char character="&#x296;" string="\textinvglotstop{}"/>
     <!-- LATIN LETTER STRETCHED C -->
     <char character="&#x297;" string="\textstretchc{}"/>
     <!-- LATIN LETTER BILABIAL CLICK -->
-    <char character="&#x298;" string="\textbullseye(\!o){}"/>
+    <char character="&#x298;" string="\textbullseye{}"/>
     <!-- LATIN LETTER SMALL CAPITAL B -->
-    <char character="&#x299;" string="\textscb(\;B){}"/>
+    <char character="&#x299;" string="\textscb{}"/>
     <!-- LATIN SMALL LETTER CLOSED OPEN E -->
     <char character="&#x29a;" string="\textcloseepsilon{}"/>
     <!-- LATIN LETTER SMALL CAPITAL G WITH HOOK -->
-    <char character="&#x29b;" string="\texthtscg(\!G){}"/>
+    <char character="&#x29b;" string="\texthtscg{}"/>
     <!-- LATIN LETTER SMALL CAPITAL H -->
-    <char character="&#x29c;" string="\textsch(\;H){}"/>
+    <char character="&#x29c;" string="\textsch{}"/>
     <!-- LATIN SMALL LETTER J WITH CROSSED-TAIL -->
-    <char character="&#x29d;" string="\textctj(J){}"/>
+    <char character="&#x29d;" string="\textctj{}"/>
     <!-- LATIN SMALL LETTER TURNED K -->
-    <char character="&#x29e;" string="\textturnk(\*k){}"/>
+    <char character="&#x29e;" string="\textturnk{}"/>
     <!-- LATIN LETTER SMALL CAPITAL L -->
-    <char character="&#x29f;" string="\textscl(\;L){}"/>
+    <char character="&#x29f;" string="\textscl{}"/>
     <!-- LATIN SMALL LETTER Q WITH HOOK -->
     <char character="&#x2a0;" string="\texthtq{}"/>
     <!-- LATIN LETTER GLOTTAL STOP WITH STROKE -->
@@ -1186,7 +1383,7 @@
     <!--= \Delta (-slantedGreek), = \mathrm{\Delta}, capital delta, greek-->
     <char character="&#x394;" string="${\Updelta}$"/>
     <char character="&#x394;" string="$\boldsymbol{\Updelta}$" context="*[@css:font-weight eq 'bold']"/> 
-    <char character="&#x394;" string="${\Delta}$" context="*[@css:font-style eq 'italic']"/>
+    <char character="&#x394;x" string="${\Delta}$" context="*[@css:font-style eq 'italic']"/>
     <!-- GREEK CAPITAL LETTER EPSILON -->
     <char character="&#x395;" string="E"/>
     <!-- GREEK CAPITAL LETTER ZETA -->
@@ -1194,7 +1391,7 @@
     <!-- GREEK CAPITAL LETTER ETA -->
     <char character="&#x397;" string="H"/>
     <!--= \Theta (-slantedGreek), = \mathrm{\Theta}, capital theta, greek-->
-    <char character="&#x398;" string="${\Uptheta}$"/>
+    <char character="&#x398;" string="${\Uptheta}$"/> 
     <char character="&#x398;" string="$\boldsymbol{\Uptheta}$" context="*[@css:font-weight eq 'bold']"/> 
     <char character="&#x398;" string="${\Theta}$" context="*[@css:font-style eq 'italic']"/>
     <!-- GREEK CAPITAL LETTER IOTA -->
@@ -1209,12 +1406,12 @@
     <char character="&#x39c;" string="M"/>
     <!-- GREEK CAPITAL LETTER NU -->
     <char character="&#x39d;" string="N"/>
-    <!-- GREEK CAPITAL LETTER OMICRON -->
-    <char character="&#x39f;" string="O"/>
     <!--= \Xi (-slantedGreek), = \mathrm{\Xi}, capital xi, greek-->
     <char character="&#x39e;" string="${\Upxi}$"/>
     <char character="&#x39e;" string="$\boldsymbol{\Upxi}$" context="*[@css:font-weight eq 'bold']"/>    
     <char character="&#x39e;" string="${\Xi}$" context="*[@css:font-style eq 'italic']"/>
+    <!-- GREEK CAPITAL LETTER OMICRON -->
+    <char character="&#x39f;" string="O"/>
     <!--= \Pi (-slantedGreek), = \mathrm{\Pi}, capital pi, greek-->
     <char character="&#x3a0;" string="${\Uppi}$"/>
     <char character="&#x3a0;" string="$\boldsymbol{\Uppi}$" context="*[@css:font-weight eq 'bold']"/>    
@@ -1390,6 +1587,10 @@
     <!--= \mathrm{\varrho} (omlmathrm), = \varrhoup (kpfonts mathdesign), GREEK RHO SYMBOL (round)-->
     <char character="&#x3f1;" string="${\varrho}$"/>
     <char character="&#x3f1;" string="$\boldsymbol{\varrho}$" context="*[@css:font-weight eq 'bold']"/>
+    <!-- GREEK CAPITAL THETA SYMBOL  -->
+    <char character="&#x3f4;" string="${\Uptheta}$"/>
+    <char character="&#x3f4;" string="$\boldsymbol{\Uptheta}$" context="*[@css:font-weight eq 'bold']"/> 
+    <char character="&#x3f4;" string="${\Theta}$" context="*[@css:font-style eq 'italic']"/>
     <!--= \mathrm{\epsilon} (omlmathrm), = \epsilonup (kpfonts mathdesign), GREEK LUNATE EPSILON SYMBOL-->
     <char character="&#x3f5;" string="${\epsilon}$"/>
     <char character="&#x3f5;" string="$\boldsymbol{\epsilon}$" context="*[@css:font-weight eq 'bold']"/>
@@ -1435,8 +1636,16 @@
     <char character="&#x2015;" string="{---}"/>
     <!--= \Vert, double vertical bar-->
     <char character="&#x2016;" string="${\|}$"/>
+    <!-- SINGLE LOW-9 QUOTATION MARK -->
+    <char character="&#x201a;" string=","/>  
     <!--SINGLE HIGH-REVERSED-9 QUOTATION MARK -->
     <char character="&#x201b;" string="`"/>
+    <!--LEFT DOUBLE QUOTATION MARK-->
+    <char character="&#x201c;" string="``"/>
+    <!--RIGHT DOUBLE QUOTATION MARK-->
+    <char character="&#x201d;" string="''"/>
+    <!--DOUBLE LOW-9 QUOTATION MARK -->
+    <char character="&#x201e;" string="&quot;`"/>
     <!--DAGGER relation-->
     <char character="&#x2020;" string="${\dag}$"/>
     <!--DOUBLE DAGGER relation-->
@@ -5336,7 +5545,7 @@
                   select="if(string-length($override) gt 0 and @numeration) 
                           then tr:list-number-to-integer($override, @numeration) - 1
                           else 0"/>
-    <xsl:variable name="level" select="count(ancestor::*:orderedlist) + 1" as="xs:integer"/>
+    <xsl:variable name="level" select="count(ancestor::*:orderedlist|ancestor::*:itemizedlist) + 1" as="xs:integer"/>
     <xsl:variable name="level-roman" as="xs:string">
       <xsl:number value="$level" format="i"/>
     </xsl:variable>
@@ -5355,31 +5564,26 @@
   <xsl:function name="tr:enumerate-list-type" as="xs:string">
     <xsl:param name="numeration" as="xs:string"/>
     <xsl:param name="override" as="xs:string?"/>
+    <xsl:variable name="indizes"    select="tokenize($override, '\p{P}')[. ne '']"   as="xs:string*"/>
+    <xsl:variable name="separators" select="tokenize($override, '[\w\d]+')[. ne '']" as="xs:string*"/>
     <xsl:variable name="list-type" as="xs:string"
-                  select="if($numeration eq 'loweralpha') then 'a'
-                     else if($numeration eq 'upperalpha') then 'A'
-                     else if($numeration eq 'lowerroman') then 'i'
-                     else if($numeration eq 'upperroman') then 'I'
-                     else if($numeration eq 'arabic' 
-                             and matches($override, '^(\d+)(\.\d+)+')) 
-                                                          then replace($override, '^(.+)\.\d+\.?$', '{$1}.1')
-                     else if($numeration eq 'arabic' 
-                             and matches($override, '^0\d+')) 
-                                                          then string-join((for $i in (1 to string-length(replace($override, '^(0+).+$', '$1')))
-                                                                            return '0', '1'), '')
-                     else                                      '1'"/>
-    <xsl:value-of select="$list-type"/>
+                  select="     if($numeration eq 'loweralpha') then 'a'
+                          else if($numeration eq 'upperalpha') then 'A'
+                          else if($numeration eq 'lowerroman') then 'i'
+                          else if($numeration eq 'upperroman') then 'I'
+                          else                                      '1'"/>
+    <xsl:value-of select="string-join(for $i in (1 to max((count($indizes), count($separators))))
+                                      return if(    count($separators) gt count($indizes))
+                                             then ($separators[$i], $list-type[$indizes[$i]])
+                                             else ($list-type, $separators[$i])
+                                      ,'')"/>    
   </xsl:function>
   
   <xsl:function name="tr:list-number-to-integer" as="xs:integer">
     <xsl:param name="override" as="xs:string"/>
     <xsl:param name="list-type" as="xs:string"/>
-    <xsl:variable name="counter"
-                  select="tokenize(
-                                   replace(
-                                           replace($override, '[\s\(\)\]\[\{\}&#xa0;]', '', 'i'), 
-                                           '\p{P}$', ''),
-                                  '\.')[last()]" as="xs:string"/>
+    <xsl:variable name="counter" as="xs:string"
+                  select="replace($override, '.*?([A-Z0-9]+).*', '$1', 'i')"/>
     <xsl:choose>
       <xsl:when test="$list-type = ('upperroman', 'lowerroman')">
         <xsl:value-of select="tr:roman-to-int($counter)"/>
