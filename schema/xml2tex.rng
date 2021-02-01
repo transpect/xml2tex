@@ -573,7 +573,7 @@
 
   <sch:pattern xmlns:sch="http://purl.oclc.org/dsdl/schematron">
     <sch:rule context="@regex-group">
-      <sch:assert test="not(ancestor::xml2tex:regex)"> The @regex-group attribute is not permitted, when the parent is &lt;xml2tex:template&gt; </sch:assert>
+      <sch:assert test="not(ancestor::xml2tex:template)"> The @regex-group attribute is not permitted, when the parent is &lt;xml2tex:template&gt; </sch:assert>
     </sch:rule>
   </sch:pattern>
 

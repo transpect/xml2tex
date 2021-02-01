@@ -915,7 +915,7 @@ sch:pattern [
     "\x{a}" ~
     "      "
     sch:assert [
-      test = "not(ancestor::xml2tex:regex)"
+      test = "not(ancestor::xml2tex:template)"
       " The @regex-group attribute is not permitted, when the parent is <xml2tex:template> "
     ]
     "\x{a}" ~
