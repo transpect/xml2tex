@@ -337,7 +337,7 @@
               <p>Value: <code>xs:string</code></p>
               <p>Provides a name for the TeX instruction. The name <i>foo</i> will expand to 
                 either <code>\foo</code> or <code>\begin{foo}…\end{foo}</code> depending on the value of the 
-                select attribute.</p>
+                type attribute.</p>
             </a:documentation>
             <text/>
           </attribute>
