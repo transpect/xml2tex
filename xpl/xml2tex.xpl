@@ -65,7 +65,7 @@
   
   <p:option name="table-model" select="'tabularx'" required="false">
     <p:documentation>
-      Used LaTeX package to draw tables. Possible values are 'tabular' and 'tabularx'.
+      Use LaTeX package to draw tables. Possible values are 'tabular' and 'tabularx'.
     </p:documentation>
   </p:option>
   
