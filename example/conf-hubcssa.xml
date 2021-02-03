@@ -68,7 +68,9 @@
     <xsl:if test="//dbk:div[@role eq 'hub:index'][1]">
       <xsl:text>\usepackage{makeidx}&#xa;\makeindex&#xa;</xsl:text>
     </xsl:if>
-    <xsl:sequence select="xml2tex:langs-to-latex-pkg( $langs )"/>
+    <xsl:sequence select="if($langs) 
+                          then xml2tex:langs-to-latex-pkg( $langs ) 
+                          else xml2tex:langs-to-latex-pkg( 'en' )"/>
     <xsl:text>&#xa;</xsl:text>
     <xsl:for-each select="xml2tex:rgb-to-tex-color( $colors )">        
       <xsl:value-of select="concat('\define', ., '&#xa;')"/>
