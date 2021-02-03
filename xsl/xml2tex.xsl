@@ -30,7 +30,7 @@
     
     <xso:stylesheet xmlns:xs="http://www.w3.org/2001/XMLSchema"
                     xmlns:xlink="http://www.w3.org/1999/xlink"
-                    xmlns:tex="http://www-cs-faculty.st anford.edu/~uno/"
+                    xmlns:tex="http://www-cs-faculty.stanford.edu/~uno/"
                     xmlns:html="http://www.w3c.org/1999/xhtml"
                     xmlns:c="http://www.w3.org/ns/xproc-step"
                     xmlns:xso="tobereplaced">
