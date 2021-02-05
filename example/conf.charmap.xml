@@ -3,8 +3,11 @@
 <?xml-model href="http://transpect.io/xml2tex/schema/xml2tex.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
 <set xmlns="http://transpect.io/xml2tex"  
      xmlns:tr="http://transpect.io"
-     xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+     xmlns:css="http://www.w3.org/1996/css">
 
+  <ns prefix="css" uri="http://www.w3.org/1996/css"/>
+  
   <charmap>
     
     <!-- *
