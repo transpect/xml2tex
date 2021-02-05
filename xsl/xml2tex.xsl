@@ -51,7 +51,7 @@
 
       <xsl:apply-templates select="xsl:* except (xsl:import|xsl:param|xsl:key)"/>
 
-      <xso:template match="/" mode="xml2tex">
+      <xso:template match="/" mode="xml2tex" priority="1000000">
         <!-- The c:data-section is necessary for XProc text output. -->
         <c:data content-type="text/plain">
           <xsl:if test="$only-tex-body eq 'no'">
@@ -59,7 +59,7 @@
             <xso:text>&#xa;\begin{document}&#xa;</xso:text>  
           </xsl:if>
           <xsl:apply-templates select="xml2tex:front"/>
-          <xso:apply-templates mode="#current"/>
+          <xso:next-match/>
           <xsl:apply-templates select="xml2tex:back"/>
           <xsl:if test="$only-tex-body eq 'no'">
             <xso:text>&#xa;\end{document}&#xa;</xso:text>
