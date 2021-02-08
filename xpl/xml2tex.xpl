@@ -65,7 +65,8 @@
   
   <p:option name="table-model" select="'tabularx'" required="false">
     <p:documentation>
-      Use LaTeX package to draw tables. Possible values are 'tabular' and 'tabularx'.
+      Use LaTeX package to draw tables. Permitted values are 'tabular',
+      'tabularx' and 'htmltabs'.
     </p:documentation>
   </p:option>
   
@@ -241,6 +242,7 @@
       <p:output port="report" sequence="true">
         <p:pipe port="report" step="html2cals"/>
       </p:output>
+      
       <tr:xslt-mode msg="yes" mode="html2cals" name="html2cals">
         <p:input port="stylesheet">
           <p:document href="http://this.transpect.io/xslt-util/calstable/xsl/html2calstable.xsl"/>
@@ -254,6 +256,7 @@
         <p:with-option name="fail-on-error" select="$fail-on-error"/>
         <p:with-option name="prefix" select="concat($prefix, '10')"/>
       </tr:xslt-mode>
+      
     </p:when>
     <p:otherwise>
       <p:output port="result" primary="true"/>
@@ -267,11 +270,14 @@
   </p:choose>
 
   <p:choose name="resolve-tables-or-normalize">
+    <p:when test="$table-model eq 'htmltabs'">
+      <p:identity/>
+    </p:when>
     <p:when test="$nested-tables eq 'yes'">
       <tr:normalize-calstables name="normalize-calstables"/>
     </p:when>
     <p:otherwise>
-      <tr:resolve-nested-calstables name="normalize-calstables"/>
+      <tr:resolve-nested-calstables name="resolve-calstables"/>
     </p:otherwise>
   </p:choose>
   
@@ -283,27 +289,48 @@
   
   <p:sink/>
   
-  <tr:load-cascaded name="load-cals2tabular-xsl" filename="xml2tex/calstable2tabular.xsl">
-    <p:with-option name="fallback" select="resolve-uri('../xsl/calstable2tabular.xsl')"/>
-    <p:input port="paths">
-      <p:pipe port="paths" step="xml2tex"/>
-    </p:input>
-    <p:with-option name="debug" select="$debug"/>
-    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-  </tr:load-cascaded>
+  <p:choose name="choose-table-model-xslt">
+    <p:when test="$table-model eq 'htmltabs'">
+      <p:output port="result"/>
+      
+      <tr:load-cascaded name="load-cals2tabular-xsl" filename="xml2tex/calstable2htmltabs.xsl">
+        <p:with-option name="fallback" select="resolve-uri('../xsl/calstable2htmltabs.xsl')"/>
+        <p:input port="paths">
+          <p:pipe port="paths" step="xml2tex"/>
+        </p:input>
+        <p:with-option name="debug" select="$debug"/>
+        <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+      </tr:load-cascaded>
+      
+    </p:when>
+    <p:otherwise>
+      <p:output port="result"/>
+      
+      <tr:load-cascaded name="load-cals2tabular-xsl" filename="xml2tex/calstable2tabular.xsl">
+        <p:with-option name="fallback" select="resolve-uri('../xsl/calstable2tabular.xsl')"/>
+        <p:input port="paths">
+          <p:pipe port="paths" step="xml2tex"/>
+        </p:input>
+        <p:with-option name="debug" select="$debug"/>
+        <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+      </tr:load-cascaded>
+      
+    </p:otherwise>
+    
+  </p:choose>
   
   <p:sink/>
   
   <p:xslt name="cals2tabular" template-name="main">
     <p:documentation>
-      This stylesheet converts CALS tables to LaTeX tabular tables. The LaTeX Code is 
-      inserted as "cals2tabular" processing instructions. 
+      This stylesheet converts CALS tables to LaTeX tables. The LaTeX Code 
+      is inserted as "cals2tabular" processing instructions. 
     </p:documentation>
     <p:input port="source">
       <p:pipe port="result" step="debug-calstables"/>
     </p:input>
     <p:input port="stylesheet">
-      <p:pipe port="result" step="load-cals2tabular-xsl"/>
+      <p:pipe port="result" step="choose-table-model-xslt"/>
     </p:input>
     <p:input port="parameters">
       <p:pipe port="paths" step="xml2tex"/>
@@ -316,8 +343,8 @@
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
   </p:xslt>
   
-  <tr:store-debug name="debug-cals2tabular">
-    <p:with-option name="pipeline-step" select="concat($prefix, '18.cals2tabular')"/>
+  <tr:store-debug name="debug-cals2tex">
+    <p:with-option name="pipeline-step" select="concat($prefix, '18.cals2tex')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
