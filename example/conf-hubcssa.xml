@@ -68,7 +68,7 @@
     <xsl:if test="//dbk:div[@role eq 'hub:index'][1]">
       <xsl:text>\usepackage{makeidx}&#xa;\makeindex&#xa;</xsl:text>
     </xsl:if>
-    <xsl:sequence select="if($langs) 
+    <xsl:sequence select="if(exists($langs)) 
                           then xml2tex:langs-to-latex-pkg( $langs ) 
                           else xml2tex:langs-to-latex-pkg( 'en' )"/>
     <xsl:text>&#xa;</xsl:text>
@@ -92,6 +92,7 @@
   <!-- regular paras -->
 
   <template context="dbk:para[not(parent::dbk:entry)]
+                             [not(parent::*:td)]
                              [not(following-sibling::*[1][self::dbk:orderedlist])]
                              [not(following-sibling::*[1][self::dbk:itemizedlist])]
                              [not(following-sibling::*[1][self::dbk:variablelist])]
