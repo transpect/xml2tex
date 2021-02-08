@@ -424,6 +424,7 @@
   <xsl:template name="unwrap-pis">
     
     <xso:template match="processing-instruction('cals2tabular')
+                        |processing-instruction('htmltabs')
                         |processing-instruction('mml2tex')
                         |processing-instruction('latex')
                         |processing-instruction('mathtype')" mode="xml2tex">
