@@ -3,6 +3,7 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
   xmlns:css="http://www.w3.org/1996/css"
   xmlns:xml2tex="http://transpect.io/xml2tex"
+  xmlns:tr="http://transpect.io"
   xmlns="http://www.w3.org/1999/xhtml" 
   xpath-default-namespace="http://www.w3.org/1999/xhtml"
   exclude-result-prefixes="css xs xml2tex" 
@@ -12,7 +13,8 @@
        to htmltabs 
   -->
   
-  <xsl:import href="http://transpect.io/xslt-util/cals2htmltable/xsl/cals2htmltables.xsl"/>  
+  <xsl:import href="http://transpect.io/xslt-util/cals2htmltable/xsl/cals2htmltables.xsl"/>
+  <xsl:import href="http://transpect.io/xslt-util/lengths/xsl/lengths.xsl"/>
 
   <xsl:param name="table-model" select="'tabularx'" as="xs:string"/>
   <!-- tabularx | tabular -->
@@ -86,9 +88,9 @@
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:processing-instruction name="htmltabs" 
-                                    select="concat('\HTcol', 
-                                                   xml2tex:atts-to-option(@*), 
-                                                   '&#xa;')"/>
+                                    select="concat('\HTcol[width=', 
+                                                   if(ends-with(@css:width, 'pt')) then tr:pt-to-mm(@css:width) else @css:width, 
+                                                   ']&#xa;')"/>
     </xsl:copy>
   </xsl:template>
   
@@ -135,7 +137,7 @@
       <xsl:sequence select="concat('[',
                                   string-join(
                                               (xml2tex:css-atts-to-style-att($atts[namespace-uri() eq 'http://www.w3.org/1996/css']),
-                                               $atts[local-name() = ('id', 'class', 'colspan', 'rowspan')]/concat(local-name(), '={', ., '}')),
+                                               $atts[local-name() = ('id', 'class', 'colspan', 'rowspan')]/concat(local-name(), '=', ., '')),
                                                ','),
                                   ']')"/>
     </xsl:if>
