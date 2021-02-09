@@ -291,7 +291,9 @@
   
   <p:choose name="choose-table-model-xslt">
     <p:when test="$table-model eq 'htmltabs'">
-      <p:output port="result"/>
+      <p:output port="result">
+        <p:pipe port="result" step="load-cals2tabular-xsl"/>
+      </p:output>
       
       <tr:load-cascaded name="load-cals2tabular-xsl" filename="xml2tex/calstable2htmltabs.xsl">
         <p:with-option name="fallback" select="resolve-uri('../xsl/calstable2htmltabs.xsl')"/>
@@ -301,10 +303,12 @@
         <p:with-option name="debug" select="$debug"/>
         <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
       </tr:load-cascaded>
-      
+      <p:sink/>
     </p:when>
     <p:otherwise>
-      <p:output port="result"/>
+      <p:output port="result">
+        <p:pipe port="result" step="load-cals2tabular-xsl"/>
+      </p:output>
       
       <tr:load-cascaded name="load-cals2tabular-xsl" filename="xml2tex/calstable2tabular.xsl">
         <p:with-option name="fallback" select="resolve-uri('../xsl/calstable2tabular.xsl')"/>
@@ -314,7 +318,7 @@
         <p:with-option name="debug" select="$debug"/>
         <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
       </tr:load-cascaded>
-      
+      <p:sink/>
     </p:otherwise>
     
   </p:choose>
