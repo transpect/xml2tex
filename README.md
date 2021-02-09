@@ -1,6 +1,6 @@
 # xml2tex
 
-An XProc module to convert XML to LaTeX
+A library for converting arbitrary XML to TeX.
 
 ## setup and run xml2tex
 
