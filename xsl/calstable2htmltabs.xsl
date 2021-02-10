@@ -61,7 +61,7 @@
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:processing-instruction name="htmltabs">
         <xsl:text>&#xa;\begin{htmltab}</xsl:text>
-        <xsl:value-of select="@class/concat('[class=', . , ']')"/>
+        <xsl:value-of select="xml2tex:atts-to-option(@*)"/>
         <xsl:text>&#xa;</xsl:text>
       </xsl:processing-instruction>
       <xsl:apply-templates select="*" mode="#current"/>
@@ -78,13 +78,23 @@
                                 select="'}&#xa;'"/>
   </xsl:template>
   
-  <xsl:template match="tgroup|colgroup" mode="html2tabs">
+  <xsl:template match="tgroup" mode="html2tabs">
     <xsl:copy>
       <xsl:apply-templates select="@*, *" mode="#current"/>
     </xsl:copy>
   </xsl:template>
   
-  <xsl:template match="col" mode="html2tabs">
+  <xsl:template match="colgroup" mode="html2tabs">
+    <xsl:copy>
+      <xsl:processing-instruction name="htmltabs"
+                                  select="concat('\begin{colgroup}', xml2tex:atts-to-option(@*), '&#xa;')"/>
+      <xsl:apply-templates select="@*, *" mode="#current"/>
+      <xsl:processing-instruction name="htmltabs"
+                                  select="'\end{colgroup}&#xa;'"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="col[@css:width]" mode="html2tabs">
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:processing-instruction name="htmltabs" 
