@@ -186,10 +186,13 @@
         <p>Used to add text after the TeX instruction such as <code>\foo bar</code>. 
           There are three ways to control how the content is applied:</p>
         <p>a) <code>&lt;text/&gt;</code> The context which is specified by <code>template/@content</code> is applied.<br/>
-           b) <code>&lt;text select="foo"/&gt;</code> The context which is specified by the XPath expression in the <code>@select</code> attribute is applied.<br/>
-           c) <code>&lt;text&gt;foo&lt;/text&gt;</code> The plain text string is inserted.</p>
+          b) <code>&lt;text select="foo"/&gt;</code> The context which is specified by the XPath expression in the <code>@select</code> attribute is applied.<br/>
+          c) <code>&lt;text&gt;foo&lt;/text&gt;</code> The plain text string is inserted.</p>
       </a:documentation>
       <ref name="xml2tex.atom.attributes"/>
+      <zeroOrMore>
+        <ref name="xml2tex.with-param.element"/>
+      </zeroOrMore>
       <ref name="xml2tex.atom.content"/>
     </element>
   </define>
@@ -205,10 +208,41 @@
            c) <code>&lt;param&gt;foo&lt;/text&gt;</code> The plain text string is just inserted.</p>
       </a:documentation>
       <ref name="xml2tex.atom.attributes"/>
+      <zeroOrMore>
+        <ref name="xml2tex.with-param.element"/>
+      </zeroOrMore>
       <ref name="xml2tex.atom.content"/>
     </element>
   </define>
 
+  <define name="xml2tex.with-param.element">
+    <element name="with-param">
+      <ref name="xslt2.extension.atts"/>
+      <attribute name="name">
+        <ref name="xslt2.qname.datatype"/>
+      </attribute>
+      <optional>
+        <attribute name="as">
+          <ref name="xslt2.sequence.datatype"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="tunnel">
+          <choice>
+            <value>yes</value>
+            <value>no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <choice>
+        <attribute name="select">
+          <ref name="xslt2.expression.datatype"/>
+        </attribute>
+        <ref name="xslt2.template.model"/>
+      </choice>
+    </element>
+  </define>
+  
   <define name="xml2tex.option">
     <element name="xml2tex:option">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
@@ -216,10 +250,13 @@
         <p>Used to create an option for a TeX instruction such as <code>\foo[bar]</code>. 
           There are three ways to control how the content is applied:</p>
         <p>a) <code>&lt;text/&gt;</code> The context which is specified by <code>template/@content</code> is applied.<br/>
-           b) <code>&lt;text select="foo"/&gt;</code> The context which is specified by the XPath expression in the <code>@select</code> attribute is applied.<br/>
-           c) <code>&lt;text&gt;foo&lt;/text&gt;</code> The plain text string is just inserted.</p>
+          b) <code>&lt;text select="foo"/&gt;</code> The context which is specified by the XPath expression in the <code>@select</code> attribute is applied.<br/>
+          c) <code>&lt;text&gt;foo&lt;/text&gt;</code> The plain text string is just inserted.</p>
       </a:documentation>
       <ref name="xml2tex.atom.attributes"/>
+      <zeroOrMore>
+        <ref name="xml2tex.with-param.element"/>
+      </zeroOrMore>
       <ref name="xml2tex.atom.content"/>
     </element>
   </define>
@@ -315,16 +352,26 @@
   </define>
 
   <define name="xml2tex.template.attributes">
-    <attribute name="context">
-      <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>context</i> attribute</h1>
-        <p>Value: <code>XPath expression</code></p>
-        <p>The content of this attribute is an XSLT 2 matching pattern that may contain 
-          QNames with namespace prefixes. These prefixes and the namespaces must be declared 
-          first in the XML and second with the <code>ns</code> element.</p>
-      </a:documentation>
-      <text/>
-    </attribute>
+    <choice>
+      <attribute name="context">
+        <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+          <h1>The <i>context</i> attribute</h1>
+          <p>Value: <code>XPath expression</code></p>
+          <p>The content of this attribute is an XSLT 2 matching pattern that may contain 
+            QNames with namespace prefixes. These prefixes and the namespaces must be declared 
+            first in the XML and second with the <code>ns</code> element.</p>
+        </a:documentation>
+        <text/>
+      </attribute>
+      <attribute name="name">
+        <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+          <h1>The <i>name</i> attribute</h1>
+          <p>Value: <code>xs:string</code></p>
+          <p>Provides a name for the template. will be expanded to an XSLT 2 named template with the possibility to declare rule-Elements within..</p>
+        </a:documentation>
+        <text/>
+      </attribute>
+    </choice>
   </define>
 
   <define name="xml2tex.rule.attributes">
@@ -523,6 +570,9 @@
   </define>
 
   <define name="xml2tex.templatemodel.content">
+    <zeroOrMore>
+      <ref name="xslt2.param.element"/>
+    </zeroOrMore>
     <zeroOrMore>
       <choice>
         <ref name="xml2tex.rule"/>

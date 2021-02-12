@@ -304,14 +304,14 @@ xml2tex.text =
         " is applied."
         ns1:br [ ]
         "\x{a}" ~
-        "           b) "
+        "          b) "
         ns1:code [ '<text select="foo"/>' ]
         " The context which is specified by the XPath expression in the "
         ns1:code [ "@select" ]
         " attribute is applied."
         ns1:br [ ]
         "\x{a}" ~
-        "           c) "
+        "          c) "
         ns1:code [ "<text>foo</text>" ]
         " The plain text string is inserted."
       ]
@@ -319,7 +319,11 @@ xml2tex.text =
       "      "
     ]
   ]
-  element xml2tex:text { xml2tex.atom.attributes, xml2tex.atom.content }
+  element xml2tex:text {
+    xml2tex.atom.attributes,
+    xml2tex.with-param.element*,
+    xml2tex.atom.content
+  }
 xml2tex.param =
   [
     a:documentation [
@@ -360,7 +364,18 @@ xml2tex.param =
     ]
   ]
   element xml2tex:param {
-    xml2tex.atom.attributes, xml2tex.atom.content
+    xml2tex.atom.attributes,
+    xml2tex.with-param.element*,
+    xml2tex.atom.content
+  }
+xml2tex.with-param.element =
+  element with-param {
+    xslt2.extension.atts,
+    attribute name { xslt2.qname.datatype },
+    attribute as { xslt2.sequence.datatype }?,
+    attribute tunnel { "yes" | "no" }?,
+    (attribute select { xslt2.expression.datatype }
+     | xslt2.template.model)
   }
 xml2tex.option =
   [
@@ -386,14 +401,14 @@ xml2tex.option =
         " is applied."
         ns1:br [ ]
         "\x{a}" ~
-        "           b) "
+        "          b) "
         ns1:code [ '<text select="foo"/>' ]
         " The context which is specified by the XPath expression in the "
         ns1:code [ "@select" ]
         " attribute is applied."
         ns1:br [ ]
         "\x{a}" ~
-        "           c) "
+        "          c) "
         ns1:code [ "<text>foo</text>" ]
         " The plain text string is just inserted."
       ]
@@ -402,7 +417,9 @@ xml2tex.option =
     ]
   ]
   element xml2tex:option {
-    xml2tex.atom.attributes, xml2tex.atom.content
+    xml2tex.atom.attributes,
+    xml2tex.with-param.element*,
+    xml2tex.atom.content
   }
 # *
 # * attributes
@@ -520,25 +537,43 @@ xml2tex.template.attributes =
   [
     a:documentation [
       "\x{a}" ~
-      "        "
+      "          "
       ns1:h1 [ "The " ns1:i [ "context" ] " attribute" ]
       "\x{a}" ~
-      "        "
+      "          "
       ns1:p [ "Value: " ns1:code [ "XPath expression" ] ]
       "\x{a}" ~
-      "        "
+      "          "
       ns1:p [
         "The content of this attribute is an XSLT 2 matching pattern that may contain \x{a}" ~
-        "          QNames with namespace prefixes. These prefixes and the namespaces must be declared \x{a}" ~
-        "          first in the XML and second with the "
+        "            QNames with namespace prefixes. These prefixes and the namespaces must be declared \x{a}" ~
+        "            first in the XML and second with the "
         ns1:code [ "ns" ]
         " element."
       ]
       "\x{a}" ~
-      "      "
+      "        "
     ]
   ]
   attribute context { text }
+  | [
+      a:documentation [
+        "\x{a}" ~
+        "          "
+        ns1:h1 [ "The " ns1:i [ "name" ] " attribute" ]
+        "\x{a}" ~
+        "          "
+        ns1:p [ "Value: " ns1:code [ "xs:string" ] ]
+        "\x{a}" ~
+        "          "
+        ns1:p [
+          "Provides a name for the template. will be expanded to an XSLT 2 named template with the possibility to declare rule-Elements within.."
+        ]
+        "\x{a}" ~
+        "        "
+      ]
+    ]
+    attribute name { text }
 xml2tex.rule.attributes =
   (([
       a:documentation [
@@ -559,7 +594,7 @@ xml2tex.rule.attributes =
           " or "
           ns1:code [ "\begin{foo}…\end{foo}" ]
           " depending on the value of the \x{a}" ~
-          "                select attribute."
+          "                type attribute."
         ]
         "\x{a}" ~
         "            "
@@ -869,6 +904,7 @@ xml2tex.set.content =
   & xml2tex.charmap?
 xml2tex.content.empty = empty
 xml2tex.templatemodel.content =
+  xslt2.param.element*,
   (xml2tex.rule | xml2tex.file | xslt2.instruction.category)*
 xml2tex.charmap.content = xml2tex.char+
 xml2tex.rule.content =
