@@ -99,7 +99,7 @@
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:processing-instruction name="htmltabs" 
                                     select="concat('\HTcol[width=', 
-                                                   if(ends-with(@css:width, 'pt')) then tr:pt-to-mm(@css:width) else @css:width, 
+                                                   xml2tex:absolute-to-relative-col-width(@css:width, parent::*/col/@css:width), 
                                                    ']&#xa;')"/>
     </xsl:copy>
   </xsl:template>
@@ -161,6 +161,15 @@
                                                   ';'),
                                       '}')
                           else ()"/>
+  </xsl:function>
+  
+  <xsl:function name="xml2tex:absolute-to-relative-col-width" as="xs:decimal">
+    <xsl:param name="colwidth" as="xs:string"/>
+    <xsl:param name="sum-colwidths" as="xs:string+"/>
+    <xsl:sequence select="round-half-to-even(    tr:length-to-unitless-twip($colwidth) 
+                                             div sum(for $i in  $sum-colwidths 
+                                                     return tr:length-to-unitless-twip($i)), 
+                                             3)"/>
   </xsl:function>
   
 </xsl:stylesheet>
