@@ -195,18 +195,31 @@
   </xsl:template>
   
   <xsl:variable name="rule-indexes" select="for $i in //xml2tex:template return generate-id($i)" as="xs:string*"/>
-  
+
   <xsl:template match="xml2tex:template">
     <!--  * the priority of a rule is determined by its order. If more than one 
-          * rule matches against a particular element, the last rule declaration has a higher priority
-          * and overwrites the rule with a lesser priority. Imported templates have always the priority 1.
-          * -->
+      * rule matches against a particular element, the last rule declaration has a higher priority
+      * and overwrites the rule with a lesser priority. Imported templates have always the priority 1.
+      * -->
     <xsl:variable name="template-priority" select="(index-of($rule-indexes, generate-id(.)), 1)[1]" as="xs:integer"/>
-
-    <xso:template match="{@context}" mode="xml2tex" priority="{$template-priority}">
-      <!-- if no tex child is present, then matched node will be discarded -->
-      <xsl:apply-templates/>
-    </xso:template>
+    
+    <xsl:choose>
+      <xsl:when test="@name">
+        <!-- allow named templates but process only last in document because not two templates with the same name are allowed -->
+        <xsl:if test=". is //xml2tex:template[@name = current()/@name][last()]">
+          <xso:template name="{@name}">
+            <!-- if no tex child is present, then matched node will be discarded -->
+            <xsl:apply-templates/>
+          </xso:template>
+        </xsl:if>
+      </xsl:when>
+      <xsl:otherwise>
+        <xso:template match="{@context}" mode="xml2tex" priority="{$template-priority}">
+          <!-- if no tex child is present, then matched node will be discarded -->
+          <xsl:apply-templates/>
+        </xso:template>  
+      </xsl:otherwise>
+    </xsl:choose>
     
   </xsl:template>
 
@@ -278,6 +291,15 @@
     <!-- types: text | param | option -->
     <xso:variable name="opening-delimiter" select="{concat('''', xml2tex:get-delimiter(local-name(), true()), '''')}"/>
     <xso:variable name="closing-delimiter" select="{concat('''', xml2tex:get-delimiter(local-name(), false()), '''')}"/>
+    <xsl:variable name="parameter" as="element(xsl:with-param)*">
+      <xsl:for-each select="xml2tex:with-param">
+        <xsl:if test="current()[@name and @select]">
+          <xsl:element name="xsl:with-param">
+            <xsl:copy-of select="@*"/>
+          </xsl:element>
+        </xsl:if>
+      </xsl:for-each>
+    </xsl:variable>
       <xsl:choose>
         <!--  *
               * select attribute exists either in text/option/param tag
@@ -287,11 +309,15 @@
           <xso:choose>
             <!--  handle elements -->
             <xso:when test="({@select}) instance of element()">
-              <xso:apply-templates select="if(({@select}) instance of element()) then ({@select}) else node()" mode="#current"/> 
+              <xso:apply-templates select="if(({@select}) instance of element()) then ({@select}) else node()" mode="#current">
+                <xsl:if test="$parameter"><xsl:sequence select="$parameter"/></xsl:if>
+              </xso:apply-templates> 
             </xso:when>
             <!--  * handle node() function used in select attributes -->
             <xso:when test="not(({@select}) instance of item())">
-              <xso:apply-templates select="if(not(({@select}) instance of item())) then ({@select}) else node()" mode="#current"/> 
+              <xso:apply-templates select="if(not(({@select}) instance of item())) then ({@select}) else node()" mode="#current">
+                 <xsl:if test="$parameter"><xsl:sequence select="$parameter"/></xsl:if>
+              </xso:apply-templates> 
             </xso:when>
             <!--  fallback: handle as simple text -->
             <xso:otherwise>
@@ -313,9 +339,9 @@
           </xso:analyze-string>
         </xsl:when>
         <!--  *
-              * text/option/param tag contains static text
+              * text/option/param tag contains static text. if with-param is there ignore text
               * -->
-        <xsl:when test="text()">
+        <xsl:when test="text() and not(*:with-param)">
           <xso:value-of select="$opening-delimiter"/>
           <xso:value-of select="{concat('''', text(), '''')}"/>
           <xso:value-of select="$closing-delimiter"/>
@@ -327,7 +353,9 @@
           <xso:value-of select="$opening-delimiter"/>
           <xso:choose>
             <xso:when test="(.) instance of element()">
-              <xso:apply-templates mode="#current"/>
+              <xso:apply-templates mode="#current">
+                 <xsl:if test="$parameter"><xsl:sequence select="$parameter"/></xsl:if>
+              </xso:apply-templates>
             </xso:when>
             <xso:otherwise>
               <xso:value-of select="."/>
