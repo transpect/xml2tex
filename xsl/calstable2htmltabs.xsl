@@ -128,7 +128,7 @@
     </xsl:copy>
   </xsl:template>
   
-  <xsl:template match="td" mode="html2tabs">
+  <xsl:template match="td|th" mode="html2tabs">
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:processing-instruction name="htmltabs" 
