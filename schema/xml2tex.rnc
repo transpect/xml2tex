@@ -233,37 +233,7 @@ xml2tex.file =
       "      "
     ]
   ]
-  element xml2tex:file {
-    [
-      a:documentation [
-        "\x{a}" ~
-        "            "
-        ns1:h1 [ "The " ns1:i [ "href" ] " attribute" ]
-        "\x{a}" ~
-        "            "
-        ns1:p [ "Specifies a path on the local file system." ]
-        "\x{a}" ~
-        "          "
-      ]
-    ]
-    attribute href { text }
-    & [
-        a:documentation [
-          "\x{a}" ~
-          "              "
-          ns1:h1 [ "The " ns1:i [ "encoding" ] " attribute" ]
-          "\x{a}" ~
-          "              "
-          ns1:p [
-            "With this optional attribute, you can specify the \x{a}" ~
-            "                file encoding. The default value is 'utf-8'"
-          ]
-          "\x{a}" ~
-          "            "
-        ]
-      ]
-      attribute encoding { text }?
-  }
+  element xml2tex:file { xml2tex.file.attributes }
 xml2tex.char =
   [
     a:documentation [
@@ -883,6 +853,53 @@ xml2tex.regex.attributes =
     ]
   ]
   attribute regex { text }
+xml2tex.file.attributes =
+  [
+    a:documentation [
+      "\x{a}" ~
+      "          "
+      ns1:h1 [ "The " ns1:i [ "href" ] " attribute" ]
+      "\x{a}" ~
+      "          "
+      ns1:p [ "Specifies a path on the local file system." ]
+      "\x{a}" ~
+      "        "
+    ]
+  ]
+  attribute href { text }
+  & [
+      a:documentation [
+        "\x{a}" ~
+        "            "
+        ns1:h1 [ "The " ns1:i [ "encoding" ] " attribute" ]
+        "\x{a}" ~
+        "            "
+        ns1:p [
+          "With this optional attribute, you can specify the \x{a}" ~
+          "              file encoding. The default value is 'utf-8'"
+        ]
+        "\x{a}" ~
+        "          "
+      ]
+    ]
+    attribute encoding { text }?
+  & [
+      a:documentation [
+        "\x{a}" ~
+        "            "
+        ns1:h1 [ "The " ns1:i [ "method" ] " attribute" ]
+        "\x{a}" ~
+        "            "
+        ns1:p [
+          "With this optional attribute, you can specify the \x{a}" ~
+          "              serialization method. The default value is 'text', \x{a}" ~
+          "              other permitted values are 'xml' and 'html'."
+        ]
+        "\x{a}" ~
+        "          "
+      ]
+    ]
+    attribute method { "text" | "xml" | "xhtml" | "html" }?
 # *
 # * content models
 # *

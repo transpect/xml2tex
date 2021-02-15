@@ -446,12 +446,38 @@
   <p:viewport match="/c:data//c:data" name="store-additional-outputs">
     <p:output port="result" sequence="true"/>
     
-    <p:store >
-      <p:with-option name="href" select="c:data/@href"/>
-      <p:with-option name="method" select="c:data/@method"/>
-      <p:with-option name="encoding" select="c:data/@encoding"/>
-      <p:with-option name="media-type" select="c:data/@content-type"/>
-    </p:store>
+    <p:choose>
+      <p:when test="c:data/@method = ('xml', 'html', 'xhtml')">
+        
+        <p:unwrap match="c:data"/>
+        
+        <p:store>
+          <p:with-option name="href" select="c:data/@href">
+            <p:pipe port="current" step="store-additional-outputs"/>
+          </p:with-option>
+          <p:with-option name="method" select="c:data/@method">
+            <p:pipe port="current" step="store-additional-outputs"/>
+          </p:with-option>
+          <p:with-option name="encoding" select="c:data/@encoding">
+            <p:pipe port="current" step="store-additional-outputs"/>
+          </p:with-option>
+          <p:with-option name="media-type" select="c:data/@content-type">
+            <p:pipe port="current" step="store-additional-outputs"/>
+          </p:with-option>
+        </p:store>
+        
+      </p:when>
+      <p:otherwise>
+        
+        <p:store>
+          <p:with-option name="href" select="c:data/@href"/>
+          <p:with-option name="method" select="c:data/@method"/>
+          <p:with-option name="encoding" select="c:data/@encoding"/>
+          <p:with-option name="media-type" select="c:data/@content-type"/>
+        </p:store>
+        
+      </p:otherwise>
+    </p:choose>
     
     <p:delete match="c:data">
       <p:input port="source">

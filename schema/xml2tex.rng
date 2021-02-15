@@ -146,25 +146,7 @@
         <p>You can store the evaluated context of the <code>template</code> 
           to a separate file by specifying a file reference.</p>
       </a:documentation>
-      <interleave>
-        <attribute name="href">
-          <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-            <h1>The <i>href</i> attribute</h1>
-            <p>Specifies a path on the local file system.</p>
-          </a:documentation>
-          <text/>
-        </attribute>
-        <optional>
-          <attribute name="encoding">
-            <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-              <h1>The <i>encoding</i> attribute</h1>
-              <p>With this optional attribute, you can specify the 
-                file encoding. The default value is 'utf-8'</p>
-            </a:documentation>
-            <text/>
-          </attribute>
-        </optional>
-      </interleave>
+      <ref name="xml2tex.file.attributes"/>
     </element>
   </define>
 
@@ -527,6 +509,44 @@
       </a:documentation>
       <text/>
     </attribute>
+  </define>
+  
+  <define name="xml2tex.file.attributes">
+    <interleave>
+      <attribute name="href">
+        <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+          <h1>The <i>href</i> attribute</h1>
+          <p>Specifies a path on the local file system.</p>
+        </a:documentation>
+        <text/>
+      </attribute>
+      <optional>
+        <attribute name="encoding">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+            <h1>The <i>encoding</i> attribute</h1>
+            <p>With this optional attribute, you can specify the 
+              file encoding. The default value is 'utf-8'</p>
+          </a:documentation>
+          <text/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="method">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+            <h1>The <i>method</i> attribute</h1>
+            <p>With this optional attribute, you can specify the 
+              serialization method. The default value is 'text', 
+              other permitted values are 'xml' and 'html'.</p>
+          </a:documentation>
+          <choice>
+            <value>text</value>
+            <value>xml</value>
+            <value>xhtml</value>
+            <value>html</value>
+          </choice>
+        </attribute>
+      </optional>
+    </interleave>
   </define>
 
   <!--  *

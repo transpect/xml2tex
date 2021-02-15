@@ -238,9 +238,12 @@
   </xsl:template>
 
   <xsl:template match="xml2tex:template/xml2tex:file">
-    <c:data href="{@href}" method="text" content-type="text/plain"
+    <c:data href="{@href}" method="{(@method, 'text')[1]}" content-type="text/plain"
             encoding="{(@encoding, 'utf-8')[1]}">
       <xsl:choose>
+        <xsl:when test="@method = ('xml', 'html', 'xhtml')">
+          <xso:copy-of select="."/>
+        </xsl:when>
         <xsl:when test="not(node())">
           <xso:apply-templates mode="#current"/>    
         </xsl:when>
