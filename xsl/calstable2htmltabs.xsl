@@ -72,7 +72,7 @@
   
   <xsl:template match="caption" mode="htmltabs">
     <xsl:processing-instruction name="htmltabs" 
-                                select="'\caption{'"/>
+                                select="'\HTcaption{'"/>
     <xsl:apply-templates mode="#current"/>
     <xsl:processing-instruction name="htmltabs" 
                                 select="'}&#xa;'"/>
