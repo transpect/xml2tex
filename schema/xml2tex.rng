@@ -164,7 +164,7 @@
   <define name="xml2tex.text">
     <element name="xml2tex:text">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>option</i> element</h1>
+        <h1>The <i>text</i> element</h1>
         <p>Used to add text after the TeX instruction such as <code>\foo bar</code>. 
           There are three ways to control how the content is applied:</p>
         <p>a) <code>&lt;text/&gt;</code> The context which is specified by <code>template/@content</code> is applied.<br/>
@@ -182,7 +182,7 @@
   <define name="xml2tex.param">
     <element name="xml2tex:param">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>option</i> element</h1>
+        <h1>The <i>param</i> element</h1>
         <p>Used to create a parameter for a TeX instruction such as <code>\foo{bar}</code>. 
           There are three ways to control how the content is applied:</p>
         <p>a) <code>&lt;param/&gt;</code> The context which is specified by <code>template/@content</code> is applied.<br/>
