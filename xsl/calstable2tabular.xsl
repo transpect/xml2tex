@@ -246,8 +246,9 @@
       <xsl:processing-instruction name="cals2tabular"
                                 select="if($text-align eq 'center') then '\centering\arraybackslash{}'
                                         else if($text-align eq 'right') then '\raggedleft\arraybackslash{}'
+                                        else if($text-align eq 'justify') then ()
                                         else '\raggedright\arraybackslash{}'"/>  
-    </xsl:if>
+      </xsl:if>
   </xsl:function>
   
   <xsl:template match="*:row" mode="cals2tabular:final">
