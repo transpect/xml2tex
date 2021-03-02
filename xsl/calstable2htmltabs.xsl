@@ -155,13 +155,24 @@
   
   <xsl:function name="xml2tex:css-atts-to-style-att" as="xs:string?">
     <xsl:param name="css-atts" as="attribute()*"/>
+    <xsl:variable name="prelim" as="attribute(*)*">
+      <xsl:apply-templates select="$css-atts" mode="xml2tex:css-atts-to-style-att"/>
+    </xsl:variable>
     <xsl:sequence select="if(exists($css-atts)) 
                           then concat('style={',
-                                      string-join($css-atts/concat(local-name(), ':', .), 
+                                      string-join($prelim/concat(local-name(), ':', .), 
                                                   ';'),
                                       '}')
                           else ()"/>
   </xsl:function>
+  
+  <xsl:template match="@*" mode="xml2tex:css-atts-to-style-att">
+    <xsl:copy/>
+  </xsl:template>
+  
+  <xsl:template match="@*[contains(., '#')]" mode="xml2tex:css-atts-to-style-att">
+    <xsl:attribute name="{name()}" select="replace(., '(^|[^\\])#', '\\#')"/>
+  </xsl:template>
   
   <xsl:function name="xml2tex:absolute-to-relative-col-width" as="xs:decimal">
     <xsl:param name="colwidth" as="xs:string"/>
