@@ -1,0 +1,130 @@
+<?xml-model href="http://transpect.io/xml2tex/schema/xml2tex.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="http://transpect.io/xml2tex/schema/xml2tex.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<set xmlns="http://transpect.io/xml2tex" 
+  xmlns:xml2tex="http://transpect.io/xml2tex" 
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+  <ns prefix="css" uri="http://www.w3.org/1996/css"/>
+  <ns prefix="mml2tex" uri="http://transpect.io/mml2tex"/>
+  <ns prefix="tr" uri="http://transpect.io"/>
+
+  <import href="conf.charmap.xml"/>
+
+  <xsl:import href="http://transpect.io/mml2tex/xsl/mml2tex.xsl"/>
+  <xsl:import href="http://transpect.io/xslt-util/colors/xsl/colors.xsl"/>
+  <xsl:import href="http://transpect.io/xslt-util/paths/xsl/paths.xsl"/>
+  <xsl:import href="http://transpect.io/xslt-util/roman-numerals/xsl/roman2int.xsl"/>
+
+  <xsl:param name="image-dir" select="'images/'" as="xs:string"/>
+
+  <xsl:variable name="langs" select="distinct-values((//@xml:lang, 'en'))" as="xs:string*"/>
+
+  <preamble>
+    <!-- JATS and BITS -->
+    <xsl:value-of select="concat('\documentclass{', /*/name(), '}')"/>
+    \usepackage{tabularx}
+    
+    <!-- JATS -->
+    <xsl:apply-templates select="/article/front/article-meta/title-group/article-title" mode="#current"/>
+    <xsl:apply-templates select="/article/front/article-meta/abstract" mode="#current"/>
+    <xsl:apply-templates select="/article/front/article-meta/kwd-group[@kwd-group-type = 'author-created']" mode="#current"/>
+
+    <!-- BITS -->
+
+  </preamble>
+
+  <front><xsl:text>&#xa;%% line(s) after document-begin&#xa;</xsl:text></front>
+
+  <back><xsl:text>&#xa;%% line(s) before document-end&#xa;</xsl:text></back>
+
+  <template context="abstract">
+    <rule name="abstract" type="env">
+      <xsl:if test="title/normalize-space()">
+        <option select="title"/>
+      </xsl:if>
+      <xsl:apply-templates select="*[not(self::title)]" mode="#current"/>
+    </rule>
+  </template>
+
+  <template context="article-meta/kwd-group[@kwd-group-type = 'abbreviations']">
+    <rule name="Abbrev" type="env">
+      <xsl:if test="title/normalize-space()">
+        <option select="title"/>
+      </xsl:if>
+      <xsl:apply-templates select="*[not(self::title)]" mode="#current"/>
+    </rule>
+  </template>
+
+  <template context="article-meta/kwd-group[@kwd-group-type = 'abbreviations']/compound-kwd">
+    <rule name="item" type="cmd" break-before="1">
+      <option select="compound-kwd-part[@content-type = 'abbrev']"/>
+      <text select="compound-kwd-part[@content-type = 'expansion']"/>
+    </rule>
+  </template>
+
+  <template context="article-meta/kwd-group[@kwd-group-type = 'author-created']">
+    <rule name="Keywords" type="cmd" break-before="1">
+      <xsl:if test="title/normalize-space()">
+        <option select="title"/>
+      </xsl:if>
+      <param select="kwd"/>
+    </rule>
+  </template>
+
+  <template context="article-meta/kwd-group[@kwd-group-type = 'author-created']/kwd">
+    <xsl:apply-templates mode="#current"/>
+    <xsl:if test="following-sibling::kwd">
+      <xsl:text>,&#x20;</xsl:text>
+    </xsl:if>
+  </template>
+
+  <template context="article/front"/>
+
+  <template context="title-group/article-title">
+    <rule name="title" type="cmd">
+      <param select="node()"/>
+    </rule>
+  </template>
+
+  <template context="p">
+    <rule break-before="1">
+      <text/>
+    </rule>
+  </template>
+
+  <template context="disp-quote">
+    <rule name="quotation" type="env">
+      <text/>
+    </rule>
+  </template>
+
+  <template context="graphic[@xlink:href/normalize-space(.)]">
+    <rule name="includegraphics" type="cmd">
+      <xsl:if test="parent::*/name() = ('fig', 'fig-group')">
+        <param/>
+      </xsl:if>
+      <param select="replace(@xlink:href, '^.+/(.+?)$', concat($image-dir, '$1'))"/>
+    </rule>
+  </template>
+
+  <!--<template context="text()[ancestor::*/name() = ('sub', 'sup')]">
+    <rule>
+      <text select="mml2tex:utf2tex(replace(normalize-space(.), '\$', ''), (), (), (), '')"/>
+    </rule>
+  </template>-->
+
+  <template context="bold">
+    <rule name="textbf" type="cmd">
+      <param/>
+    </rule>
+  </template>
+
+  <template context="italic">
+    <rule name="textit" type="cmd">
+      <param/>
+    </rule>
+  </template>
+
+
+</set>
