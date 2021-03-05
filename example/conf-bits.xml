@@ -88,7 +88,7 @@
   </template>
 
   <template context="p">
-    <rule break-before="1">
+    <rule break-before="2">
       <text/>
     </rule>
   </template>
@@ -96,6 +96,25 @@
   <template context="disp-quote">
     <rule name="quotation" type="env">
       <text/>
+    </rule>
+  </template>
+
+  <template context="fig">
+    <rule name="figure" type="env">
+      <option select="'h'"/>
+      <text/>
+    </rule>
+  </template>
+
+  <template context="fig/caption">
+    <rule name="caption" type="cmd">
+      <param select="node()"/>
+    </rule>
+  </template>
+
+  <template context="graphic">
+    <rule name="includegraphics" type="cmd">
+      <param select="@xlink:href"/>
     </rule>
   </template>
 
@@ -114,6 +133,20 @@
     </rule>
   </template>-->
 
+  <template context="ref-list">
+    <rule name="thebibliography" type="env">
+      <param select="count(ref)"/>
+      <xsl:apply-templates mode="#current"/>
+    </rule>
+  </template>
+
+  <template context="ref-list/ref">
+    <rule name="bibitem" type="cmd" break-before="1">
+      <param select="@id"/>
+      <text/>
+    </rule>
+  </template>
+
   <template context="bold">
     <rule name="textbf" type="cmd">
       <param/>
@@ -125,6 +158,5 @@
       <param/>
     </rule>
   </template>
-
 
 </set>
