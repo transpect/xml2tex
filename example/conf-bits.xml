@@ -133,7 +133,7 @@
     </rule>
   </template>-->
 
-  <template context="ref-list">
+  <template context="ref-list[ref]">
     <rule name="thebibliography" type="env">
       <xsl:apply-templates mode="#current"/>
     </rule>
