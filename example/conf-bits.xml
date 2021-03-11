@@ -135,14 +135,14 @@
 
   <template context="ref-list">
     <rule name="thebibliography" type="env">
-      <param select="count(ref)"/>
       <xsl:apply-templates mode="#current"/>
     </rule>
   </template>
 
   <template context="ref-list/ref">
     <rule name="bibitem" type="cmd" break-before="1">
-      <param select="@id"/>
+      <option select="(@id, concat('ref-', position()))[1]"/>
+      <param select="(@id, concat('ref-', position()))[1]"/>
       <text/>
     </rule>
   </template>
