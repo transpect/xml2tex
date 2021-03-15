@@ -255,7 +255,7 @@ xml2tex.text =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "option" ] " element" ]
+      ns1:h1 [ "The " ns1:i [ "text" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [
@@ -299,7 +299,7 @@ xml2tex.param =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "option" ] " element" ]
+      ns1:h1 [ "The " ns1:i [ "param" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [
@@ -504,46 +504,64 @@ xml2tex.ns.attributes =
     ]
     attribute uri { xsd:anyURI }
 xml2tex.template.attributes =
-  [
-    a:documentation [
-      "\x{a}" ~
-      "          "
-      ns1:h1 [ "The " ns1:i [ "context" ] " attribute" ]
-      "\x{a}" ~
-      "          "
-      ns1:p [ "Value: " ns1:code [ "XPath expression" ] ]
-      "\x{a}" ~
-      "          "
-      ns1:p [
-        "The content of this attribute is an XSLT 2 matching pattern that may contain \x{a}" ~
-        "            QNames with namespace prefixes. These prefixes and the namespaces must be declared \x{a}" ~
-        "            first in the XML and second with the "
-        ns1:code [ "ns" ]
-        " element."
-      ]
-      "\x{a}" ~
-      "        "
-    ]
-  ]
-  attribute context { text }
-  | [
+  ([
+     a:documentation [
+       "\x{a}" ~
+       "            "
+       ns1:h1 [ "The " ns1:i [ "context" ] " attribute" ]
+       "\x{a}" ~
+       "            "
+       ns1:p [ "Value: " ns1:code [ "XPath expression" ] ]
+       "\x{a}" ~
+       "            "
+       ns1:p [
+         "The content of this attribute is an XSLT 2 matching pattern that may contain \x{a}" ~
+         "              QNames with namespace prefixes. These prefixes and the namespaces must be declared \x{a}" ~
+         "              first in the XML and second with the "
+         ns1:code [ "ns" ]
+         " element."
+       ]
+       "\x{a}" ~
+       "          "
+     ]
+   ]
+   attribute context { text }
+   | [
+       a:documentation [
+         "\x{a}" ~
+         "            "
+         ns1:h1 [ "The " ns1:i [ "name" ] " attribute" ]
+         "\x{a}" ~
+         "            "
+         ns1:p [ "Value: " ns1:code [ "xs:string" ] ]
+         "\x{a}" ~
+         "            "
+         ns1:p [
+           "Provides a name for the template. will be expanded to an XSLT 2 named template with the possibility to declare rule-Elements within.."
+         ]
+         "\x{a}" ~
+         "          "
+       ]
+     ]
+     attribute name { text })
+  & [
       a:documentation [
         "\x{a}" ~
-        "          "
-        ns1:h1 [ "The " ns1:i [ "name" ] " attribute" ]
+        "            "
+        ns1:h1 [ "The " ns1:i [ "priority" ] " attribute" ]
         "\x{a}" ~
-        "          "
-        ns1:p [ "Value: " ns1:code [ "xs:string" ] ]
+        "            "
+        ns1:p [ "Value: " ns1:code [ "xs:integer" ] ]
         "\x{a}" ~
-        "          "
+        "            "
         ns1:p [
-          "Provides a name for the template. will be expanded to an XSLT 2 named template with the possibility to declare rule-Elements within.."
+          "Can be used to override the internally evaluated priority of the template order."
         ]
         "\x{a}" ~
-        "        "
+        "          "
       ]
     ]
-    attribute name { text }
+    attribute priority { xsd:integer }?
 xml2tex.rule.attributes =
   (([
       a:documentation [

@@ -334,26 +334,38 @@
   </define>
 
   <define name="xml2tex.template.attributes">
-    <choice>
-      <attribute name="context">
-        <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-          <h1>The <i>context</i> attribute</h1>
-          <p>Value: <code>XPath expression</code></p>
-          <p>The content of this attribute is an XSLT 2 matching pattern that may contain 
-            QNames with namespace prefixes. These prefixes and the namespaces must be declared 
-            first in the XML and second with the <code>ns</code> element.</p>
-        </a:documentation>
-        <text/>
-      </attribute>
-      <attribute name="name">
-        <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-          <h1>The <i>name</i> attribute</h1>
-          <p>Value: <code>xs:string</code></p>
-          <p>Provides a name for the template. will be expanded to an XSLT 2 named template with the possibility to declare rule-Elements within..</p>
-        </a:documentation>
-        <text/>
-      </attribute>
-    </choice>
+    <interleave>
+      <choice>
+        <attribute name="context">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+            <h1>The <i>context</i> attribute</h1>
+            <p>Value: <code>XPath expression</code></p>
+            <p>The content of this attribute is an XSLT 2 matching pattern that may contain 
+              QNames with namespace prefixes. These prefixes and the namespaces must be declared 
+              first in the XML and second with the <code>ns</code> element.</p>
+          </a:documentation>
+          <text/>
+        </attribute>
+        <attribute name="name">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+            <h1>The <i>name</i> attribute</h1>
+            <p>Value: <code>xs:string</code></p>
+            <p>Provides a name for the template. will be expanded to an XSLT 2 named template with the possibility to declare rule-Elements within..</p>
+          </a:documentation>
+          <text/>
+        </attribute>
+      </choice>
+      <optional>
+        <attribute name="priority">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+            <h1>The <i>priority</i> attribute</h1>
+            <p>Value: <code>xs:integer</code></p>
+            <p>Can be used to override the internally evaluated priority of the template order.</p>
+          </a:documentation>
+          <data type="integer"/>
+        </attribute>
+      </optional>
+    </interleave>
   </define>
 
   <define name="xml2tex.rule.attributes">
