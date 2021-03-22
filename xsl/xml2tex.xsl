@@ -344,7 +344,7 @@
         <!--  *
               * text/option/param tag contains static text. if with-param is there ignore text
               * -->
-        <xsl:when test="text() and not(*:with-param)">
+        <xsl:when test="text() and not(*)">
           <xso:value-of select="$opening-delimiter"/>
           <xso:value-of select="{concat('''', text(), '''')}"/>
           <xso:value-of select="$closing-delimiter"/>
