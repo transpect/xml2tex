@@ -87,6 +87,12 @@
     </rule>
   </template>
 
+  <template context="title-group/subtitle">
+    <rule name="subtitle" type="cmd" break-before="1">
+      <param select="node()"/>
+    </rule>
+  </template>
+
   <template context="p">
     <rule break-before="2">
       <text/>
@@ -134,8 +140,10 @@
   </template>-->
 
   <template context="ref-list[ref]">
+    <xsl:text>&#xa;</xsl:text>
+    <xsl:apply-templates select="title" mode="#current"/>
     <rule name="thebibliography" type="env">
-      <xsl:apply-templates mode="#current"/>
+      <xsl:apply-templates select="node() except title" mode="#current"/>
     </rule>
   </template>
 
