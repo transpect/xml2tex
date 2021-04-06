@@ -66,7 +66,7 @@
           </xsl:if>
         </c:data>
       </xso:template>
-
+      
       <!-- identity template for generated stylesheet -->
       <xsl:comment select="'identity template'"/>
 
@@ -359,8 +359,7 @@
       </xso:variable>
     
     <!-- replacement with xpath context -->
-    <xso:template match="node()[self::text()]
-                               [   matches(., $texregex) 
+    <xso:template match="text()[   matches(., $texregex) 
                                 or matches(., $xml2tex:simpleeq-regex)
                                 or matches(., $xml2tex:root-regex)
                                 or matches(normalize-unicode(., 'NFD'),  $xml2tex:diacrits-regex)
@@ -383,16 +382,7 @@
                     select="if($decompose-diacritics) 
                             then string-join(xml2tex:convert-diacrits($utf2tex, $texregex, $xml2tex:diacrits, $charmap), '')
                             else string-join($utf2tex, '')"/>
-      <xso:choose>
-        <xso:when test="self::processing-instruction()">
-          <xso:processing-instruction name="latex" >
-            <xso:value-of select="$diacrits"/>
-          </xso:processing-instruction>
-        </xso:when>
-        <xso:otherwise>
-          <xso:value-of select="$diacrits"/>
-        </xso:otherwise>
-      </xso:choose>
+      <xso:value-of select="$diacrits"/>
     </xso:template>
     
     <xso:template match="text()" mode="char-context"/>
