@@ -201,7 +201,7 @@
       * rule matches against a particular element, the last rule declaration has a higher priority
       * and overwrites the rule with a lesser priority. Imported templates have always the priority 1.
       * -->
-    <xsl:variable name="template-priority" select="(index-of($rule-indexes, generate-id(.)), 1)[1]" as="xs:integer"/>
+    <xsl:variable name="template-priority" select="(@priority, (index-of($rule-indexes, generate-id(.)), 1))[1]" as="xs:integer"/>
     
     <xsl:choose>
       <xsl:when test="@name">
