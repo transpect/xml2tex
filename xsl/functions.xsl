@@ -14,9 +14,12 @@
   
   <!-- escape special characters for tex -->
   
+  <xsl:variable name="xml2tex:bad-chars-regex" as="xs:string"
+                select="'([\{\}%_&amp;\$#])'"/>
+    
   <xsl:function name="xml2tex:escape-for-tex" as="xs:string">
     <xsl:param name="string" as="xs:string"/>
-    <xsl:value-of select="replace( $string, '([\{\}%_&amp;\$#])', '\\$1' )"/>
+    <xsl:value-of select="replace( $string, $xml2tex:bad-chars-regex, '\\$1' )"/>
   </xsl:function>
   
   <!-- replace unicode characters with latex from charmap -->
