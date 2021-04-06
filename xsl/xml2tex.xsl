@@ -378,11 +378,16 @@
         </xsl:otherwise>
       </xsl:choose>
       <!-- has to run last because it resolves combined unicode characters -->
-      <xso:variable name="diacrits" as="xs:string"
-                    select="if($decompose-diacritics) 
-                            then string-join(xml2tex:convert-diacrits($utf2tex, $texregex, $xml2tex:diacrits, $charmap), '')
-                            else string-join($utf2tex, '')"/>
-      <xso:value-of select="$diacrits"/>
+      <xso:choose>
+        <xso:when test="$decompose-diacritics 
+                        and (   matches(normalize-unicode($utf2tex, 'NFD'),  $xml2tex:diacritical-marks-regex)
+                             or matches(normalize-unicode($utf2tex, 'NFKD'), $xml2tex:fraction-regex))">
+          <xso:sequence select="string-join(xml2tex:convert-diacrits($utf2tex, $texregex, $xml2tex:diacrits, $charmap), '')"/>
+        </xso:when>
+        <xso:otherwise>
+          <xso:sequence select="$utf2tex"/>
+        </xso:otherwise>
+      </xso:choose>
     </xso:template>
     
     <xso:template match="text()" mode="char-context"/>
