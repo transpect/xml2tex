@@ -66,41 +66,6 @@
           </xsl:if>
         </c:data>
       </xso:template>
-      
-      <!-- mode variables for generated stylesheet -->
-      
-      <xsl:comment select="'mode variables'"/>
-      
-      <xso:variable name="escape-bad-chars">
-        <xso:apply-templates select="root()" mode="escape-bad-chars"/>
-      </xso:variable>
-
-      <xso:variable name="xml2tex">
-        <xso:apply-templates select="$escape-bad-chars" mode="xml2tex"/>
-      </xso:variable>
-      
-      <xso:variable name="clean">
-        <xso:apply-templates select="$xml2tex" mode="clean"/>
-      </xso:variable>
-
-      <!-- main template for generated stylesheet -->
-      <xsl:comment select="'main template, invoke with it:main'"/>
-
-      <xso:template name="main">
-        <xso:sequence select="$clean"/>
-        <!-- debugging -->
-        <xso:if test="{$debug eq 'yes'}()">
-          <xso:result-document href="{$debug-dir-uri}/xml2tex/30_escape-bad-chars.xml" indent="yes" method="xml">
-            <xso:sequence select="$escape-bad-chars"/>
-          </xso:result-document>
-          <xso:result-document href="{$debug-dir-uri}/xml2tex/33_xml2tex.xml" indent="yes" method="xml">
-            <xso:sequence select="$xml2tex"/>
-          </xso:result-document>
-          <xso:result-document href="{$debug-dir-uri}/xml2tex/36_clean.xml" indent="yes" method="xml">
-            <xso:sequence select="$clean"/>
-          </xso:result-document>
-        </xso:if>
-      </xso:template>
 
       <!-- identity template for generated stylesheet -->
       <xsl:comment select="'identity template'"/>
