@@ -382,10 +382,10 @@
         <xso:when test="$decompose-diacritics 
                         and (   matches(normalize-unicode($utf2tex, 'NFD'),  $xml2tex:diacritical-marks-regex)
                              or matches(normalize-unicode($utf2tex, 'NFKD'), $xml2tex:fraction-regex))">
-          <xso:sequence select="string-join(xml2tex:convert-diacrits($utf2tex, $texregex, $xml2tex:diacrits, $charmap), '')"/>
+          <xso:value-of select="string-join(xml2tex:convert-diacrits($utf2tex, $texregex, $xml2tex:diacrits, $charmap), '')"/>
         </xso:when>
         <xso:otherwise>
-          <xso:sequence select="$utf2tex"/>
+          <xso:value-of select="$utf2tex"/>
         </xso:otherwise>
       </xso:choose>
     </xso:template>
