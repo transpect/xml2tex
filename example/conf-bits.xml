@@ -155,6 +155,28 @@
     </rule>
   </template>
 
+  <template context="fn">
+    <rule name="footnote" type="cmd">
+      <xsl:if test="label">
+        <option select="label"/>
+      </xsl:if>
+      <param select="*[not(self::label)]"/>
+    </rule>
+  </template>
+
+  <template context="ext-link[@xlink:href]">
+    <rule name="href" type="cmd">
+      <param select="@xlink:href"/>
+      <param/>
+    </rule>
+  </template>
+
+  <template context="fn/p">
+    <rule break-before="1">
+      <text/>
+    </rule>
+  </template>
+
   <template context="bold">
     <rule name="textbf" type="cmd">
       <param/>
