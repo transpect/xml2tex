@@ -171,7 +171,7 @@
     </rule>
   </template>
 
-  <template context="fn/p">
+  <template context="fn/p[. is (../*[not(self::label)])[1]]">
     <rule break-before="1">
       <text/>
     </rule>
