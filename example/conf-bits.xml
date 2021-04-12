@@ -139,6 +139,18 @@
     </rule>
   </template>-->
 
+  <template context="sup">
+    <rule name="textsuperscript" type="cmd">
+      <param/>
+    </rule>
+  </template>
+
+  <template context="sub">
+    <rule name="textsubscript" type="cmd">
+      <param/>
+    </rule>
+  </template>
+
   <template context="ref-list[ref]">
     <xsl:text>&#xa;</xsl:text>
     <xsl:apply-templates select="title" mode="#current"/>
