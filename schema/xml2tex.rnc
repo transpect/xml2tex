@@ -778,6 +778,30 @@ xml2tex.char.attributes =
       ]
     ]
     attribute context { text }?
+  & [
+      a:documentation [
+        "\x{a}" ~
+        "            "
+        ns1:h1 [ "The " ns1:i [ "mode" ] " attribute" ]
+        "\x{a}" ~
+        "            "
+        ns1:p [
+          "Values: "
+          ns1:code [ "text" ]
+          " or "
+          ns1:code [ "math" ]
+        ]
+        "\x{a}" ~
+        "            "
+        ns1:p [
+          "Specifies the mode to which the character mapping is applied. If no mode\x{a}" ~
+          "            attribute was specified, the character mapping can be applied to both modes (if applicable)."
+        ]
+        "\x{a}" ~
+        "          "
+      ]
+    ]
+    attribute mode { "text" | "math" }?
 xml2tex.style.attributes =
   [
     a:documentation [

@@ -481,6 +481,20 @@
           <text/>
         </attribute>
       </optional>
+      <optional>
+        <attribute name="mode">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+            <h1>The <i>mode</i> attribute</h1>
+            <p>Values: <code>text</code> or <code>math</code></p>
+            <p>Specifies the mode to which the character mapping is applied. If no mode
+            attribute was specified, the character mapping can be applied to both modes (if applicable).</p>
+          </a:documentation>
+          <choice>
+            <value>text</value>
+            <value>math</value>
+          </choice>
+        </attribute>
+      </optional>
     </interleave>
   </define>
   
