@@ -163,7 +163,7 @@
     <rule name="bibitem" type="cmd" break-before="1">
       <option select="(@id, concat('ref-', position()))[1]"/>
       <param select="(@id, concat('ref-', position()))[1]"/>
-      <text/>
+      <text select="(citation-alternatives/mixed-citation, node())[1]"/>
     </rule>
   </template>
 
