@@ -94,6 +94,12 @@
   </template>
 
   <template context="p">
+    <rule break-before="1">
+      <text/>
+    </rule>
+  </template>
+
+  <template context="p[preceding-sibling::*[1]/self::p]" priority="99">
     <rule break-before="2">
       <text/>
     </rule>
