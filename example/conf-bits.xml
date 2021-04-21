@@ -100,7 +100,13 @@
   </template>
 
   <template context="disp-quote">
-    <rule name="quotation" type="env">
+    <rule name="quotation" type="env" break-before="1">
+      <text/>
+    </rule>
+  </template>
+
+  <template context="disp-quote/p[. is (parent::*/*)[1]]">
+    <rule>
       <text/>
     </rule>
   </template>
