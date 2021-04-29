@@ -232,13 +232,13 @@
         </xsl:analyze-string>
       </xsl:when>
       <!-- set simple equations automatically in math mode, e.g. 3 + 2 = a, exclude dates -->
-      <xsl:when test="matches($string, concat('(^|\s)', $xml2tex:simpleeq-regex, '($|\s)'))
+      <xsl:when test="matches($string, concat('(^|\p{Zs})', $xml2tex:simpleeq-regex, '($|\p{Zs}|\p{P})'))
         and not(matches($string, '\d{4}(-\d{2}){2}'))
         and not(matches($string, '(\d{2}\.\s?){2}\d{4}'))
         and matches($string, '=')">
         <xsl:analyze-string select="$string" regex="{$xml2tex:simpleeq-regex}" flags="i">
           <xsl:matching-substring>
-            <xsl:value-of select="concat(' $', ., '$ ')"/>
+            <xsl:value-of select="concat('$', ., '$')"/>
           </xsl:matching-substring>
           <xsl:non-matching-substring>
             <xsl:value-of select="."/>
