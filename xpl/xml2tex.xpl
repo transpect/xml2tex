@@ -122,6 +122,10 @@
   <p:import href="http://transpect.io/xproc-util/simple-progress-msg/xpl/simple-progress-msg.xpl"/>
   <p:import href="http://transpect.io/xproc-util/xslt-mode/xpl/xslt-mode.xpl"/>
   
+  <p:variable name="collect-all-xsl-var" select="(/c:param-set/c:param[@name eq 'collect-all-xsl']/@value, $collect-all-xsl)[1]">
+    <p:pipe port="paths" step="xml2tex"/>
+  </p:variable>
+  
   <!--  *
         * load config(s) (recursively).
         * -->
@@ -131,7 +135,7 @@
       <p:pipe port="conf" step="xml2tex"/>
     </p:input>    
     <p:with-option name="fail-on-error" select="$fail-on-error"/>
-    <p:with-option name="collect-all-xsl" select="$collect-all-xsl"/>
+    <p:with-option name="collect-all-xsl" select="$collect-all-xsl-var"/>
   </xml2tex:load-config>
   
   <tr:store-debug name="store-config">
