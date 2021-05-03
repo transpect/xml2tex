@@ -15,6 +15,9 @@
 
   <p:option name="href" select="''"/>
   <p:option name="fail-on-error" select="'no'"/>
+  <p:option name="collect-all-xsl" required="false" select="'no'">
+    <p:documentation>if this option is set to 'yes' or 'true' all xsl:templates with match attribute are collected.</p:documentation>
+  </p:option>
 
   <p:serialization port="result" indent="true"/>
 
@@ -45,10 +48,8 @@
 
   <p:choose>
     <p:when test="//xml2tex:import">
-
       <p:viewport match="xml2tex:import">
         <p:variable name="resolved-uri" select="resolve-uri(xml2tex:import/@href, xml2tex:import/base-uri())"/>
-
         <tr:load>
           <p:with-option name="href" select="$resolved-uri"/>
           <p:with-option name="fail-on-error" select="$fail-on-error"/>
@@ -58,6 +59,7 @@
       </p:viewport>
 
       <p:xslt>
+        <p:with-param name="collect-all-xsl" select="$collect-all-xsl"/>
         <p:input port="stylesheet">
           <p:inline>
             <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
@@ -66,21 +68,22 @@
               xmlns:xs="http://www.w3.org/2001/XMLSchema" 
               version="2.0" 
               exclude-result-prefixes="#all">
-
+              
+              <xsl:param name="collect-all-xsl"/>
+              
               <xsl:variable name="root" select="/xml2tex:set" as="element(xml2tex:set)"/>
               <xsl:variable name="imports" select="/xml2tex:set/xml2tex:set" as="element(xml2tex:set)+"/>
 
               <xsl:template match="/xml2tex:set">
                 <xsl:copy>
                   <xsl:copy-of select="@*"/>
-
-                  <xsl:sequence select="xml2tex:import-elements('xsl:import', 'href', $root, $imports),
-                                        xml2tex:import-elements('xsl:param', 'name', $root, $imports),
-                                        xml2tex:import-elements('xsl:key', 'name', $root, $imports),
-                                        xml2tex:import-elements('xsl:variable', 'name', $root, $imports),
-                                        xml2tex:import-elements('xsl:template', 'name', $root, $imports),
-                                        xml2tex:import-elements('xsl:template', 'match', $root, $imports),
-                                        xml2tex:import-elements('xsl:function', 'name', $root, $imports)"/>
+                  <xsl:sequence select="xml2tex:import-elements('xsl:import', 'href', $root, $imports, $collect-all-xsl),
+                                        xml2tex:import-elements('xsl:param', 'name', $root, $imports, $collect-all-xsl),
+                                        xml2tex:import-elements('xsl:key', 'name', $root, $imports, $collect-all-xsl),
+                                        xml2tex:import-elements('xsl:variable', 'name', $root, $imports, $collect-all-xsl),
+                                        xml2tex:import-elements('xsl:template', 'name', $root, $imports, $collect-all-xsl),
+                                        xml2tex:import-elements('xsl:template', 'match', $root, $imports, $collect-all-xsl),
+                                        xml2tex:import-elements('xsl:function', 'name', $root, $imports, $collect-all-xsl)"/>
 
                   <xsl:for-each select="xml2tex:import, $imports/xml2tex:import">
                     <xsl:copy>
@@ -108,7 +111,12 @@
                   </charmap>
                 </xsl:copy>
               </xsl:template>
-
+              
+              <xsl:function name="xml2tex:hash-atts" as="xs:string">
+              <xsl:param name="elt" as="element()"/>
+                <xsl:sequence select="string-join(($elt/@match, $elt/@mode, $elt/@priority), '++')"/>
+              </xsl:function>
+              
               <!-- this function searches the most distinct element with a given name 
                    and attribute value from the source and the imported document -->
               <xsl:function name="xml2tex:import-elements" as="element()*">
@@ -116,12 +124,26 @@
                 <xsl:param name="attribute-name" as="xs:string"/>
                 <xsl:param name="root" as="element(xml2tex:set)"/>
                 <xsl:param name="imports" as="element(xml2tex:set)"/>
-                <xsl:for-each select="distinct-values(($root/*[name() eq $element-name]/@*[name() eq $attribute-name], 
-                                                       $imports/*[name() eq $element-name]/@*[name() eq $attribute-name]))">
-                  <xsl:variable name="name" select="." as="xs:string"/>
-                  <xsl:copy-of select="($root/*[name() eq $element-name][@*[name() eq $attribute-name] eq $name], 
-                                        $imports/*[name() eq $element-name][@*[name() eq $attribute-name] eq $name])[1]"/>
-                </xsl:for-each>
+                <xsl:param name="collect-all-xsl" as="xs:string"/>
+                <xsl:message select="'params: coll-xsl', $collect-all-xsl, '|| elt-name: ', $element-name, '|| att-name: ', $attribute-name"/>
+                <xsl:choose>
+                  <xsl:when test="$collect-all-xsl = ('yes', 'true') and $element-name = 'xsl:template' and $attribute-name = 'match'">
+                   <xsl:variable name="templates" select="$imports/xsl:template[@match], $root/xsl:template[@match]"/>
+                    <xsl:for-each select="distinct-values(for $i in $templates return (xml2tex:hash-atts($i)))">
+                      <xsl:variable name="hash" as="xs:string" select="."/>
+                      <xsl:copy-of select="($templates[xml2tex:hash-atts(.) = $hash])[last()]"/>
+                    </xsl:for-each>
+                  </xsl:when>
+                  <xsl:otherwise>
+                     <xsl:for-each select="distinct-values(($root/*[name() eq $element-name]/@*[name() eq $attribute-name], 
+                                                           $imports/*[name() eq $element-name]/@*[name() eq $attribute-name]))">
+                      <xsl:variable name="name" select="." as="xs:string"/>
+                      <xsl:copy-of select="($imports/*[name() eq $element-name][@*[name() eq $attribute-name] eq $name],
+                                            $root/*[name() eq $element-name][@*[name() eq $attribute-name] eq $name] 
+                                           )[last()]"/>
+                    </xsl:for-each>
+                  </xsl:otherwise>
+                </xsl:choose> 
               </xsl:function>
             </xsl:stylesheet>
           </p:inline>
@@ -133,6 +155,7 @@
 
       <xml2tex:load-config>
         <p:with-option name="fail-on-error" select="$fail-on-error"/>
+        <p:with-option name="collect-all-xsl" select="$collect-all-xsl"/>
       </xml2tex:load-config>
 
     </p:when>
