@@ -25,6 +25,9 @@
       <c:param-set/>
     </p:inline>
   </p:input>
+  <p:input port="html2calstable-xslt" primary="false">
+    <p:document href="http://this.transpect.io/xslt-util/calstable/xsl/html2calstable.xsl"/>
+  </p:input>
   <p:input port="additional-source"  primary="false">
     <p:empty/>
   </p:input>
@@ -254,7 +257,7 @@
       
       <tr:xslt-mode msg="yes" mode="html2cals" name="html2cals">
         <p:input port="stylesheet">
-          <p:document href="http://this.transpect.io/xslt-util/calstable/xsl/html2calstable.xsl"/>
+          <p:pipe step="xml2tex" port="html2calstable-xslt"/>
         </p:input>
         <p:input port="parameters">
           <p:empty/>
