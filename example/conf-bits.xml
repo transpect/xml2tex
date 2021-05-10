@@ -201,6 +201,10 @@
     </rule>
   </template>
 
+  <template context="break">
+    <rule name="newline" type="cmd"/>
+  </template>
+
   <template context="bold">
     <rule name="textbf" type="cmd">
       <param/>
