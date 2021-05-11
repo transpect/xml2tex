@@ -179,6 +179,30 @@
     </rule>
   </template>
 
+  <template context="list[@list-type = 'bullet']">
+    <rule name="itemize" type="env" break-before="1">
+      <text/>
+    </rule>
+  </template>
+
+  <template context="list[@list-type = 'order']">
+    <rule name="enumerate" type="env" break-before="1">
+      <text/>
+    </rule>
+  </template>
+
+  <template context="list-item">
+    <rule name="item" type="cmd" break-before="1">
+      <text/>
+    </rule>
+  </template>
+
+  <template context="list[@list-type = 'order']/list-item">
+    <rule name="item" type="cmd" break-before="1">
+      <text select="*[not(self::label)]"/>
+    </rule>
+  </template>
+
   <template context="fn">
     <rule name="footnote" type="cmd">
       <xsl:if test="label">
