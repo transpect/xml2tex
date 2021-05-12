@@ -337,7 +337,7 @@
                           else if(starts-with($lang, 'it'))         then 'italian'
                           else if(starts-with($lang, 'ka'))         then 'georgian'
                           else if(starts-with($lang, 'la'))         then 'latin'
-                          else if(starts-with($lang, 'no'))         then 'norsk'
+                          else if(matches($lang, '^(no|nb)'))       then 'norsk'
                           else if(starts-with($lang, 'is'))         then 'icelandic'
                           else if(starts-with($lang, 'pl'))         then 'polish'
                           else if(starts-with($lang, 'pt'))         then 'portuguese'
