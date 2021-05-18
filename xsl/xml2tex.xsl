@@ -311,7 +311,7 @@
               * -->
         <xsl:when test="text() and not(*)">
           <xso:value-of select="$opening-delimiter"/>
-          <xso:value-of select="{concat('''', text(), '''')}"/>
+          <xso:value-of select="{concat('''', string-join(text(),''), '''')}"/>
           <xso:value-of select="$closing-delimiter"/>
         </xsl:when>
         <!--  *
