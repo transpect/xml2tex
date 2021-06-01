@@ -221,27 +221,26 @@
 
   <xsl:template match="xml2tex:template//xml2tex:rule">
     <xsl:variable name="rule" select="." as="element(xml2tex:rule)"/>
-      <!-- three types: 
+    <!-- three types: 
             env   ==> environment, eg. e.g. begin{bla} ... end{bla}
             cmd   ==> commands, e.g. \bla ...
             none  ==> no tex markup, needed for simple paras or other stuff you want to simply tunnel through the process -->
     <xsl:variable name="opening-tag" 
-                  select="concat(if($rule/@break-before) then string-join(for $i in (1 to $rule/@break-before) return '&#xa;', '') else '',
-                                 if($rule/@type eq 'env' and matches($rule/@name, 'table|tabular|figure')) 
-                                   then concat('&#xa;\begin{',$rule/@name,'}')
-                            else if($rule/@type eq 'env' and not(matches($rule/@name, 'table|tabular|figure')) and *[1][self::xml2tex:text]) 
-                                   then concat('&#xa;\begin{',$rule/@name,'}&#xa;')  
-                            else if($rule/@type eq 'env' and not(matches($rule/@name, 'table|tabular|figure'))) 
-                                   then concat('&#xa;\begin{',$rule/@name,'}')
-                            else if(not($rule/@type)) 
-                                   then ''
-                            else        concat('\', $rule/@name),
-                                 if($rule/@mathmode eq 'true') then '$' else ''
-                                 )" as="xs:string"/>
-    <xsl:variable name="closing-tag" select="concat(if($rule/@mathmode eq 'true') then '$' else '',
-                                                    if($rule/@type eq 'env') then concat('&#xa;\end{',$rule/@name,'}&#xa;') else '',
-                                                    if($rule/@break-after) then string-join(for $i in (1 to $rule/@break-after) return '&#xa;', '') else ''
-                                                    )" as="xs:string"/>
+                  select="concat($rule[@break-before]/string-join(for $i in (1 to @break-before) 
+                                                                  return '&#xa;', ''),
+                                 if     ($rule/@type eq 'env') then concat($rule[not(@break-before)]/'&#xa;', 
+                                                                           '\begin{',$rule/@name,'}')
+                                 else if(not($rule/@type))     then ()             
+                                 else concat('\', $rule/@name),
+                                 $rule[@mathmode eq 'true']/'$'
+                                 )" as="xs:string?"/>
+    <xsl:variable name="closing-tag" 
+                  select="concat($rule[@mathmode eq 'true']/'$',
+                                 if     ($rule/@type eq 'env') then concat('&#xa;\end{',$rule/@name,'}&#xa;', 
+                                                                           $rule[not(@break-after)]/'&#xa;')
+                                 else                               (),
+                                 $rule[@break-after]/string-join(for $i in (1 to @break-after) 
+                                                                 return '&#xa;', ''))" as="xs:string?"/>
     <xso:variable name="opening-tag" select="{concat('''', $opening-tag, '''')}"/>
     <xso:variable name="closing-tag" select="{concat('''', $closing-tag, '''')}"/>
     <xso:value-of select="$opening-tag"/>
