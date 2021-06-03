@@ -3,11 +3,8 @@
 <?xml-model href="http://transpect.io/xml2tex/schema/xml2tex.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
 <set xmlns="http://transpect.io/xml2tex"  
      xmlns:tr="http://transpect.io"
-     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-     xmlns:css="http://www.w3.org/1996/css">
+     xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-  <ns prefix="css" uri="http://www.w3.org/1996/css"/>
-  
   <charmap>
     
     <!-- *
@@ -336,7 +333,7 @@
     <!--= \Delta (-slantedGreek), = \mathrm{\Delta}, capital delta, greek-->
     <char character="&#x394;" string="${\Updelta}$"/>
     <char character="&#x394;" string="$\boldsymbol{\Updelta}$" context="*[@css:font-weight eq 'bold']"/> 
-    <char character="&#x394;x" string="${\Delta}$" context="*[@css:font-style eq 'italic']"/>
+    <char character="&#x394;" string="${\Delta}$" context="*[@css:font-style eq 'italic']"/>
     <!-- GREEK CAPITAL LETTER EPSILON -->
     <char character="&#x395;" string="E"/>
     <!-- GREEK CAPITAL LETTER ZETA -->
@@ -2844,11 +2841,11 @@
     <!--WHITE LARGE SQUARE-->
     <char character="&#x2b1c;" string="${\square}$"/>
     <!-- BLACK VERY SMALL SQUARE -->
-    <char character="&#x2b1d;" string="${\blacksquare}"/>
+    <char character="&#x2b1d;" string="${\blacksquare}$"/>
     <!-- BLACK MEDIUM LOZENGE -->
-    <char character="&#x2b27;" string="${\blacklozenge}"/>
+    <char character="&#x2b27;" string="${\blacklozenge}$"/>
     <!-- WHITE MEDIUM LOZENGE -->
-    <char character="&#x2b28;" string="${\lozenge}"/>
+    <char character="&#x2b28;" string="${\lozenge}$"/>
 
     <!-- *
          * Symbols, Other

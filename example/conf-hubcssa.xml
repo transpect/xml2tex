@@ -65,7 +65,11 @@
     \usepackage{enumerate}
     \usepackage{tensor}
     \usepackage{pifont}
-    \usepackage{soul}
+    \usepackage{ulem}
+    \usepackage{xfrac}
+    <xsl:if test="//*[@css:letter-spacing or exists(key('style', @role))]">
+      <xsl:text>\usepackage{soul}&#xa;</xsl:text>
+    </xsl:if>
     \usepackage{arydshln}
     <xsl:if test="//dbk:div[@role eq 'hub:index'][1]">
       <xsl:text>\usepackage{makeidx}&#xa;\makeindex&#xa;</xsl:text>
@@ -94,8 +98,8 @@
   
   <!-- regular paras -->
 
-  <template context="dbk:para[not(parent::dbk:entry)]
-                             [not(parent::*:td)]
+  <template context="dbk:para[not(parent::*[local-name() = ('entry', 'th', 'td')])]
+                             [not(parent::dbk:listitem and not(following-sibling::*[1]))]
                              [not(following-sibling::*[1][self::dbk:orderedlist])]
                              [not(following-sibling::*[1][self::dbk:itemizedlist])]
                              [not(following-sibling::*[1][self::dbk:variablelist])]
@@ -110,7 +114,7 @@
 
   <template context="dbk:para[@css:text-align='center'
                               or exists(key('style', @role)[@css:text-align eq 'center'])]
-                             [not(parent::dbk:entry)]">
+                             [not(parent::*[local-name() = ('entry', 'th', 'td')])]">
     <rule name="center" type="env" break-after="2">
       <text/>
     </rule>
@@ -118,7 +122,7 @@
   
   <template context="dbk:para[@css:text-align='right'
                               or exists(key('style', @role)[@css:text-align eq 'right'])]
-                             [not(parent::dbk:entry)]">
+                             [not(parent::*[local-name() = ('entry', 'th', 'td')])]">
     <rule name="flushright" type="env" break-after="2">
       <text/>
     </rule>
@@ -174,9 +178,39 @@
   <template context="dbk:entry//dbk:br[every $precedent in ancestor::dbk:para[1]//node()[. &lt;&lt; current()] 
                                        satisfies (not(normalize-space($precedent)))]">
     <rule>
-      <text>\leavemode\newline
+      <text>\leavevmode\newline
 </text>  
     </rule>
+  </template>
+
+  <xsl:variable name="text-style-elements" select="'phrase', 'superscript', 'subscript'" as="xs:string+"/>
+
+  <template context="*[local-name() = $text-style-elements]
+                      [   (@css:letter-spacing and xs:integer(replace(@css:letter-spacing, '[a-z]+$', '')) gt 0.5)
+                       or exists(key('style', @role)[xs:integer(replace(@css:letter-spacing, '[a-z]+$', '')) gt 0.5])]">
+    <xsl:text>\so{</xsl:text>
+    <xsl:next-match/>
+    <xsl:text>}</xsl:text>
+  </template>
+  
+  <template context="*[local-name() = $text-style-elements]
+                      [@css:text-decoration-line ne 'none']
+                      [   (@css:text-decoration-line[. eq 'underline'] 
+                       or exists(key('style', @role)[@css:text-decoration-line eq 'underline']))]
+		      [not(@role eq 'Hyperlink')] 
+		      [not(parent::dbk:link)]
+		      [not(.//dbk:link)]">
+    <xsl:text>\uline{</xsl:text>
+    <xsl:next-match/>
+    <xsl:text>}</xsl:text>
+  </template>
+  
+  <template context="*[local-name() = $text-style-elements]
+                      [   @css:text-decoration-line eq 'line-through'
+                       or exists(key('style', @role)[@css:text-decoration-line eq 'line-through'])]">
+    <xsl:text>\sout{</xsl:text>
+    <xsl:next-match/>
+    <xsl:text>}</xsl:text>
   </template>
   
   <template context="dbk:para[not(@css:font-style eq 'normal')]
@@ -201,7 +235,7 @@
     <rule name="textbf" type="cmd">
       <param/>
       <xsl:choose>
-        <xsl:when test="parent::dbk:entry">
+        <xsl:when test="parent::*[local-name() = ('entry', 'th', 'td')]">
           <xsl:text>\par&#xa;</xsl:text>
         </xsl:when>
         <xsl:when test="not(parent::dbk:footnote)">
@@ -226,7 +260,7 @@
       <text select="if(starts-with((parent::*/@css:top, key('style', parent::*/@role)/@css:top)[1], '-'))
                     then concat('\raisebox{', replace((parent::*/@css:top, key('style', parent::*/@role)/@css:top)[1], '^-', ''), '}')
                     else concat('\raisebox{-', (parent::*/@css:top, key('style', parent::*/@role)/@css:top)[1], '}')"/>
-      <param select="xml2tex:utf2tex(.., ., $charmap, (), $texregex)"/>
+      <param/>
     </rule>
   </template>
   
@@ -246,8 +280,9 @@
 
   <!-- tables and figures -->
 
-  <template context="dbk:table|dbk:informaltable">
-    <rule name="table" type="env" break-after="0">
+  <template context="dbk:table
+                    |dbk:informaltable">
+    <rule name="table" type="env">
       <text/>
     </rule>
   </template>
@@ -332,8 +367,16 @@
     </rule>
   </template>
   
-  <template context="dbk:listitem[not(parent::dbk:varlistentry)]">
-    <rule name="item" type="cmd">
+  <template context="dbk:listitem[not(parent::dbk:varlistentry)][empty(@override)]">
+    <rule name="item" type="cmd" break-before="1">
+      <text select="' '"/>
+      <text/>
+    </rule>
+  </template>
+  
+  <template context="dbk:listitem[@override][not(parent::dbk:varlistentry)]">
+    <rule name="item" type="cmd" break-before="1">
+      <option select="@override "/>
       <text select="' '"/>
       <text/>
     </rule>
@@ -349,7 +392,7 @@
                           - preceding-sibling::*[1]/tr:list-number-to-integer(@override, parent::*/@numeration)
                           = 1 )
                   and position() ne 1">
-      <xsl:value-of select="concat('\setcounter{enum', $level-roman, '}{', 
+      <xsl:value-of select="concat('&#xa;\setcounter{enum', $level-roman, '}{', 
                                    xs:string(
                                        preceding-sibling::*[1]/tr:list-number-to-integer(@override, parent::*/@numeration)
                                      + tr:list-number-to-integer(@override, parent::*/@numeration)
@@ -357,7 +400,7 @@
                                      - 1), 
                                    '}&#xa;')"/>
     </xsl:if>
-    <rule name="item" type="cmd">
+    <rule name="item" type="cmd" break-before="1">
       <xsl:if test="matches(@override, '[a-z0-9]\.([a-z0-9])+')">
         <option select="@override"/>
       </xsl:if>
@@ -371,13 +414,13 @@
   <!-- variable list -->
   
   <template context="dbk:variablelist">
-    <rule name="description" type="env" break-after="2">
+    <rule name="description" type="env">
       <text/>
     </rule>
   </template>
   
   <template context="dbk:term[parent::dbk:varlistentry]">
-    <rule name="item" type="cmd">
+    <rule name="item" type="cmd" break-before="1">
       <option/>
     </rule>
   </template>
@@ -387,8 +430,6 @@
   <template context="dbk:term/node()[1][self::dbk:tabs or self::dbk:tab]"/>
 
   <!-- text styles -->
-  
-  <xsl:variable name="text-style-elements" select="'phrase', 'superscript', 'subscript'" as="xs:string+"/>
   
   <template context="*[local-name() = $text-style-elements]
                       [@css:color]
@@ -401,22 +442,23 @@
                        or exists(('style', @role)[@css:color 
                                                   and not(every $i in  tr:hex-rgb-color-to-ints(@css:color) 
                                                           satisfies $i &lt; 35) ]))]/text()">
-    <rule name="textcolor" type="cmd">
-      <param select="for $i in (parent::*/@css:color, key('style', parent::*/@role)/@css:color)[1] 
-                     return concat('color-', 
-                                   index-of(distinct-values((//@css:background-color,
-                                                             //@css:color[not(every $i in tr:hex-rgb-color-to-ints(.) 
-                                                                              satisfies $i &lt; 35
-                                                                              or parent::*[(@role, @name) = ('ZFinlineequation', 'ZFequation', 'Hyperlink')]
-                                                                              or ancestor-or-self::dbk:link
-                                                                              or parent::*[@native-name eq 'Hyperlink']
-                                                                              )
-                                                                         ]
-                                                             )),
-                                            $i)
-                                   )"/>
-      <param/>
-    </rule>
+    <xsl:text>\textcolor{</xsl:text>
+    <xsl:value-of select="for $i in (parent::*/@css:color, key('style', parent::*/@role)/@css:color)[1] 
+                          return concat('color-', 
+                                        index-of(distinct-values((root()//@css:background-color,
+                                                                  root()//@css:color[not(every $i in tr:hex-rgb-color-to-ints(.) 
+                                                                                   satisfies $i &lt; 35
+                                                                                   or parent::*[(@role, @name) = ('ZFinlineequation', 'ZFequation', 'Hyperlink')]
+                                                                                   or ancestor-or-self::dbk:link
+                                                                                   or parent::*[@native-name eq 'Hyperlink']
+                                                                                   )
+                                                                              ]
+                                                                  )),
+                                                 $i)
+                                        )"/>
+    <xsl:text>}{</xsl:text>
+    <xsl:next-match/>
+    <xsl:text>}</xsl:text>
   </template>
   
   <template context="*[local-name() = $text-style-elements]
@@ -475,34 +517,6 @@
                       [   @css:font-family = ('Consolas', 'Courier New', 'Courier')
                        or exists(key('style', @role)[@css:font-family = ('Consolas', 'Courier New', 'Courier')])]">
     <xsl:text>\texttt{</xsl:text>
-    <xsl:next-match/>
-    <xsl:text>}</xsl:text>
-  </template>
-
-  <template context="*[local-name() = $text-style-elements]
-                      [@css:text-decoration-line ne 'none']
-                      [   (@css:text-decoration-line[. eq 'underline'] 
-                       or exists(key('style', @role)[@css:text-decoration-line eq 'underline']))]
-                      [not(@role eq 'Hyperlink')] 
-                      [not(parent::dbk:link)]
-                      [not(.//dbk:link)]">
-    <xsl:text>\ul{</xsl:text>
-      <xsl:next-match/>
-    <xsl:text>}</xsl:text>
-  </template>
-
-  <template context="*[local-name() = $text-style-elements]
-                      [   @css:text-decoration-line eq 'line-through'
-                       or exists(key('style', @role)[@css:text-decoration-line eq 'line-through'])]">
-    <xsl:text>\st{</xsl:text>
-    <xsl:next-match/>
-    <xsl:text>}</xsl:text>
-  </template>
-
-  <template context="*[local-name() = $text-style-elements]
-                      [   (@css:letter-spacing and xs:integer(replace(@css:letter-spacing, '[a-z]+$', '')) gt 0.5)
-                       or exists(key('style', @role)[xs:integer(replace(@css:letter-spacing, '[a-z]+$', '')) gt 0.5])]">
-    <xsl:text>\so{</xsl:text>
     <xsl:next-match/>
     <xsl:text>}</xsl:text>
   </template>
@@ -665,17 +679,11 @@
   
   <template context="dbk:footnote//text()[1][preceding-sibling::*[1][@role eq 'hub:identifier']][starts-with(., ' ')]
                     |dbk:footnote/dbk:para[1]//dbk:phrase[not(@role eq 'hub:identifier')][1][preceding-sibling::*[last()][@role eq 'hub:identifier']][starts-with(., ' ')]/text()[normalize-space()]
-                    |dbk:footnote[not(.//dbk:phrase[@role eq 'hub:identifier'])]/dbk:para//text()[1][starts-with(., ' ')]">
+                    |dbk:footnote[not(.//dbk:phrase[@role eq 'hub:identifier'])]/dbk:para[1]/dbk:phrase[1]/text()[1][starts-with(., ' ')]">
     <rule>
       <text select="replace(string-join(xml2tex:utf2tex(.., ., $charmap, (), $texregex), ''), '^\s', '')"/> 
     </rule>
   </template>
-  
-  <regex regex="(\d{1,2})(\d{1,2})(\.\d{4})">
-    <rule name="mydate" type="cmd">
-      <param ></param>
-    </rule>
-  </regex>
   
   <!-- remove footnote numbers and whitespace -->
   
@@ -683,8 +691,10 @@
   
   <template context="dbk:footnote//dbk:tab[@role eq 'hub:separator']"/>
 
-  <template context="dbk:footnote/dbk:para[1]/dbk:phrase[@role eq 'hub:identifier'][1]//text()[1]
-                      [not(descendant-or-self::dbk:anchor or descendant-or-self::processing-instruction())]">
+  <template context="dbk:footnote/dbk:para[1]/dbk:phrase[@role eq 'hub:identifier'][1]
+                                                        [not(descendant-or-self::dbk:anchor 
+                                                             or descendant-or-self::processing-instruction())]
+                                                         //text()[1]">
     <xsl:value-of select="replace(., '^[\d*†‡§i\s]+\.?\s*', '', 'i')"/>
   </template>
   
@@ -704,6 +714,7 @@
   <template context="dbk:equation[@condition eq 'numbered']
                                  [not(ancestor::dbk:table or ancestor::dbk:informaltable)]">
     <rule name="equation" type="env">
+      <text>&#xa;</text>
       <text/>
     </rule>
   </template>
@@ -711,6 +722,7 @@
   <template context="dbk:equation[not(@condition eq 'numbered')]
                                  [not(ancestor::dbk:table or ancestor::dbk:informaltable)]">
     <rule name="equation*" type="env">
+      <text>&#xa;</text>
       <text/>
     </rule>
   </template>
@@ -719,6 +731,7 @@
                                  [not(some $i in processing-instruction() satisfies contains($i, '\begin{array}'))]
                                  [some $i in processing-instruction() satisfies contains($i, '\\')]">
     <rule name="align" type="env">
+      <text>&#xa;</text>
       <text/>
     </rule>
   </template>
@@ -728,6 +741,7 @@
                                  [not(some $i in processing-instruction() satisfies contains($i, '\begin{array}'))]
                                  [some $i in processing-instruction() satisfies contains($i, '\\')]">
     <rule name="align*" type="env">
+      <text>&#xa;</text>
       <text/>
     </rule>
   </template>
@@ -879,9 +893,16 @@
     </rule>
   </template>
   
-  <template context="dbk:primary//text()[contains(., '!')]
-                    |dbk:secondary//text()[contains(., '!')]
-                    |dbk:tertiary//text()[contains(., '!')]">
+  <template context="*[local-name() = ('primary', 
+                                       'secondary', 
+                                       'tertiary', 
+                                       'quaternary', 
+                                       'quinary', 
+                                       'senary', 
+                                       'septenary', 
+                                       'octonary', 
+                                       'nonary', 
+                                       'denary')]//text()[contains(., '!')]">
     <rule>
       <text select="replace(., '!', '&quot;!')"/>
     </rule>
@@ -980,8 +1001,9 @@
   <!-- babel support -->
   
   <template context="dbk:phrase[@xml:lang]
-                               [@xml:lang ne $langs[1]]
                                [normalize-space(.)]
+                               [xml2tex:lang-to-babel-lang(@xml:lang)]
+                               [not(parent::dbk:link)]
                                [not(ancestor::dbk:entry or self::dbk:term or self::dbk:listitem)]
                                [not((*/local-name() = ('link', 'mediaobject', 'inlinemediaobject'))
                                     and 
@@ -1029,15 +1051,15 @@
     </rule>  
   </template>
   
-  <template context="dbk:bibliography[@role eq 'Citavi']">
-    <xsl:variable name="bibtex-path" select="concat($path, '/', $basename, '-citavi.bib')" as="xs:string"/>
+  <template context="dbk:bibliography[@role = ('Citavi', 'Zotero')]">
+    <xsl:variable name="bibtex-path" select="concat($path, '/', $basename, '-bibtex.bib')" as="xs:string"/>
     <rule name="bibliography" type="cmd" break-after="2" break-before="2">
-      <param select="concat($basename, '-citavi')"/>
+      <param select="concat($basename, '-bibtex')"/>
     </rule>
     <file href="{$bibtex-path}" encoding="utf-8"/>
   </template>
   
-  <template context="dbk:bibliography[@role eq 'Citavi']/dbk:biblioentry">
+  <template context="dbk:bibliography/dbk:biblioentry">
     <xsl:variable name="main-set" as="element(dbk:biblioset)"
                   select="(dbk:biblioset[@relation eq 'article'], dbk:biblioset[@relation eq 'inproceedings'], dbk:biblioset)[1]"/>
     <xsl:value-of select="concat('@', 
@@ -1047,8 +1069,9 @@
                                    then 'misc'
                                  else if($main-set/@relation) then $main-set/@relation
                                  else 'misc', 
-                                 '{')"/>
-    <xsl:value-of select="concat(@xml:id, ',&#xa;')"/>
+                                 '{',
+                                 @xml:id,
+                                 ',&#xa;')"/>
     <xsl:apply-templates mode="#current"/>
     <xsl:text>}&#xa;</xsl:text>
   </template>
@@ -1131,15 +1154,13 @@
       <xsl:number value="$level" format="i"/>
     </xsl:variable>
     <xsl:value-of select="concat('\begin{enumerate}[{',
-                                 $list-type,'}]&#xa;',
+                                 $list-type,'}]',
                                  if($start gt 0) 
-                                 then concat('\setcounter{enum', $level-roman, '}{', $start, '}') 
+                                 then concat('&#xa;\setcounter{enum', $level-roman, '}{', $start, '}') 
                                  else ''
                                  )"/>
-    <xsl:text>&#xa;&#xa;</xsl:text>
     <xsl:apply-templates mode="#current"/>
-    <xsl:value-of select="'\end{enumerate}'"/>
-    <xsl:text>&#xa;</xsl:text>
+    <xsl:value-of select="'&#xa;\end{enumerate}&#xa;'"/>
   </template>
 
   <xsl:function name="tr:enumerate-list-type" as="xs:string">
