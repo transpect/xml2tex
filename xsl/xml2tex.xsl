@@ -325,7 +325,7 @@
               </xso:apply-templates>
             </xso:when>
             <xso:otherwise>
-              <xso:value-of select="."/>
+              <xso:next-match/>
             </xso:otherwise>
           </xso:choose>
           <xso:value-of select="$closing-delimiter"/>
