@@ -111,12 +111,6 @@
     </rule>
   </template>
 
-  <template context="disp-quote/p[. is (parent::*/*)[1]]">
-    <rule>
-      <text/>
-    </rule>
-  </template>
-
   <template context="fig">
     <rule name="figure" type="env">
       <option select="'h'"/>
@@ -179,7 +173,7 @@
     </rule>
   </template>
 
-  <template context="list[@list-type = 'bullet']">
+  <template context="list[not(@list-type = 'order')]">
     <rule name="itemize" type="env" break-before="1">
       <text/>
     </rule>
@@ -187,21 +181,28 @@
 
   <template context="list[@list-type = 'order']">
     <rule name="enumerate" type="env" break-before="1">
+      <option select="((list-item[string-length(label) = max(../list-item/label/string-length())][last()]/label)[last()]/label, count(list-item))[xs:string(.) != ''][1]"/>
       <text/>
     </rule>
   </template>
 
   <template context="list-item">
     <rule name="item" type="cmd" break-before="1">
+      <xsl:if test="label/normalize-space()">
+        <option select="label/node()"/>
+      </xsl:if>
       <text/>
     </rule>
   </template>
 
   <template context="list[@list-type = 'order']/list-item">
     <rule name="item" type="cmd" break-before="1">
-      <text select="*[not(self::label)]"/>
+      <option select="(label/node(), position())[1]"/>
+      <text/>
     </rule>
   </template>
+
+  <template context="list-item/label"/>
 
   <template context="fn">
     <rule name="footnote" type="cmd">
