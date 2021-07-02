@@ -236,7 +236,7 @@
                                  )" as="xs:string?"/>
     <xsl:variable name="closing-tag" 
                   select="concat($rule[@mathmode eq 'true']/'$',
-                                 if     ($rule/@type eq 'env') then concat('&#xa;\end{',$rule/@name,'}&#xa;', 
+                                 if     ($rule/@type eq 'env') then concat('&#xa;\end{',$rule/@name,'}', 
                                                                            $rule[not(@break-after)]/'&#xa;')
                                  else                               (),
                                  $rule[@break-after]/string-join(for $i in (1 to @break-after) 
