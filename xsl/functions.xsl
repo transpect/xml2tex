@@ -291,8 +291,8 @@
   <xsl:function name="xml2tex:langs-to-latex-pkg" as="xs:string+">
     <xsl:param name="langs" as="xs:string*"/>
     <xsl:variable name="babel-langs" as="xs:string*"
-                  select="for $i in $langs 
-                          return xml2tex:lang-to-babel-lang($i)"/>
+                  select="distinct-values(for $i in $langs 
+                                          return xml2tex:lang-to-babel-lang($i))"/>
     <xsl:if test="$langs = 'es-MX'">
       <xsl:value-of select="'\def\spanishoptions{mexico}'"/>
     </xsl:if>
