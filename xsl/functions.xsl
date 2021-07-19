@@ -293,13 +293,16 @@
     <xsl:variable name="babel-langs" as="xs:string*"
                   select="for $i in $langs 
                           return xml2tex:lang-to-babel-lang($i)"/>
+    <xsl:if test="$langs = 'es-MX'">
+      <xsl:value-of select="'\def\spanishoptions{mexico}'"/>
+    </xsl:if>
     <xsl:value-of select="concat('\usepackage[',
                                  string-join(($babel-langs[position() ne 1], 
                                               $babel-langs[1]), (: 1st lang is main lang and comes last :)
                                               ','),
-                                 ']{babel}&#xa;')"/>
+                                 ']{babel}')"/>
     <xsl:if test="$langs = 'zh'">
-      <xsl:value-of select="'\usepackage{CJK}&#xa;'"/>
+      <xsl:value-of select="'\usepackage{CJK}'"/>
     </xsl:if>
   </xsl:function>
 
@@ -319,7 +322,6 @@
                           else if($lang eq           'en-GB')       then 'british'
                           else if(starts-with($lang, 'en'))         then 'english'
                           else if(starts-with($lang, 'eo'))         then 'esperanto'
-                          else if($lang eq           'es-MX')       then 'spanish,mexico'
                           else if(starts-with($lang, 'es'))         then 'spanish'
                           else if(starts-with($lang, 'et'))         then 'estonian'
                           else if(starts-with($lang, 'eu'))         then 'basque'
