@@ -84,36 +84,6 @@
         <xso:variable name="content" select="xml2tex:escape-for-tex(replace( ., '\\', '\\textbackslash ' ))" as="xs:string"/>
         <xso:value-of select="$content"/>
       </xso:template>
-
-      <!-- apply regex from conf file -->
-      <xsl:if test="xml2tex:regex">        
-        <xso:template match="text()[matches(., '({string-join(//xml2tex:regex/@regex, ')|(')})')]" mode="xml2tex" priority="100000">
-          <xso:variable name="content" as="xs:string"
-                        select="string-join(xml2tex:utf2tex(.., ., $charmap, (), $texregex), '')"/>
-          <xsl:for-each select="xml2tex:regex">
-            <xsl:variable name="pattern" select="concat('''', @regex, '''')" as="xs:string"/>
-            <xsl:variable name="type"
-              select="if(xml2tex:rule/@type eq 'cmd') then (concat('\', xml2tex:rule/@name), '')
-                 else if(xml2tex:rule/@type eq 'env') then (concat('\begin{', xml2tex:rule/@name, '}'), 
-                                                            concat('\end{',   xml2tex:rule/@name, '}'))
-                 else                                      ()" as="xs:string*"/>
-            <xsl:variable name="name" select="xml2tex:rule/@name" as="attribute(name)?"/>
-            <xsl:variable name="replace" as="xs:string*"
-                          select="string-join(('concat(''',
-                                               for $i in xml2tex:rule/*
-                                               return ($type[1],
-                                                       xml2tex:get-delimiter($i/local-name(), true()),
-                                                       if($i/@regex-group) 
-                                                       then concat(''', ', '''$', $i/@regex-group, ''',', '''')
-                                                       else (replace($i/@select, '^['']?(.+?)['']?$', '$1'), $i/text())[1],
-                                                       xml2tex:get-delimiter($i/local-name(), false())),
-                                                       $type[2],
-                                               ''','''')'), '')"/>
-            <xso:variable name="content" select="replace($content, {$pattern}, {replace($replace, '\\', '\\\\')})" as="xs:string"/>
-          </xsl:for-each>
-          <xso:value-of select="$content"/>
-        </xso:template>
-      </xsl:if>
             
       <!-- dissolve elements which are not matched by other templates -->
       
@@ -159,13 +129,15 @@
     <xsl:text>&#xa;</xsl:text>
   </xsl:template>
   
-  <xsl:variable name="rule-indexes" select="for $i in //xml2tex:template return generate-id($i)" as="xs:string*"/>
+  <xsl:variable name="rule-indexes" as="xs:string*"
+                select="for $i in //*[local-name() = ('template', 'regex')] 
+                        return generate-id($i)"/>
 
-  <xsl:template match="xml2tex:template">
+  <xsl:template match="xml2tex:template|xml2tex:regex">
     <!--  * the priority of a rule is determined by its order. If more than one 
-      * rule matches against a particular element, the last rule declaration has a higher priority
-      * and overwrites the rule with a lesser priority. Imported templates have always the priority 1.
-      * -->
+          * rule matches against a particular element, the last rule declaration has a higher priority
+          * and overwrites the rule with a lesser priority. Imported templates have always the priority 1.
+          * -->
     <xsl:variable name="template-priority" select="(@priority, (index-of($rule-indexes, generate-id(.)), 1))[1]" as="xs:integer"/>
     
     <xsl:choose>
@@ -179,16 +151,18 @@
         </xsl:if>
       </xsl:when>
       <xsl:otherwise>
-        <xso:template match="{@context}" mode="xml2tex" priority="{$template-priority}">
+        <xso:template match="{if(self::xml2tex:regex)
+                              then concat('text()[matches(., ''', @regex, ''')]') 
+                              else @context}" mode="xml2tex" priority="{$template-priority}">
           <!-- if no tex child is present, then matched node will be discarded -->
-          <xsl:apply-templates/>
+          <xsl:apply-templates>
+            <xsl:with-param name="xml2tex:regex" as="xs:string?" select="@regex" tunnel="yes"/>
+          </xsl:apply-templates>
         </xso:template>  
       </xsl:otherwise>
     </xsl:choose>
     
   </xsl:template>
-
-  <xsl:template match="xml2tex:regex/xml2tex:rule"/>
   
   <xsl:variable name="style-attribute" select="/xml2tex:set/@style-attribute" as="attribute(style-attribute)?"/>
   
@@ -219,7 +193,7 @@
     </c:data>
   </xsl:template>
 
-  <xsl:template match="xml2tex:template//xml2tex:rule">
+  <xsl:template match="xml2tex:rule">
     <xsl:variable name="rule" select="." as="element(xml2tex:rule)"/>
     <!-- three types: 
             env   ==> environment, eg. e.g. begin{bla} ... end{bla}
@@ -243,9 +217,26 @@
                                                                  return '&#xa;', ''))" as="xs:string?"/>
     <xso:variable name="opening-tag" select="{concat('''', $opening-tag, '''')}"/>
     <xso:variable name="closing-tag" select="{concat('''', $closing-tag, '''')}"/>
-    <xso:value-of select="$opening-tag"/>
-    <xsl:apply-templates/>
-    <xso:value-of select="$closing-tag"/>
+    <xsl:choose>
+      <xsl:when test="parent::xml2tex:template">
+        <xso:value-of select="$opening-tag"/>
+        <xsl:apply-templates/>
+        <xso:value-of select="$closing-tag"/>
+      </xsl:when>
+      <xsl:when test="parent::xml2tex:regex">
+        <xsl:variable name="xml2tex:rule" select="." as="element(xml2tex:rule)"/>
+        <xso:analyze-string select="." regex="{parent::xml2tex:regex/@regex}">
+          <xso:matching-substring>
+            <xso:value-of select="$opening-tag"/>
+            <xsl:apply-templates/>
+            <xso:value-of select="$closing-tag"/>
+          </xso:matching-substring>
+          <xso:non-matching-substring>
+            <xso:value-of select="."/>
+          </xso:non-matching-substring>
+        </xso:analyze-string>
+      </xsl:when>
+    </xsl:choose>
   </xsl:template>
   
   <xsl:template match="xsl:*|xsl:variable//*|@*" priority="1000">
@@ -255,6 +246,7 @@
   </xsl:template>
 
   <xsl:template match="xml2tex:option|xml2tex:param|xml2tex:text">
+    <xsl:param name="xml2tex:regex" as="xs:string?" tunnel="yes"/>
     <!-- types: text | param | option -->
     <xso:variable name="opening-delimiter" select="{concat('''', xml2tex:get-delimiter(local-name(), true()), '''')}"/>
     <xso:variable name="closing-delimiter" select="{concat('''', xml2tex:get-delimiter(local-name(), false()), '''')}"/>
@@ -267,70 +259,80 @@
         </xsl:if>
       </xsl:for-each>
     </xsl:variable>
-      <xsl:choose>
-        <!--  *
-              * select attribute exists either in text/option/param tag
-              * -->
-        <xsl:when test="@select">
-          <xso:value-of select="$opening-delimiter"/>
-          <xso:choose>
-            <!--  handle elements -->
-            <xso:when test="({@select}) instance of element()">
-              <xso:apply-templates select="if(({@select}) instance of element()) then ({@select}) else node()" mode="#current">
-                <xsl:if test="$parameter"><xsl:sequence select="$parameter"/></xsl:if>
-              </xso:apply-templates> 
-            </xso:when>
-            <!--  * handle node() function used in select attributes -->
-            <xso:when test="not(({@select}) instance of item())">
-              <xso:apply-templates select="if(not(({@select}) instance of item())) then ({@select}) else node()" mode="#current">
-                 <xsl:if test="$parameter"><xsl:sequence select="$parameter"/></xsl:if>
-              </xso:apply-templates> 
-            </xso:when>
-            <!--  fallback: handle as simple text -->
-            <xso:otherwise>
-              <xso:value-of select="{@select}"/>
-            </xso:otherwise>
-          </xso:choose>
-          <xso:value-of select="$closing-delimiter"/>
-        </xsl:when>
-        <!--  *
-              * regex attribute exists either in text/option/param tag
-              * -->
-        <xsl:when test="@regex">
-          <xso:analyze-string select="." regex="{@regex}">
-            <xso:matching-substring>
-              <xso:value-of select="$opening-delimiter"/>
-              <xso:value-of select="{if( @regex-group) then concat('regex-group(', @regex-group, ')') else '.'}"/>
-              <xso:value-of select="$closing-delimiter"/>
-            </xso:matching-substring>
-          </xso:analyze-string>
-        </xsl:when>
-        <!--  *
-              * text/option/param tag contains static text. if with-param is there ignore text
-              * -->
-        <xsl:when test="text() and not(*)">
-          <xso:value-of select="$opening-delimiter"/>
-          <xso:value-of select="{concat('''', string-join(text(),''), '''')}"/>
-          <xso:value-of select="$closing-delimiter"/>
-        </xsl:when>
-        <!--  *
-              * fallback for anything
-              * -->
-        <xsl:otherwise>
-          <xso:value-of select="$opening-delimiter"/>
-          <xso:choose>
-            <xso:when test="(.) instance of element()">
-              <xso:apply-templates mode="#current">
-                 <xsl:if test="$parameter"><xsl:sequence select="$parameter"/></xsl:if>
-              </xso:apply-templates>
-            </xso:when>
-            <xso:otherwise>
-              <xso:next-match/>
-            </xso:otherwise>
-          </xso:choose>
-          <xso:value-of select="$closing-delimiter"/>
-        </xsl:otherwise>
-      </xsl:choose>
+    <xsl:choose>
+      <!--  *
+            * regex attribute exists either in text/option/param tag
+            * -->
+      <xsl:when test="$xml2tex:regex">
+        <xsl:variable name="context" select="." as="element()"/>
+        <xso:value-of select="$opening-delimiter"/>
+        <xsl:choose>
+          <xsl:when test="$context/@regex-group">
+            <xso:value-of select="{concat('regex-group(', $context/@regex-group, ')')}"/>    
+          </xsl:when>
+          <xsl:when test="$context/@select">
+            <xso:value-of select="{$context/@select}"/>
+          </xsl:when>
+          <xsl:when test="$context/node()">
+            <xso:value-of select="{$context/node()}"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <xso:value-of select="."/>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xso:value-of select="$closing-delimiter"/>
+      </xsl:when>
+      <!--  *
+            * select attribute exists either in text/option/param tag
+            * -->
+      <xsl:when test="@select">
+        <xso:value-of select="$opening-delimiter"/>
+        <xso:choose>
+          <!--  handle elements -->
+          <xso:when test="({@select}) instance of element()">
+            <xso:apply-templates select="if(({@select}) instance of element()) then ({@select}) else node()" mode="#current">
+              <xsl:if test="$parameter"><xsl:sequence select="$parameter"/></xsl:if>
+            </xso:apply-templates> 
+          </xso:when>
+          <!--  * handle node() function used in select attributes -->
+          <xso:when test="not(({@select}) instance of item())">
+            <xso:apply-templates select="if(not(({@select}) instance of item())) then ({@select}) else node()" mode="#current">
+               <xsl:if test="$parameter"><xsl:sequence select="$parameter"/></xsl:if>
+            </xso:apply-templates> 
+          </xso:when>
+          <!--  fallback: handle as simple text -->
+          <xso:otherwise>
+            <xso:value-of select="{@select}"/>
+          </xso:otherwise>
+        </xso:choose>
+        <xso:value-of select="$closing-delimiter"/>
+      </xsl:when>
+      <!--  *
+            * text/option/param tag contains static text. if with-param is there ignore text
+            * -->
+      <xsl:when test="text() and not(*)">
+        <xso:value-of select="$opening-delimiter"/>
+        <xso:value-of select="{concat('''', string-join(text(),''), '''')}"/>
+        <xso:value-of select="$closing-delimiter"/>
+      </xsl:when>
+      <!--  *
+            * fallback for anything
+            * -->
+      <xsl:otherwise>
+        <xso:value-of select="$opening-delimiter"/>
+        <xso:choose>
+          <xso:when test="(.) instance of element()">
+            <xso:apply-templates mode="#current">
+               <xsl:if test="$parameter"><xsl:sequence select="$parameter"/></xsl:if>
+            </xso:apply-templates>
+          </xso:when>
+          <xso:otherwise>
+            <xso:next-match/>
+          </xso:otherwise>
+        </xso:choose>
+        <xso:value-of select="$closing-delimiter"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <!-- replace chars via character map -->
