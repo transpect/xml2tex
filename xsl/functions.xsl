@@ -25,7 +25,7 @@
   <!-- replace unicode characters with latex from charmap -->
   
   <xsl:function name="xml2tex:utf2tex" as="xs:string+">
-    <xsl:param name="context" as="element(*)"/>
+    <xsl:param name="context" as="element(*)?"/>
     <xsl:param name="string" as="xs:string"/>
     <xsl:param name="charmap" as="element(xml2tex:char)*"/>
     <xsl:param name="seen" as="xs:string*"/>
@@ -39,9 +39,11 @@
                                 return string($i)"/>
           <!-- Test whether there was a context restriction for the mapping of the current char.
               The last item is the replacement string that will be output in the most specific context. --> 
-          <xsl:apply-templates select="root($context), $context/ancestor-or-self::*" mode="char-context">
-            <xsl:with-param name="char-in-doc" select="."/>
-          </xsl:apply-templates>
+          <xsl:if test="$context">
+            <xsl:apply-templates select="root($context), $context/ancestor-or-self::*" mode="char-context">
+              <xsl:with-param name="char-in-doc" select="."/>
+            </xsl:apply-templates>
+          </xsl:if>
         </xsl:variable>
         <xsl:choose>
           <xsl:when test="empty($replacement-candidates)">

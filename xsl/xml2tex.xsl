@@ -232,7 +232,7 @@
             <xso:value-of select="$closing-tag"/>
           </xso:matching-substring>
           <xso:non-matching-substring>
-            <xso:value-of select="string-join(xml2tex:utf2tex(., ., $charmap, (), $texregex), '')"/>
+            <xso:value-of select="string-join(xml2tex:utf2tex((), ., $charmap, (), $texregex), '')"/>
           </xso:non-matching-substring>
         </xso:analyze-string>
       </xsl:when>
