@@ -225,7 +225,7 @@
       </xsl:when>
       <xsl:when test="parent::xml2tex:regex">
         <xsl:variable name="xml2tex:rule" select="." as="element(xml2tex:rule)"/>
-        <xso:analyze-string select="." regex="{parent::xml2tex:regex/@regex}">
+        <xso:analyze-string select="." regex="{{'{parent::xml2tex:regex/@regex}'}}">
           <xso:matching-substring>
             <xso:value-of select="$opening-tag"/>
             <xsl:apply-templates/>
