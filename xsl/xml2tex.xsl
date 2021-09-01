@@ -218,7 +218,7 @@
     <xso:variable name="opening-tag" select="{concat('''', $opening-tag, '''')}"/>
     <xso:variable name="closing-tag" select="{concat('''', $closing-tag, '''')}"/>
     <xsl:choose>
-      <xsl:when test="parent::xml2tex:template">
+      <xsl:when test="ancestor::xml2tex:template">
         <xso:value-of select="$opening-tag"/>
         <xsl:apply-templates/>
         <xso:value-of select="$closing-tag"/>
