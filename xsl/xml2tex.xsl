@@ -423,6 +423,10 @@
       <xso:value-of select="replace(., '\s\s+', ' ')"/>
     </xso:template>
     
+    <xso:template match="processing-instruction('passthru')" mode="xml2tex">
+      <xso:value-of select="."/>
+    </xso:template>
+    
   </xsl:template>
   
   <xsl:template name="clean">
