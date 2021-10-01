@@ -174,6 +174,10 @@
     <xsl:attribute name="{name()}" select="replace(., '(^|[^\\])#', '\\#')"/>
   </xsl:template>
   
+  <xsl:template match="@*[contains(., '%')]" mode="xml2tex:css-atts-to-style-att">
+    <xsl:attribute name="{name()}" select="replace(., '%', '')"/>
+  </xsl:template>
+  
   <xsl:function name="xml2tex:absolute-to-relative-col-width" as="xs:decimal">
     <xsl:param name="colwidth" as="xs:string"/>
     <xsl:param name="sum-colwidths" as="xs:string+"/>
