@@ -75,7 +75,7 @@
           <xsl:apply-templates select="@*" mode="#current"/>
           <xsl:processing-instruction name="cals2tabular" 
                                       select="concat('\multirow', $vertical-align, '{', $rowspan, '}{=}{' )"/>
-          <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
+          <xsl:sequence select="cals2tabular:cell-align(@css:text-align, *:para[@css:direction][1]/@css:direction)"/>
           <xsl:choose>
             <xsl:when test="count(*:para) lt 2">
               <xsl:apply-templates mode="#current"/>    
@@ -98,7 +98,7 @@
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates select="@*" mode="#current"/>
-          <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
+          <xsl:sequence select="cals2tabular:cell-align(@css:text-align, *:para[@css:direction][1]/@css:direction)"/>
           <xsl:apply-templates mode="#current"/>
         </xsl:otherwise>
       </xsl:choose>
@@ -118,7 +118,7 @@
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates select="@*" mode="#current"/>
-          <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
+          <xsl:sequence select="cals2tabular:cell-align(@css:text-align, *:para[@css:direction][1]/@css:direction)"/>
           <xsl:apply-templates mode="#current"/>
         </xsl:otherwise>
       </xsl:choose>
@@ -150,13 +150,13 @@
           <xsl:apply-templates select="@*" mode="#current"/>
           <xsl:processing-instruction name="cals2tabular" 
                                       select="concat('\multicolumn{', $colspan, '}{', $cell-declaration , '}{')"/>
-          <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
+          <xsl:sequence select="cals2tabular:cell-align(@css:text-align, *:para[@css:direction][1]/@css:direction)"/>
           <xsl:apply-templates select="node()" mode="#current"/>
           <xsl:processing-instruction name="cals2tabular" select="'}'"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates select="@*" mode="#current"/>
-          <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
+          <xsl:sequence select="cals2tabular:cell-align(@css:text-align, *:para[@css:direction][1]/@css:direction)"/>
           <xsl:apply-templates select="node()" mode="#current"/>
         </xsl:otherwise>
       </xsl:choose>
@@ -192,7 +192,7 @@
   <!-- MODE cals2tabular:final -->
   
   <xsl:template match="*:entry[not(@linkend or @xml:id)]" mode="cals2tabular:final">
-    <xsl:sequence select="cals2tabular:cell-align(@css:text-align)"/>
+    <xsl:sequence select="cals2tabular:cell-align(@css:text-align, *:para[@css:direction][1]/@css:direction)"/>
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
@@ -241,11 +241,12 @@
   </xsl:template>
   
   <xsl:function name="cals2tabular:cell-align" as="processing-instruction()?">
-    <xsl:param name="text-align" as="attribute(css:text-align)?"/>
-    <xsl:if test="$text-align">
+    <xsl:param name="text-align"  as="attribute(css:text-align)?"/>
+    <xsl:param name="direction" as="attribute(css:direction)?"/>
+    <xsl:if test="$text-align or $direction">
       <xsl:processing-instruction name="cals2tabular"
                                 select="if($text-align eq 'center') then '\centering\arraybackslash{}'
-                                        else if($text-align eq 'right') then '\raggedleft\arraybackslash{}'
+                                        else if($text-align eq 'right' or $direction eq 'rtl') then '\raggedleft\arraybackslash{}'
                                         else if($text-align eq 'justify') then ()
                                         else '\raggedright\arraybackslash{}'"/>  
       </xsl:if>
