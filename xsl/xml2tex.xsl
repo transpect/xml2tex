@@ -274,7 +274,7 @@
             <xso:value-of select="{$context/@select}"/>
           </xsl:when>
           <xsl:when test="$context/node()">
-            <xso:value-of select="{$context/node()}"/>
+            <xso:value-of select="'{$context/node()}'"/>
           </xsl:when>
           <xsl:otherwise>
             <xso:value-of select="."/>
