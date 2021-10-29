@@ -50,6 +50,10 @@
     </xsl:if>
   </xsl:template>
   
+  <xsl:template match="*:informaltable/@role | *:table/@role | *:entry/@role" mode="cals2html-table">
+    <xsl:attribute name="class" select="."/>
+  </xsl:template>
+  
   <xsl:template match="@* | node()" mode="html2tabs">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
