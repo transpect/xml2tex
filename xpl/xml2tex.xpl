@@ -129,6 +129,33 @@
     <p:pipe port="paths" step="xml2tex"/>
   </p:variable>
   
+  <p:sink/>
+  
+  <!--  *
+        * store in-scope parameters and variables for debugging
+        * -->
+  
+  <p:in-scope-names name="expose-params-and-vars"/>
+  
+  <p:insert match="/c:param-set" position="first-child">
+    <p:input port="source">
+      <p:pipe port="result" step="expose-params-and-vars"/>
+    </p:input>
+    <p:input port="insertion" select="/c:param-set/*">
+      <p:pipe port="paths" step="xml2tex"/>
+    </p:input>
+  </p:insert>
+  
+  <p:delete match="/c:param-set[c:param[@name = preceding-sibling::c:param/@name]]" name="filter-duplicate-params"/>
+  
+  <tr:store-debug name="store-params-and-vars">
+    <p:with-option name="pipeline-step" select="concat($prefix, '00.params-and-vars')"/>
+    <p:with-option name="active" select="$debug"/>
+    <p:with-option name="base-uri" select="$debug-dir-uri"/>
+  </tr:store-debug>
+  
+  <p:sink/>
+  
   <!--  *
         * load config(s) (recursively).
         * -->
@@ -142,7 +169,7 @@
   </xml2tex:load-config>
   
   <tr:store-debug name="store-config">
-    <p:with-option name="pipeline-step" select="concat($prefix, '00.loaded-config')"/>
+    <p:with-option name="pipeline-step" select="concat($prefix, '04.loaded-config')"/>
     <p:with-option name="active" select="$debug"/>
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
