@@ -146,8 +146,6 @@
     </p:input>
   </p:insert>
   
-  <p:delete match="/c:param-set[c:param[@name = preceding-sibling::c:param/@name]]" name="filter-duplicate-params"/>
-  
   <tr:store-debug name="store-params-and-vars">
     <p:with-option name="pipeline-step" select="concat($prefix, '00.params-and-vars')"/>
     <p:with-option name="active" select="$debug"/>
