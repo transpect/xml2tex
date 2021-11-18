@@ -149,6 +149,8 @@
     <xsl:param name="atts" as="attribute()*"/>
     <xsl:if test="$atts">
       <xsl:sequence select="concat('[',
+                                  if ($atts[local-name() = 'width']) 
+                                  then concat('width=', $atts[local-name() = 'width'],',') else '',
                                   string-join(
                                               (xml2tex:css-atts-to-style-att($atts[namespace-uri() eq 'http://www.w3.org/1996/css']),
                                                $atts[local-name() = ('id', 'class', 'colspan', 'rowspan')]/concat(local-name(), '=', ., '')),
