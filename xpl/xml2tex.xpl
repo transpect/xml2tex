@@ -394,8 +394,8 @@
     <p:input port="msgs">
       <p:inline>
         <c:messages>
-          <c:message xml:lang="en">Convert OMML equations to TeX</c:message>
-          <c:message xml:lang="de">Konvertiere OMML-Formeln nach TeX</c:message>
+          <c:message xml:lang="en">Convert MathML equations to TeX</c:message>
+          <c:message xml:lang="de">Konvertiere MathML-Formeln nach TeX</c:message>
         </c:messages>
       </p:inline>
     </p:input>
