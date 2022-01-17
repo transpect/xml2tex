@@ -13,6 +13,7 @@
        to htmltabs 
   -->
   
+  <xsl:import href="functions.xsl"/>
   <xsl:import href="http://transpect.io/xslt-util/cals2htmltable/xsl/cals2htmltables.xsl"/>
   <xsl:import href="http://transpect.io/xslt-util/lengths/xsl/lengths.xsl"/>
 
@@ -102,9 +103,9 @@
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:processing-instruction name="htmltabs" 
-                                    select="concat('\HTcol[width=', 
-                                                   xml2tex:absolute-to-relative-col-width(@css:width, parent::*/col/@css:width), 
-                                                   ']&#xa;')"/>
+                                    select="concat('\HTcol[width=',
+                                                   xml2tex:absolute-to-relative-col-width(@css:width, parent::*/col/@css:width) * 100, 
+                                                   '\%]&#xa;')"/>
     </xsl:copy>
   </xsl:template>
   
@@ -150,7 +151,7 @@
     <xsl:if test="$atts">
       <xsl:sequence select="concat('[',
                                   if ($atts[local-name() = 'width']) 
-                                  then concat('width=', $atts[local-name() = 'width'],',') else '',
+                                  then concat('width=', xml2tex:escape-for-tex($atts[local-name() = 'width']),',') else '',
                                   string-join(
                                               (xml2tex:css-atts-to-style-att($atts[namespace-uri() eq 'http://www.w3.org/1996/css']),
                                                $atts[local-name() = ('id', 'class', 'colspan', 'rowspan')]/concat(local-name(), '=', ., '')),
@@ -167,7 +168,7 @@
     <xsl:sequence select="if(exists($css-atts)) 
                           then concat('style={',
                                       string-join($prelim/concat(local-name(), ':', .), 
-                                                  ';'),
+                                      ';'),
                                       '}')
                           else ()"/>
   </xsl:function>
@@ -181,7 +182,7 @@
   </xsl:template>
   
   <xsl:template match="@*[contains(., '%')]" mode="xml2tex:css-atts-to-style-att">
-    <xsl:attribute name="{name()}" select="replace(., '%', '')"/>
+    <xsl:attribute name="{name()}" select="replace(., '%', '\\%')"/>
   </xsl:template>
   
   <xsl:function name="xml2tex:absolute-to-relative-col-width" as="xs:decimal">
