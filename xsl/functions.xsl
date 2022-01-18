@@ -364,7 +364,8 @@
     <xsl:variable name="colors-filtered" select="distinct-values($colors)"/>
     <xsl:for-each select="$colors-filtered">
       <xsl:value-of select="concat('color{',
-                                   for $i in . return concat('color-', index-of($colors-filtered, $i)),
+                                   'color-', 
+                                   upper-case(substring-after(., '#')),
                                    '}{rgb}{',
                                    string-join(for $i in tr:hex-rgb-color-to-ints(.) 
                                                return xs:string(round-half-to-even($i div 255, 2)),
