@@ -365,7 +365,7 @@
     <xsl:for-each select="$colors-filtered">
       <xsl:value-of select="concat('color{',        
                                    if(exists(tr:color-hex-rgb-to-keyword(.)))
-                                   then tr:color-hex-rgb-to-keyword(.)
+                                   then tr:color-hex-rgb-to-keyword(.)[1]
                                    else concat('color-', upper-case(substring-after(., '#'))),
                                    '}{rgb}{',
                                    string-join(for $i in tr:hex-rgb-color-to-ints(.) 
