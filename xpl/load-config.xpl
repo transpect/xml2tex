@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <p:declare-step xmlns:p="http://www.w3.org/ns/xproc" 
   xmlns:c="http://www.w3.org/ns/xproc-step"
-  xmlns:cx="http://xmlcalabash.com/ns/extensions" 
+  xmlns:cx="http://xmlcalabash.com/ns/extensions"
+  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:tr="http://transpect.io"
   xmlns:xml2tex="http://transpect.io/xml2tex" 
   version="1.0" 
@@ -152,6 +153,11 @@
           <p:empty/>
         </p:input>
       </p:xslt>
+      
+      <!-- remove global variables that have the same name as parameters => not covered by xml2tex:import-elements() -->
+      
+      <p:delete match="/xml2tex:set/xsl:variable[for $name in @name
+                                                 return preceding-sibling::xsl:param[@name eq $name]]"/>
 
       <xml2tex:load-config>
         <p:with-option name="fail-on-error" select="$fail-on-error"/>
