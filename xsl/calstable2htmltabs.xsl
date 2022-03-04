@@ -52,6 +52,7 @@
   </xsl:template>
   
   <xsl:template match="*:informaltable/@role | *:table/@role | *:entry/@role" mode="cals2html-table">
+    <xsl:attribute name="class" select="."/>
     <xsl:attribute name="role" select="."/>
   </xsl:template>
   
