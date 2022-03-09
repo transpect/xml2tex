@@ -152,7 +152,7 @@
     </xsl:copy>
   </xsl:template>
   
-  <xsl:template match="td[every $el in * satisfies matches($el/local-name(),$strut-element-names)]"  mode="html2tabs_atts">
+  <xsl:template match="td[node()][every $el in * satisfies matches($el/local-name(),$strut-element-names)]"  mode="html2tabs_atts">
     <xsl:attribute name="no-strut" select="'both'" />
   </xsl:template>
   
@@ -208,6 +208,8 @@
   <xsl:template match="@*[contains(., '%')]" mode="xml2tex:css-atts-to-style-att">
     <xsl:attribute name="{name()}" select="replace(., '%', '\\%')"/>
   </xsl:template>
+  
+  <xsl:template match="@*[matches(., '^auto$')]" mode="xml2tex:css-atts-to-style-att"/>
   
   <xsl:function name="xml2tex:absolute-to-relative-col-width" as="xs:decimal">
     <xsl:param name="colwidth" as="xs:string"/>
