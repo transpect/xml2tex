@@ -134,18 +134,41 @@
     </xsl:copy>
   </xsl:template>
   
+  <xsl:variable name="strut-element-names" select="'^(itemized|ordered)list$'"/>
+  
   <xsl:template match="td|th" mode="html2tabs">
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
+        <xsl:variable name="additional-atts" as="attribute()*">
+          <xsl:apply-templates select="." mode="html2tabs_atts"/>
+        </xsl:variable>
       <xsl:processing-instruction name="htmltabs" 
                                   select="concat('\HTtd',
-                                                 xml2tex:atts-to-option(@*),
+                                                 xml2tex:atts-to-option((@*, $additional-atts)),
                                                  '{')"/>
       <xsl:apply-templates select="node()" mode="#current"/>
       <xsl:processing-instruction name="htmltabs" 
                                   select="'}&#xa;'"/>
     </xsl:copy>
   </xsl:template>
+  
+  <xsl:template match="td[every $el in * satisfies matches($el/local-name(),$strut-element-names)]"  mode="html2tabs_atts">
+    <xsl:attribute name="no-strut" select="'both'" />
+  </xsl:template>
+  
+  <xsl:template match="td[not(every $el in * satisfies matches($el/local-name(),$strut-element-names))]
+                         [*[1][self::*[matches(local-name(),$strut-element-names)]]]"  mode="html2tabs_atts">
+    <xsl:attribute name="no-strut" select="'top'" />
+  </xsl:template>
+  
+  <xsl:template match="td[not(every $el in * satisfies matches($el/local-name(),$strut-element-names))]
+                         [*[last()][self::*[matches(local-name(),$strut-element-names)]]]"  mode="html2tabs_atts">
+    <xsl:attribute name="no-strut" select="'bottom'" />
+  </xsl:template>
+  
+  <xsl:template match="node()| @*" mode="html2tabs_atts"/>
+  
+  <xsl:variable name="no-css-atts-in-style" select="('bla','no-strut')"/>
   
   <xsl:function name="xml2tex:atts-to-option" as="xs:string?">
     <xsl:param name="atts" as="attribute()*"/>
@@ -154,7 +177,7 @@
                                   if ($atts[local-name() = 'width']) 
                                   then concat('width=', xml2tex:escape-for-tex($atts[local-name() = 'width']),',') else '',
                                   string-join(
-                                              (xml2tex:css-atts-to-style-att($atts[namespace-uri() eq 'http://www.w3.org/1996/css']),
+                                              (xml2tex:css-atts-to-style-att($atts[namespace-uri() eq 'http://www.w3.org/1996/css' or local-name() = $no-css-atts-in-style]),
                                                $atts[local-name() = ('id', 'class', 'colspan', 'rowspan')]/concat(local-name(), '=', ., '')),
                                                ','),
                                   ']')"/>
