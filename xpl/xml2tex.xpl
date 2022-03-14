@@ -439,6 +439,7 @@
     <p:input port="parameters">
       <p:pipe port="paths" step="xml2tex"/>
     </p:input>
+    <p:with-param name="table-model" select="$table-model"/>
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
@@ -459,6 +460,7 @@
     <p:input port="parameters">
       <p:pipe port="paths" step="xml2tex"/>
     </p:input>
+    <p:with-param name="table-model" select="$table-model"/>
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
@@ -473,6 +475,7 @@
     <p:input port="parameters">
       <p:pipe port="paths" step="xml2tex"/>
     </p:input>
+    <p:with-param name="table-model" select="$table-model"/>
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>

@@ -12,23 +12,33 @@
   <xsl:import href="http://transpect.io/xslt-util/paths/xsl/paths.xsl"/>
   <xsl:import href="http://transpect.io/xslt-util/roman-numerals/xsl/roman2int.xsl"/>
   
+  <xsl:param name="table-model" as="xs:string"/>
+  
   <xsl:variable name="path" select="tr:path(base-uri())" as="xs:string"/>
   <xsl:variable name="basename" select="tr:basename(/dbk:hub/@xml:base)" as="xs:string"/>
   <xsl:variable name="colors" 
-                select="(//@css:background-color,
+                select="(
+                         //@css:background-color,
                          //@css:color[not(every $i in  tr:hex-rgb-color-to-ints(.) satisfies $i &lt; 35  
                                           or parent::*[(@role, @name) = ('ZFinlineequation', 'ZFequation')]
                                           or ancestor::dbk:para/dbk:phrase[@role = ('ZFinlineequation', 'ZFequation', 'Hyperlink')]
                                           or ancestor-or-self::dbk:link
-                                          or parent::*[@native-name eq 'Hyperlink'])])"/>
+                                          or parent::*[@native-name eq 'Hyperlink'])],
+                         for $mml2tex-color in (
+                                        for $mml2tex-snippet in //processing-instruction('mml2tex')/tokenize(., '\\textcolor') 
+                                        return replace($mml2tex-snippet, '\{([-a-z0-9]+?)\}.*$', '$1', 'i')
+                                        )[not(position() eq 1)]
+                         return if(starts-with($mml2tex-color, '#')) then $mml2tex-color else tr:color-keyword-to-hex-rgb($mml2tex-color)
+                         )"/>
   <xsl:variable name="langs" select="distinct-values(//@xml:lang)" as="xs:string*"/>
   
   <xsl:variable name="footnotes" select="//dbk:footnote" as="element(dbk:footnote)*"/>
   
   <xsl:key name="style" match="css:rule" use="@name"/>
+  <xsl:key name="item-by-id" match="*[@xml:id]" use="@xml:id"/>
   
   <!-- tex document header, set declarations such as documentclass and usepackage -->
-  <preamble>% docx2tex 1.6 --- ``The last thing your Word file sees before the recycle bin.''
+  <preamble>% docx2tex 1.7.3 --- ``Just out of this Word.''
     %
     % docx2tex is Open Source and 
     % you can download it on GitHub:
@@ -75,8 +85,8 @@
       <xsl:text>\usepackage{makeidx}&#xa;\makeindex&#xa;</xsl:text>
     </xsl:if>
     <xsl:sequence select="if(exists($langs)) 
-                          then xml2tex:langs-to-latex-pkg( $langs ) 
-                          else xml2tex:langs-to-latex-pkg( 'en' )"/>
+                          then string-join(xml2tex:langs-to-latex-pkg( $langs ), '&#xa;') 
+                          else string-join(xml2tex:langs-to-latex-pkg( 'en' ), '&#xa;')"/>
     <xsl:text>&#xa;</xsl:text>
     <xsl:for-each select="xml2tex:rgb-to-tex-color( $colors )">        
       <xsl:value-of select="concat('\define', ., '&#xa;')"/>
@@ -86,6 +96,7 @@
   <!-- xml namespace declaration -->
 
   <ns prefix="dbk" uri="http://docbook.org/ns/docbook"/>
+  <ns prefix="html" uri="http://www.w3.org/1999/xhtml"/>
   <ns prefix="css" uri="http://www.w3.org/1996/css"/>
   <ns prefix="svg" uri="http://www.w3.org/2000/svg"/>
   <ns prefix="docx2tex" uri="http://transpect.io/docx2tex"/>
@@ -99,6 +110,7 @@
   <!-- regular paras -->
 
   <template context="dbk:para[not(parent::*[local-name() = ('entry', 'th', 'td')])]
+                             [following-sibling::*[1]]
                              [not(parent::dbk:listitem and not(following-sibling::*[1]))]
                              [not(following-sibling::*[1][self::dbk:orderedlist])]
                              [not(following-sibling::*[1][self::dbk:itemizedlist])]
@@ -160,6 +172,12 @@
     </rule>
   </template>
   
+  <template context="html:td//dbk:br[$table-model eq 'htmltabs']">
+    <rule>
+      <text> \htCellBreak </text>
+    </rule>
+  </template>
+  
   <template context="dbk:entry[not(@*:morerows) or @*:morerows eq '0']/dbk:para[not(parent::dbk:footnote)]
                                                                                [following-sibling::dbk:para]//dbk:br">
     <rule>
@@ -186,8 +204,8 @@
   <xsl:variable name="text-style-elements" select="'phrase', 'superscript', 'subscript'" as="xs:string+"/>
 
   <template context="*[local-name() = $text-style-elements]
-                      [   (@css:letter-spacing and xs:integer(replace(@css:letter-spacing, '[a-z]+$', '')) gt 0.5)
-                       or exists(key('style', @role)[xs:integer(replace(@css:letter-spacing, '[a-z]+$', '')) gt 0.5])]">
+                      [   (@css:letter-spacing and xs:double(replace(@css:letter-spacing, '[a-z]+$', '')) gt 0.5)
+                       or exists(key('style', @role)[@css:letter-spacing[xs:double(replace(., '[a-z]+$', '')) gt 0.5]])]">
     <xsl:text>\so{</xsl:text>
     <xsl:next-match/>
     <xsl:text>}</xsl:text>
@@ -215,7 +233,8 @@
   
   <template context="dbk:para[not(@css:font-style eq 'normal')]
                              [@css:font-style eq 'italic'
-                              or exists(key('style', @role)[@css:font-style eq 'italic'])]">
+                              or exists(key('style', @role)[@css:font-style eq 'italic'])]
+                             [not(ancestor::dbk:info)]">
     <rule name="textit" type="cmd" break-after="2">
       <param/>
       <xsl:choose>
@@ -272,12 +291,6 @@
     </rule>
   </template>
 
-  <template context="dbk:para[@role eq 'Zitat']">
-    <rule name="quote" type="env">
-      <text/>
-    </rule>
-  </template>
-
   <!-- tables and figures -->
 
   <template context="dbk:table
@@ -307,7 +320,7 @@
     <rule name="includegraphics" type="cmd">
       <option select="concat('width=', 
                              if(ancestor::dbk:figure)
-                             then 1 div count(ancestor::dbk:figure[last()][dbk:mediaobject|dbk:inlinemediaobject]/*[local-name() = ('mediaobject', 'inlinemediaobject')])
+                             then 1 div count(ancestor::dbk:figure[last()]//*[local-name() = ('mediaobject', 'inlinemediaobject')])
                              else 1,
                              '\textwidth')"/>
       <param select="replace(@fileref, '([%#])', '\\$1')"/>
@@ -318,7 +331,7 @@
                 select="//svg:svg"/>
   
   <template context="svg:svg">
-    <xsl:variable name="svg-filename" select="concat($basename, '-svg-', index-of($svg-images, .), '.svg')" as="xs:string"/>
+    <xsl:variable name="svg-filename" select="concat($basename, '-svg-', index-of($svg-images, .)[1], '.svg')" as="xs:string"/>
     <xsl:variable name="svg-path" select="concat($path, '/', $svg-filename)" as="xs:string"/>
     <rule name="includegraphics" type="cmd">
       <param select="$svg-filename"/>
@@ -352,13 +365,19 @@
   <!-- quotes -->
 
   <template context="dbk:blockquote">
-    <rule name="quote" type="env" break-before="2">
+    <rule name="quote" type="env" break-before="1">
+      <text/>
+    </rule>
+  </template>
+  
+  <template context="dbk:para[not(parent::dbk:blockquote)][@role = ('Zitat', 'Quote')]">
+    <rule name="quote" type="env" break-before="1">
       <text/>
     </rule>
   </template>
 
   <template context="dbk:blockquote[count(dbk:para) gt 1]">
-    <rule name="quotation" type="env">
+    <rule name="quotation" type="env" break-before="1">
       <text/>
     </rule>
   </template>
@@ -366,7 +385,7 @@
   <!-- itemized lists -->
 
   <template context="dbk:itemizedlist">
-    <rule name="itemize" type="env" break-before="2">
+    <rule name="itemize" type="env" break-before="1">
       <text/>
     </rule>
   </template>
@@ -391,11 +410,12 @@
     <xsl:variable name="level-roman" as="xs:string">
       <xsl:number value="$level" format="i"/>
     </xsl:variable>
+    <xsl:variable name="pos" select="count(preceding-sibling::*) + 1" as="xs:integer"/>
     <xsl:if test="@override
                   and not(  tr:list-number-to-integer(@override, parent::*/@numeration) 
                           - preceding-sibling::*[1]/tr:list-number-to-integer(@override, parent::*/@numeration)
                           = 1 )
-                  and position() ne 1">
+                  and $pos ne 1">
       <xsl:value-of select="concat('&#xa;\setcounter{enum', $level-roman, '}{', 
                                    xs:string(
                                        preceding-sibling::*[1]/tr:list-number-to-integer(@override, parent::*/@numeration)
@@ -418,7 +438,12 @@
   <!-- variable list -->
   
   <template context="dbk:variablelist">
-    <rule name="description" type="env" break-before="2">
+    <xsl:variable name="max-length" as="xs:integer"
+                  select="max(dbk:varlistentry/dbk:term/string-length(replace(., '\{\\slash\}', '/')))"/>
+    <xsl:variable name="longest-word" as="xs:string" 
+                  select="dbk:varlistentry[dbk:term[string-length(replace(., '\{\\slash\}', '/')) eq $max-length]][1]/dbk:term"/>
+    <rule name="description" type="env" break-before="1">
+      <option select="$longest-word"/>
       <text/>
     </rule>
   </template>
@@ -447,19 +472,10 @@
                                                   and not(every $i in  tr:hex-rgb-color-to-ints(@css:color) 
                                                           satisfies $i &lt; 35) ]))]/text()">
     <xsl:text>\textcolor{</xsl:text>
-    <xsl:value-of select="for $i in (parent::*/@css:color, key('style', parent::*/@role)/@css:color)[1] 
-                          return concat('color-', 
-                                        index-of(distinct-values((root()//@css:background-color,
-                                                                  root()//@css:color[not(every $i in tr:hex-rgb-color-to-ints(.) 
-                                                                                   satisfies $i &lt; 35
-                                                                                   or parent::*[(@role, @name) = ('ZFinlineequation', 'ZFequation', 'Hyperlink')]
-                                                                                   or ancestor-or-self::dbk:link
-                                                                                   or parent::*[@native-name eq 'Hyperlink']
-                                                                                   )
-                                                                              ]
-                                                                  )),
-                                                 $i)
-                                        )"/>
+    <xsl:value-of select="for $color-code in (parent::*/@css:color, key('style', parent::*/@role)/@css:color)[1] 
+                          return if(exists(tr:color-hex-rgb-to-keyword($color-code)))
+                                 then tr:color-hex-rgb-to-keyword($color-code)[1]
+                                 else concat('color-', upper-case(substring-after($color-code, '#')))"/>
     <xsl:text>}{</xsl:text>
     <xsl:next-match/>
     <xsl:text>}</xsl:text>
@@ -547,8 +563,10 @@
                                 or exists(key('style', @role)[@css:background-color and not(@css:background-color eq '#FFFFFF') ]))]
                                [not(.//dbk:footnote)]">
     <rule name="colorbox" type="cmd">
-      <param select="for $i in (@css:background-color, key('style', @role)/@css:background-color)[1] 
-                     return concat('color-', index-of(distinct-values($colors), $i))"/>
+      <param select="for $color-code in (@css:background-color, key('style', @role)/@css:background-color)[1] 
+                     return if(exists(tr:color-hex-rgb-to-keyword($color-code)))
+                            then tr:color-hex-rgb-to-keyword($color-code)[1]
+                            else concat('color-', upper-case(substring-after($color-code, '#')))"/>
       <xsl:text>{</xsl:text>
       <xsl:next-match/>
       <xsl:text>}</xsl:text>
@@ -717,7 +735,7 @@
 
   <template context="dbk:equation[@condition eq 'numbered']
                                  [not(ancestor::dbk:table or ancestor::dbk:informaltable)]">
-    <rule name="equation" type="env" break-before="2">
+    <rule name="equation" type="env" break-before="1">
       <text>&#xa;</text>
       <text/>
     </rule>
@@ -725,7 +743,7 @@
   
   <template context="dbk:equation[not(@condition eq 'numbered')]
                                  [not(ancestor::dbk:table or ancestor::dbk:informaltable)]">
-    <rule name="equation*" type="env" break-before="2">
+    <rule name="equation*" type="env" break-before="1">
       <text>&#xa;</text>
       <text/>
     </rule>
@@ -734,7 +752,7 @@
   <template context="dbk:equation[@condition eq 'numbered'][not(ancestor::dbk:table or ancestor::dbk:informaltable)]
                                  [not(some $i in processing-instruction() satisfies contains($i, '\begin{array}'))]
                                  [some $i in processing-instruction() satisfies contains($i, '\\')]">
-    <rule name="align" type="env" break-before="2">
+    <rule name="align" type="env" break-before="1">
       <text>&#xa;</text>
       <text/>
     </rule>
@@ -744,7 +762,7 @@
                                  [not(ancestor::dbk:table or ancestor::dbk:informaltable)]
                                  [not(some $i in processing-instruction() satisfies contains($i, '\begin{array}'))]
                                  [some $i in processing-instruction() satisfies contains($i, '\\')]">
-    <rule name="align*" type="env" break-before="2">
+    <rule name="align*" type="env" break-before="1">
       <text>&#xa;</text>
       <text/>
     </rule>
@@ -814,18 +832,36 @@
 
   <template context="dbk:indexterm[not(@type)]">
     <rule name="index" type="cmd">
-      <param/>
+      <xsl:call-template name="index-content"/>
     </rule>
   </template>
 
   <template context="dbk:indexterm[@type]">
     <rule name="index" type="cmd">
       <option select="@type"/>
-      <param/>
+      <xsl:call-template name="index-content"/>
     </rule>
   </template>
   
-  <template context="dbk:indexterm[not(normalize-space())]"/>
+  <xsl:template name="index-content">
+    <xsl:choose>
+      <xsl:when test="@class eq 'startofrange'">
+        <text>{</text>
+        <text/>
+        <text>|(}</text>
+      </xsl:when>
+      <xsl:when test="@class eq 'endofrange'">
+        <text>{</text>
+        <text select="key('item-by-id', @startref)/node()"/>
+        <text>|)}</text>
+      </xsl:when>
+      <xsl:otherwise>
+        <param/>    
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+    
+  <template context="dbk:indexterm[not(normalize-space())][not(@class)]"/>
   
   <template context="dbk:primary">
     <rule>
@@ -937,7 +973,7 @@
     <xsl:apply-templates mode="#current"/>
   </template>
   
-  <template context="dbk:index[.//dbk:indexentry]/dbk:title"/>
+  <template context="dbk:index[.//dbk:indexentry]/dbk:title | dbk:index/dbk:info"/>
 
   <template context="dbk:index[.//dbk:indexentry]//dbk:indexdiv">
     <xsl:if test="not(preceding-sibling::dbk:indexdiv)">
@@ -1049,7 +1085,8 @@
     </rule>
   </template>
   
-  <template context="dbk:biblioref">
+  <template context="dbk:biblioref
+                    |dbk:citation">
     <rule name="cite" type="cmd">
       <param select="string-join(tokenize(@linkends, '\s'), ',')"/>
     </rule>  
@@ -1144,11 +1181,12 @@
   </template>
   
   <template context="dbk:orderedlist">
-    <xsl:variable name="list-type" 
-                  select="tr:enumerate-list-type((@numeration, 'arabic')[1], *:listitem[1]/@override)" as="xs:string"/>
+    <xsl:variable name="list-type" as="xs:string?"
+                  select="tr:enumerate-list-type((@numeration, 'arabic')[1], *:listitem[1]/@override)"/>
     <!-- use 1st override or if empty 1st override of sublist -->
     <xsl:variable name="override" as="xs:string?"
-                  select="(*:listitem[1], *:listitem[1]/*:orderedlist[1]/*:listitem[1])[string-length(@override) gt 0][1]/@override"/>
+                  select="(*:listitem[1], 
+                           *:listitem[1]/*:orderedlist[1]/*:listitem[1])[string-length(@override) gt 0][1]/@override"/>
     <xsl:variable name="start" as="xs:integer" 
                   select="if(string-length($override) gt 0 and @numeration) 
                           then tr:list-number-to-integer($override, @numeration) - 1
@@ -1157,11 +1195,13 @@
     <xsl:variable name="level-roman" as="xs:string">
       <xsl:number value="$level" format="i"/>
     </xsl:variable>
-    <xsl:value-of select="concat('&#xa;&#xa;\begin{enumerate}[{',
-                                 $list-type,'}]',
-                                 if($start gt 0) 
-                                 then concat('&#xa;\setcounter{enum', $level-roman, '}{', $start, '}') 
-                                 else ''
+    <xsl:value-of select="concat('&#xa;\begin{enumerate}',
+                                 $list-type[not(matches(., '^\[\{\d+\.\}\]$'))],
+                                 concat('&#xa;\setcounter{enum', 
+                                        $level-roman, 
+                                        '}{', 
+                                        $start, 
+                                        '}')[$start gt 0]
                                  )"/>
     <xsl:apply-templates mode="#current"/>
     <xsl:value-of select="'&#xa;\end{enumerate}&#xa;'"/>
@@ -1178,11 +1218,13 @@
                           else if($numeration eq 'lowerroman') then 'i'
                           else if($numeration eq 'upperroman') then 'I'
                           else                                      '1'"/>
-    <xsl:value-of select="string-join(for $i in (1 to max((count($indizes), count($separators))))
+    <xsl:value-of select="string-join(('[{',
+                                      for $i in (1 to max((count($indizes), count($separators))))
                                       return if(    count($separators) gt count($indizes))
                                              then ($separators[$i], $list-type[$indizes[$i]])
-                                             else ($list-type, $separators[$i])
-                                      ,'')"/>    
+                                             else ($list-type, $separators[$i]),
+                                      '}]'         
+                                      ), '')"/>
   </xsl:function>
   
   <xsl:function name="tr:list-number-to-integer" as="xs:integer">
@@ -1194,8 +1236,11 @@
       <xsl:when test="$list-type = ('upperroman', 'lowerroman')">
         <xsl:value-of select="tr:roman-to-int($counter)"/>
       </xsl:when>
-      <xsl:when test="$list-type = ('upperalpha', 'loweralpha')">
+      <xsl:when test="$list-type = 'loweralpha'">
         <xsl:value-of select="string-length(substring-before('abcdefghijklmnopqrstuvwxyz', $counter)) + 1"/>
+      </xsl:when>
+      <xsl:when test="$list-type = 'upperalpha'">
+        <xsl:value-of select="string-length(substring-before('ABCDEFGHIJKLMNOPQRSTUVWXYZ', $counter)) + 1"/>
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="xs:integer(normalize-space($counter))"/>
