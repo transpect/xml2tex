@@ -226,6 +226,14 @@
     </rule>
   </template>
 
+  <template context="inline-formula | disp-formula">
+    <rule>
+      <text select="'$'"/>
+      <text/>
+      <text select="'$'"/>
+    </rule>
+  </template>
+
   <template context="break">
     <rule name="newline" type="cmd"/>
   </template>
