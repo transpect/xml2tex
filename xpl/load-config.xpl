@@ -78,15 +78,15 @@
               <xsl:template match="/xml2tex:set">
                 <xsl:copy>
                   <xsl:copy-of select="@*"/>
-                  <xsl:sequence select="xml2tex:import-elements('xsl:import', 'href', $root, $imports, $collect-all-xsl),
-                                        xml2tex:import-elements('xsl:param', 'name', $root, $imports, $collect-all-xsl),
+                  <xsl:sequence select="xml2tex:import-elements('xsl:param', 'name', $root, $imports, $collect-all-xsl),
                                         xml2tex:import-elements('xsl:key', 'name', $root, $imports, $collect-all-xsl),
                                         xml2tex:import-elements('xsl:variable', 'name', $root, $imports, $collect-all-xsl),
                                         xml2tex:import-elements('xsl:template', 'name', $root, $imports, $collect-all-xsl),
                                         xml2tex:import-elements('xsl:template', 'match', $root, $imports, $collect-all-xsl),
                                         xml2tex:import-elements('xsl:function', 'name', $root, $imports, $collect-all-xsl)"/>
 
-                  <xsl:for-each select="xml2tex:import, $imports/xml2tex:import">
+                  <xsl:for-each select="$imports/xsl:import, xsl:import,
+                                        $imports/xml2tex:import, xml2tex:import">
                     <xsl:copy>
                       <xsl:attribute name="href" select="resolve-uri(@href, base-uri())"/>
                       <xsl:copy-of select="@* except @href, node()"/>
