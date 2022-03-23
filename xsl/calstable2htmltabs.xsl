@@ -168,7 +168,7 @@
   
   <xsl:template match="node()| @*" mode="html2tabs_atts"/>
   
-  <xsl:variable name="no-css-atts-in-style" select="('bla','no-strut')"/>
+  <xsl:variable name="no-css-atts-in-style" select="'no-strut'"/>
   
   <xsl:function name="xml2tex:atts-to-option" as="xs:string?">
     <xsl:param name="atts" as="attribute()*"/>
@@ -210,6 +210,16 @@
   </xsl:template>
   
   <xsl:template match="@*[matches(., '^auto$')]" mode="xml2tex:css-atts-to-style-att"/>
+  
+  <xsl:variable name="css-atts-to-dissolve" select="'^line-height$'"/>
+  
+  <xsl:template match="@css:*[matches(local-name(), $css-atts-to-dissolve)]" mode="xml2tex:css-atts-to-style-att"/>
+  
+  <xsl:variable name="css-generic-values" select="'(sans-)?serif|monospace|bold|normal|center|left|right|justify|bottom|top|(x?x-)?small(-caps)?|(x?x-)?large|auto|none|collapse'"/>
+  <xsl:variable name="css-atts-with-generic-values" select="'font-(weight|family|style|variant)|hyphens|border-collapse'"/>
+  
+  <xsl:template match="@css:*[matches(local-name(),$css-atts-with-generic-values)]
+                             [not(matches(.,$css-generic-values))]" mode="xml2tex:css-atts-to-style-att"/>
   
   <xsl:function name="xml2tex:absolute-to-relative-col-width" as="xs:decimal">
     <xsl:param name="colwidth" as="xs:string"/>
