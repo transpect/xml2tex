@@ -215,7 +215,7 @@
   
   <xsl:template match="@css:*[matches(local-name(), $css-atts-to-dissolve)]" mode="xml2tex:css-atts-to-style-att"/>
   
-  <xsl:variable name="css-generic-values" select="'(sans-)?serif|monospace|bold|normal|center|left|right|justify|bottom|top|(x?x-)?small(-caps)?|(x?x-)?large|auto|none|collapse'"/>
+  <xsl:variable name="css-generic-values" select="'(sans-)?serif|monospace|bold|normal|center|left|right|justify|bottom|top|(x?x-)?small(-caps)?|(x?x-)?large|auto|none|collapse|separate'"/>
   <xsl:variable name="css-atts-with-generic-values" select="'font-(weight|family|style|variant)|hyphens|border-collapse'"/>
   
   <xsl:template match="@css:*[matches(local-name(),$css-atts-with-generic-values)]
