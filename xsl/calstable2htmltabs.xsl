@@ -134,7 +134,7 @@
     </xsl:copy>
   </xsl:template>
   
-  <xsl:variable name="strut-element-names" select="'^(itemized|ordered)list$'"/>
+  <xsl:variable name="strut-element-names" select="'^((itemized|ordered)list|inlinemediaobject|mediaobject)$'"/>
   
   <xsl:template match="td|th" mode="html2tabs">
     <xsl:copy>
