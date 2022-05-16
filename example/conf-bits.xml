@@ -226,11 +226,18 @@
     </rule>
   </template>
 
-  <template context="inline-formula | disp-formula">
+  <template context="inline-formula">
     <rule>
       <text select="'$'"/>
       <text/>
       <text select="'$'"/>
+    </rule>
+  </template>
+
+  <template context="disp-formula">
+    <rule name="equation*" type="env" break-before="1">
+      <xsl:text>&#xa;</xsl:text>
+      <text/>
     </rule>
   </template>
 
