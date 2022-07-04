@@ -209,6 +209,10 @@
     <xsl:attribute name="{name()}" select="replace(., '%', '\\%')"/>
   </xsl:template>
   
+  <xsl:template match="@*[. = 'outset']" mode="xml2tex:css-atts-to-style-att">
+    <xsl:attribute name="{name()}" select="'solid'"/>
+  </xsl:template>
+
   <xsl:template match="@*[matches(., '^auto$')]" mode="xml2tex:css-atts-to-style-att"/>
   
   <xsl:variable name="css-atts-to-dissolve" select="'^line-height$'"/>
