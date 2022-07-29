@@ -396,8 +396,45 @@ xml2tex.option =
 # *
 xml2tex.set.attributes =
   attribute xml:base { xsd:anyURI }?
-  & attribute style-attribute { text }?
-  & attribute decompose-diacritics { "yes" | "no" }?
+  & [
+      a:documentation [
+        "For style mapping via \x{a}" ~
+        "            "
+        ns1:code [ "\x{a}" ~ "style" ]
+        " you can choose the attribute to be evaluated as style e.g.\x{a}" ~
+        "            "
+        ns1:code [ "role" ]
+        " in DocBook or "
+        ns1:code [ "rend" ]
+        " in TEI.\x{a}" ~
+        "          "
+      ]
+    ]
+    attribute style-attribute { text }?
+  & [
+      a:documentation [
+        "Should Unicode combining characters\x{a}" ~
+        "            automatically converted to its LaTeX supplements, e.g. "
+        ns1:code [ 'Ü =>\"U' ]
+        "? \x{a}" ~
+        "          "
+      ]
+    ]
+    attribute decompose-diacritics { "yes" | "no" }?
+  & [
+      a:documentation [
+        "Specify the table-model which is used\x{a}" ~
+        "            to create TeX tables. Permitted values are "
+        ns1:code [ "tabular" ]
+        ", "
+        ns1:code [ "tabularx" ]
+        " and "
+        ns1:code [ "htmltabs" ]
+        ".\x{a}" ~
+        "          "
+      ]
+    ]
+    attribute table-model { "tabular" | "tabularx" | "htmltabs" }?
 xml2tex.atom.attributes =
   ([
      a:documentation [

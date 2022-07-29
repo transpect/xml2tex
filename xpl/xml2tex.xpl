@@ -66,10 +66,10 @@
     </p:documentation>
   </p:option>
   
-  <p:option name="table-model" select="'tabularx'" required="false">
+  <p:option name="table-model" select="''" required="false">
     <p:documentation>
       Use LaTeX package to draw tables. Permitted values are 'tabular',
-      'tabularx' and 'htmltabs'.
+      'tabularx' (default) and 'htmltabs'.
     </p:documentation>
   </p:option>
   
@@ -307,7 +307,10 @@
   </p:choose>
 
   <p:choose name="resolve-tables-or-normalize">
-    <p:when test="$table-model eq 'htmltabs'">
+    <p:when test="($table-model[normalize-space()], xml2tex:set/@table-model)[1] = 'htmltabs'">
+      <p:xpath-context>
+        <p:pipe port="result" step="load-config"/>
+      </p:xpath-context>
       <p:identity/>
     </p:when>
     <p:when test="$nested-tables eq 'yes'">
@@ -327,7 +330,10 @@
   <p:sink/>
   
   <p:choose name="choose-table-model-xslt">
-    <p:when test="$table-model eq 'htmltabs'">
+    <p:when test="($table-model[normalize-space()], xml2tex:set/@table-model)[1] = 'htmltabs'">
+      <p:xpath-context>
+        <p:pipe port="result" step="load-config"/>
+      </p:xpath-context>
       <p:output port="result">
         <p:pipe port="result" step="load-cals2tabular-xsl"/>
       </p:output>
@@ -375,8 +381,10 @@
     </p:input>
     <p:input port="parameters">
       <p:pipe port="paths" step="xml2tex"/>
-    </p:input>
-    <p:with-param name="table-model" select="$table-model"/>
+    </p:input>    
+    <p:with-param name="table-model" select="($table-model[normalize-space()], xml2tex:set/@table-model)[1]">
+      <p:pipe port="result" step="load-config"/>
+    </p:with-param>
     <p:with-param name="table-grid" select="$table-grid"/>
     <p:with-param name="no-table-grid-att" select="$no-table-grid-att"/>
     <p:with-param name="no-table-grid-style" select="$no-table-grid-style"/>
@@ -439,7 +447,6 @@
     <p:input port="parameters">
       <p:pipe port="paths" step="xml2tex"/>
     </p:input>
-    <p:with-param name="table-model" select="$table-model"/>
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
@@ -460,7 +467,6 @@
     <p:input port="parameters">
       <p:pipe port="paths" step="xml2tex"/>
     </p:input>
-    <p:with-param name="table-model" select="$table-model"/>
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
@@ -475,7 +481,6 @@
     <p:input port="parameters">
       <p:pipe port="paths" step="xml2tex"/>
     </p:input>
-    <p:with-param name="table-model" select="$table-model"/>
     <p:input port="models"><p:empty/></p:input>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>

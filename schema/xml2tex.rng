@@ -256,14 +256,33 @@
       </optional>
       <optional>
         <attribute name="style-attribute">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">For style mapping via 
+            <code>&#xa;style</code> you can choose the attribute to be evaluated as style e.g.
+            <code>role</code> in DocBook or <code>rend</code> in TEI.
+          </a:documentation>
           <text/>
         </attribute>
       </optional>
       <optional>
         <attribute name="decompose-diacritics">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">Should Unicode combining characters
+            automatically converted to its LaTeX supplements, e.g. <code>Ü =>\"U</code>? 
+          </a:documentation>
           <choice>
             <value>yes</value>
             <value>no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="table-model">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">Specify the table-model which is used
+            to create TeX tables. Permitted values are <code>tabular</code>, <code>tabularx</code> and <code>htmltabs</code>.
+          </a:documentation>
+          <choice>
+            <value>tabular</value>
+            <value>tabularx</value>
+            <value>htmltabs</value>
           </choice>
         </attribute>
       </optional>
