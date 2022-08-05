@@ -435,6 +435,21 @@ xml2tex.set.attributes =
       ]
     ]
     attribute table-model { "tabular" | "tabularx" | "htmltabs" }?
+  & [
+      a:documentation [
+        "Specify whether table grid lines \x{a}" ~
+        "            should be rendered. Only effective when selected "
+        ns1:code [ "table-model " ]
+        " is \x{a}" ~
+        "            "
+        ns1:code [ "tabular" ]
+        " or "
+        ns1:code [ "tabularx" ]
+        ".\x{a}" ~
+        "          "
+      ]
+    ]
+    attribute table-grid { "yes" | "no" }?
   & 
     ## Overrides the table column declaration of the first column.
     (attribute table-first-col-declaration { text }?)

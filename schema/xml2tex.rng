@@ -287,6 +287,18 @@
         </attribute>
       </optional>
       <optional>
+        <attribute name="table-grid">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">Specify whether table grid lines 
+            should be rendered. Only effective when selected <code>table-model </code> is 
+            <code>tabular</code> or <code>tabularx</code>.
+          </a:documentation>
+          <choice>
+            <value>yes</value>
+            <value>no</value>
+          </choice>
+        </attribute>
+      </optional>
+      <optional>
         <a:documentation xmlns="http://www.w3.org/1999/xhtml">Overrides the table column declaration of the first column.</a:documentation>
         <attribute name="table-first-col-declaration">
           <text/>
