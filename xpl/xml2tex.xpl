@@ -73,9 +73,9 @@
     </p:documentation>
   </p:option>
   
-  <p:option name="table-grid" select="'yes'" required="false">
+  <p:option name="table-grid" select="''" required="false">
     <p:documentation>
-      Draw table cell borders.
+      Draw table cell borders. Permitted values: yes|no
     </p:documentation>
   </p:option>
   
@@ -385,7 +385,9 @@
     <p:with-param name="table-model" select="($table-model[normalize-space()], xml2tex:set/@table-model)[1]">
       <p:pipe port="result" step="load-config"/>
     </p:with-param>
-    <p:with-param name="table-grid" select="$table-grid"/>
+    <p:with-param name="table-grid" select="($table-grid[normalize-space()], xml2tex:set/@table-grid, 'yes')[1]">
+      <p:pipe port="result" step="load-config"/>
+    </p:with-param>
     <p:with-param name="table-col-declaration" select="xml2tex:set/@table-col-declaration">
       <p:pipe port="result" step="load-config"/>
     </p:with-param>
