@@ -386,6 +386,24 @@
       <p:pipe port="result" step="load-config"/>
     </p:with-param>
     <p:with-param name="table-grid" select="$table-grid"/>
+    <p:with-param name="table-col-declaration" select="xml2tex:set/@table-col-declaration">
+      <p:pipe port="result" step="load-config"/>
+    </p:with-param>
+    <p:with-param name="table-first-col-declaration" select="xml2tex:set/@table-first-col-declaration">
+      <p:pipe port="result" step="load-config"/>
+    </p:with-param>
+    <p:with-param name="table-last-col-declaration" select="xml2tex:set/@table-last-col-declaration">
+      <p:pipe port="result" step="load-config"/>
+    </p:with-param>
+    <p:with-param name="table-col-separator" select="xml2tex:set/@table-col-separator">
+      <p:pipe port="result" step="load-config"/>
+    </p:with-param>
+    <p:with-param name="table-first-col-separator" select="xml2tex:set/@table-first-col-separator">
+      <p:pipe port="result" step="load-config"/>
+    </p:with-param>
+    <p:with-param name="table-last-col-separator" select="xml2tex:set/@table-last-col-separator">
+      <p:pipe port="result" step="load-config"/>
+    </p:with-param>
     <p:with-param name="no-table-grid-att" select="$no-table-grid-att"/>
     <p:with-param name="no-table-grid-style" select="$no-table-grid-style"/>
     <p:with-param name="debug" select="$debug"/>
