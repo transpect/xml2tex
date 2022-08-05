@@ -286,6 +286,26 @@
           </choice>
         </attribute>
       </optional>
+      <optional>
+        <a:documentation xmlns="http://www.w3.org/1999/xhtml">Overrides the table column declaration of the first column.</a:documentation>
+        <attribute name="table-first-col-declaration">
+          <text/>
+        </attribute>
+      </optional>
+      <optional>
+        <a:documentation xmlns="http://www.w3.org/1999/xhtml">Overrides the table column declaration. You can specify different declarations
+          for first and last column with the options <code>table-first-col-declaration</code> and <code>table-last-col-declaration</code>. 
+        </a:documentation>
+        <attribute name="table-col-declaration">
+          <text/>
+        </attribute>
+      </optional>
+      <optional>
+        <a:documentation xmlns="http://www.w3.org/1999/xhtml">Overrides the table column declaration of the last column.</a:documentation>
+        <attribute name="table-last-col-declaration">
+          <text/>
+        </attribute>
+      </optional>
     </interleave>
   </define>
 
@@ -307,7 +327,7 @@
             <a:documentation xmlns="http://www.w3.org/1999/xhtml">
               <h1>The <i>select</i> attribute</h1>
               <p>Value: <code>xs:integer</code></p>
-              <p>Specify the number of the regex group to be selected.</p>
+              <p>Specify the number of the regex groups to be selected.</p>
             </a:documentation>
             <data type="integer"/>
           </attribute>

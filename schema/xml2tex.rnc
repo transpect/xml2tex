@@ -435,6 +435,24 @@ xml2tex.set.attributes =
       ]
     ]
     attribute table-model { "tabular" | "tabularx" | "htmltabs" }?
+  & 
+    ## Overrides the table column declaration of the first column.
+    (attribute table-first-col-declaration { text }?)
+  & [
+      a:documentation [
+        "Overrides the table column declaration. You can specify different declarations\x{a}" ~
+        "          for first and last column with the options "
+        ns1:code [ "table-first-col-declaration" ]
+        " and "
+        ns1:code [ "table-last-col-declaration" ]
+        ". \x{a}" ~
+        "        "
+      ]
+    ]
+    (attribute table-col-declaration { text }?)
+  & 
+    ## Overrides the table column declaration of the last column.
+    (attribute table-last-col-declaration { text }?)
 xml2tex.atom.attributes =
   ([
      a:documentation [
@@ -465,7 +483,7 @@ xml2tex.atom.attributes =
          "\x{a}" ~
          "              "
          ns1:p [
-           "Specify the number of the regex group to be selected."
+           "Specify the number of the regex groups to be selected."
          ]
          "\x{a}" ~
          "            "
