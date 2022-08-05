@@ -353,3 +353,21 @@ Equations specified in MathML syntax are automatically converted with the module
 
 CALS tables are converted automatically converted to tabular tables. A XSLT stylesheet which converts also HTML tables is considered for a later release.
 
+There are config options to allow a minimal set of customization:
+
+```
+<set xmlns="http://transpect.io/xml2tex"
+     table-model="tabular"
+     table-grid="yes"
+     table-col-declaration="c"
+     table-first-col-declaration="l"
+     table-last-col-declaration="r">
+  <!-- (...) -->
+</set>
+```
+
+* Permitted values for `table-model` are `tabular` and `tabularx`.
+* Choose `yes` or `no` for `table-grid` to select whether table grid lines should be rendered or not.
+* With `table-col-declaration` you can specify a custom column declaration for all table columns.
+* `table-first-col-declaration` affects the first table column and takes precedence over `table-col-declaration`.
+* `table-last-col-declaration` applies to the last table column and is preferred over `table-col-declaration`.
