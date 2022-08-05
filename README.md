@@ -355,7 +355,7 @@ CALS tables are converted automatically converted to tabular tables. A XSLT styl
 
 There are config options to allow a minimal set of customization:
 
-```
+```xml
 <set xmlns="http://transpect.io/xml2tex"
      table-model="tabular"
      table-grid="yes"
