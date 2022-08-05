@@ -16,14 +16,11 @@
   <xsl:import href="functions.xsl"/>
   <xsl:import href="http://transpect.io/xslt-util/cals2htmltable/xsl/cals2htmltables.xsl"/>
   <xsl:import href="http://transpect.io/xslt-util/lengths/xsl/lengths.xsl"/>
-
-  <xsl:param name="table-model" select="'tabularx'" as="xs:string"/>
-  <!-- tabularx | tabular -->
-  <xsl:param name="table-grid" select="''" as="xs:string"/>
-  <xsl:param name="line-separator" select="''" as="xs:string"/>
-  <xsl:param name="no-table-grid-att" select="'role'"/>
-  <xsl:param name="no-table-grid-style" select="'blind-table'"/>
-
+  
+  <xsl:param name="table-col-declaration" select="''" as="xs:string"/>
+  <xsl:param name="table-first-col-declaration" select="''" as="xs:string"/>
+  <xsl:param name="table-last-col-declaration" select="''" as="xs:string"/>
+  
   <xsl:param name="debug" select="'no'"/>
   <xsl:param name="debug-dir-uri" select="'debug'"/>
   
@@ -101,12 +98,20 @@
   </xsl:template>
   
   <xsl:template match="col[@css:width]" mode="html2tabs">
+    <xsl:variable name="pos" select="position()" as="xs:integer"/>
+    <xsl:variable name="col-count" select="count(parent::*/col)" as="xs:integer"/>
+    <xsl:variable name="col-override" as="xs:string?" 
+                  select="($table-first-col-declaration[$pos = 1][normalize-space()],
+                           $table-last-col-declaration[$pos = $col-count][normalize-space()],
+                           $table-col-declaration)[1]"/>
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:processing-instruction name="htmltabs" 
-                                    select="concat('\HTcol[width=',
-                                                   xml2tex:absolute-to-relative-col-width(@css:width, parent::*/col/@css:width) * 100, 
-                                                   '\%]&#xa;')"/>
+                                  select="concat('\HTcol[',
+                                                 ($col-override[normalize-space()],
+                                                  concat('width=',
+                                                         xml2tex:absolute-to-relative-col-width(@css:width, parent::*/col/@css:width) * 100))[1],
+                                                 '\%]&#xa;')"/>
     </xsl:copy>
   </xsl:template>
   

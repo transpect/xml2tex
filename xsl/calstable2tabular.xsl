@@ -16,8 +16,11 @@
   <!-- this template expects a hub file with normalized tables -->
   
   <xsl:param name="table-model" select="'tabularx'" as="xs:string"/><!-- tabularx | tabular -->
+  <xsl:param name="table-col-declaration" select="''" as="xs:string"/>
+  <xsl:param name="table-first-col-declaration" select="''" as="xs:string"/>
+  <xsl:param name="table-last-col-declaration" select="''" as="xs:string"/>
   <xsl:param name="table-grid" select="'yes'" as="xs:string"/>
-  <xsl:param name="line-separator" select="if($table-grid eq 'yes') then '|' else ''" as="xs:string"/>
+  <xsl:param name="col-separator" select="if($table-grid eq 'yes') then '|' else ''" as="xs:string"/>
   <xsl:param name="no-table-grid-att" select="'role'"/>
   <xsl:param name="no-table-grid-style" select="'blind-table'"/>
   
@@ -130,7 +133,7 @@
   <xsl:template match="*:entry[@xml:id]" mode="cals2tabular:multicolumn">
     <xsl:variable name="pos" select="count(preceding-sibling::*:entry) + 1" as="xs:integer"/>
     <xsl:variable name="entry-id" select="@xml:id" as="xs:string"/>
-    <xsl:variable name="line-separator" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then '' else $line-separator"/>
+    <xsl:variable name="col-separator" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then '' else $col-separator"/>
     <xsl:variable name="table-grid" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then 'no' else $table-grid"/>
     <!-- count sibling entries with a corresponding id reference -->
     <xsl:variable name="colspan" select="count(following-sibling::*:entry[$entry-id eq @linkend]) + 1" as="xs:integer"/>
@@ -144,9 +147,9 @@
           <xsl:variable name="multicol-width" as="xs:decimal" 
                         select="sum(for $i in ($pos to $pos + $colspan - 1) return $col-widths[$i])"/>
           <xsl:variable name="cell-declaration" as="xs:string"
-                        select="concat(if(not(preceding-sibling::*[1])) then $line-separator else (), 
-                                       cals2tabular:cell-declaration($multicol-width, $table-grid eq 'yes', $pos),
-                                       $line-separator)"/>
+                        select="concat(if(not(preceding-sibling::*[1])) then $col-separator else (), 
+                                       cals2tabular:col-declaration($multicol-width, $table-grid eq 'yes', $pos, $col-count),
+                                       $col-separator)"/>
           <xsl:apply-templates select="@*" mode="#current"/>
           <xsl:processing-instruction name="cals2tabular" 
                                       select="concat('\multicolumn{', $colspan, '}{', $cell-declaration , '}{')"/>
@@ -164,7 +167,7 @@
   </xsl:template>
   
   <xsl:template match="*:entry[@linkend]" mode="cals2tabular:multicolumn">
-    <xsl:variable name="line-separator" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then '' else $line-separator"/>
+    <xsl:variable name="col-separator" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then '' else $col-separator"/>
     <xsl:variable name="table-grid" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then 'no' else $table-grid"/>
     <xsl:variable name="entry-idref" select="@linkend" as="xs:string"/>
     <xsl:variable name="is-rowspan-and-colspan-ref" as="xs:boolean"
@@ -173,9 +176,9 @@
                           and     following-sibling::*[1][@linkend eq $entry-idref]"/>
     <xsl:variable name="colspan" select="count(following-sibling::*:entry[@linkend eq $entry-idref]) + 1" as="xs:integer"/>
     <xsl:variable name="cell-declaration" as="xs:string"
-                  select="concat(if(not(preceding-sibling::*[1])) then $line-separator else (),
+                  select="concat(if(not(preceding-sibling::*[1])) then $col-separator else (),
                                  'l', 
-                                 $line-separator)"/>
+                                 $col-separator)"/>
     <xsl:if test="$is-rowspan-and-colspan-ref">
       <xsl:processing-instruction name="cals2tabular" 
                                   select="concat('\multicolumn{', $colspan, '}{', $cell-declaration , '}{')"/>
@@ -298,21 +301,21 @@
   </xsl:template>
   
   <xsl:template match="*:tgroup" mode="cals2tabular:final">
-    <xsl:variable name="line-separator" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then '' else $line-separator"/>
+    <xsl:variable name="col-separator" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then '' else $col-separator"/>
     <xsl:variable name="table-grid" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then 'no' else $table-grid"/>
     <xsl:variable name="col-count" select="cals2tabular:col-count(.)" as="xs:integer"/>
     <xsl:variable name="col-widths" as="xs:decimal*"
                   select="for $i in *:colspec
                           return xml2tex:absolute-to-relative-col-width($i/@colwidth, *:colspec/@colwidth)"/>
     <xsl:variable name="col-declaration" as="xs:string"
-                  select="concat($line-separator,
+                  select="concat($col-separator,
                                  string-join(for $i in (1 to $col-count)
                                              return if(exists($col-widths))
                                                     then concat('&#xa;',
-                                                                cals2tabular:cell-declaration($col-widths[$i], $table-grid eq 'yes', $i))
+                                                                cals2tabular:col-declaration($col-widths[$i], $table-grid eq 'yes', $i, $col-count))
                                                     else 'l', 
-                                             $line-separator), 
-                                 $line-separator)"/>
+                                             $col-separator), 
+                                 $col-separator)"/>
     <xsl:variable name="top-separator" select="if($table-grid eq 'yes') then '&#x20;\hline&#x20;' else ''" as="xs:string"/>
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
@@ -357,19 +360,29 @@
     <xsl:sequence select="$final-col-widths"/>
   </xsl:function>
   
-  <xsl:function name="cals2tabular:cell-declaration" as="xs:string">
+  <xsl:function name="cals2tabular:col-declaration" as="xs:string">
     <xsl:param name="col-width" as="xs:decimal"/>
     <xsl:param name="table-grid" as="xs:boolean"/>
     <xsl:param name="pos" as="xs:integer"/>
-    <xsl:sequence select="concat('p{\dimexpr ', 
-                                 $col-width,
-                                 '\linewidth-2\tabcolsep',
-                                 if($table-grid) 
-                                 then concat('-', 
-                                             if($pos eq 1) then '2' else (),
-                                             '\arrayrulewidth')
-                                 else (),
-                                 '}')"/>
+    <xsl:param name="col-count" as="xs:integer"/>
+    <xsl:variable name="col-override" as="xs:string?"
+                  select="($table-first-col-declaration[$pos = 1][normalize-space()],
+                           $table-last-col-declaration[$pos = $col-count][normalize-space()],
+                           $table-col-declaration)[1]"/>
+    <xsl:choose>
+      <xsl:when test="($col-override)[normalize-space()]">
+        <xsl:sequence select="$col-override"/>
+      </xsl:when>
+      <xsl:otherwise>
+      <xsl:sequence select="string-join(('p{\dimexpr ', 
+                                         $col-width,
+                                         '\linewidth-2\tabcolsep-', 
+                                         '2'[$pos eq 1],
+                                         '\arrayrulewidth'[$table-grid],
+                                         '}'), '')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+    
   </xsl:function>
   
 </xsl:stylesheet>
