@@ -382,7 +382,7 @@
     <p:input port="parameters">
       <p:pipe port="paths" step="xml2tex"/>
     </p:input>    
-    <p:with-param name="table-model" select="($table-model[normalize-space()], xml2tex:set/@table-model)[1]">
+    <p:with-param name="table-model" select="($table-model[normalize-space()], xml2tex:set/@table-model, 'tabularx')[1]">
       <p:pipe port="result" step="load-config"/>
     </p:with-param>
     <p:with-param name="table-grid" select="($table-grid[normalize-space()], xml2tex:set/@table-grid, 'yes')[1]">
