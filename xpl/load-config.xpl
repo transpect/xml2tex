@@ -55,8 +55,6 @@
           <p:with-option name="href" select="$resolved-uri"/>
           <p:with-option name="fail-on-error" select="$fail-on-error"/>
         </tr:load>
-
-
       </p:viewport>
 
       <p:xslt>
@@ -102,11 +100,10 @@
                                        $imports/xml2tex:regex,
                                        xml2tex:template,
                                        xml2tex:regex"/>
-                  
                   <charmap>
-                    <xsl:copy-of select="(xml2tex:charmap, $imports/xml2tex:charmap)[1]/@*,
+                    <xsl:copy-of select="($imports/xml2tex:charmap/@ignore-imported-charmaps, xml2tex:charmap/@ignore-imported-charmaps)[1],
                                          xml2tex:charmap/xml2tex:char"/>
-                    <xsl:if test="not(xml2tex:charmap[@ignore-imported-charmaps eq 'true'])">                      
+                    <xsl:if test="not(xml2tex:charmap[@ignore-imported-charmaps eq 'true'])">                                            
                       <xsl:copy-of select="$imports/xml2tex:charmap/xml2tex:char[not(@character = /xml2tex:set/xml2tex:charmap/xml2tex:char/@character)]"/>
                     </xsl:if>
                   </charmap>
