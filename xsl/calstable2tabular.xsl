@@ -376,7 +376,7 @@
       <xsl:otherwise>
       <xsl:sequence select="string-join(('p{\dimexpr ', 
                                          $col-width,
-                                         '\linewidth-2\tabcolsep-', 
+                                         '\linewidth-2\tabcolsep', 
                                          concat('-',
                                                 '2'[$pos eq 1],
                                                 '\arrayrulewidth')[$table-grid],
