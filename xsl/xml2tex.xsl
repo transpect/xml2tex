@@ -300,9 +300,12 @@
                <xsl:if test="$parameter"><xsl:sequence select="$parameter"/></xsl:if>
             </xso:apply-templates> 
           </xso:when>
-          <!--  fallback: handle as simple text -->
+          <!--  fallback: handle as simple text, but first apply other templates -->
           <xso:otherwise>
-            <xso:apply-templates select="{@select}" mode="#current"/>
+            <xso:variable name="select-value" as="item()*">
+              <xso:apply-templates select="{@select}" mode="#current"/>
+            </xso:variable>
+            <xso:value-of select="$select-value"/>
           </xso:otherwise>
         </xso:choose>
         <xso:value-of select="$closing-delimiter"/>
