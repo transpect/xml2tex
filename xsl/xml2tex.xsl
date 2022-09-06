@@ -282,6 +282,11 @@
         </xsl:choose>
         <xso:value-of select="$closing-delimiter"/>
       </xsl:when>
+      <xsl:when test="@select and @type='text'">
+        <xso:value-of select="$opening-delimiter"/>
+        <xso:value-of select="{@select}"/>
+        <xso:value-of select="$closing-delimiter"/>
+      </xsl:when>
       <!--  *
             * select attribute exists either in text/option/param tag
             * -->

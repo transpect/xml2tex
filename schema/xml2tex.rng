@@ -335,6 +335,16 @@
           </attribute>
         </optional>
         <optional>
+          <attribute name="type">
+            <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+              <h1>The <i>type</i> attribute</h1>
+              <p>Value: <code>'text'</code></p>
+              <p>Specify if XPath expression in @select should be evaluated as text only.</p>
+            </a:documentation>
+            <text/>
+          </attribute>
+        </optional>
+        <optional>
           <attribute name="regex-group">
             <a:documentation xmlns="http://www.w3.org/1999/xhtml">
               <h1>The <i>select</i> attribute</h1>
