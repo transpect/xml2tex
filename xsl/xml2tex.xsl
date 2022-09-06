@@ -302,7 +302,7 @@
           </xso:when>
           <!--  fallback: handle as simple text -->
           <xso:otherwise>
-            <xso:value-of select="{@select}"/>
+            <xso:apply-templates select="{@select}" mode="#current"/>
           </xso:otherwise>
         </xso:choose>
         <xso:value-of select="$closing-delimiter"/>
