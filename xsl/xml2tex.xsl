@@ -294,22 +294,22 @@
         <xso:value-of select="$opening-delimiter"/>
         <xso:choose>
           <!--  handle elements -->
-          <xso:when test="({@select}) instance of node()+">
+          <xso:when test="({@select}) instance of element()+">
             <xso:apply-templates select="if(({@select}) instance of node()+) then ({@select}) else node()" mode="#current">
               <xsl:if test="$parameter"><xsl:sequence select="$parameter"/></xsl:if>
             </xso:apply-templates> 
           </xso:when>
-          <xso:when test="({@select}) instance of attribute()+">
-            <xso:apply-templates select="({@select})" mode="#current">
+          <xso:when test="not(({@select}) instance of item()+)">
+            <!-- avoid applying-templates of attributes that might create attributes after other nodes -->
+           <xso:apply-templates select="if(not(({@select}) instance of item()+)) then ({@select}) else node()" mode="#current">
               <xsl:if test="$parameter"><xsl:sequence select="$parameter"/></xsl:if>
             </xso:apply-templates> 
           </xso:when>
-          <!--  * handle node() function used in select attributes -->
-<!--          <xso:when test="not(({@select}) instance of item())">
-            <xso:apply-templates select="if(not(({@select}) instance of item())) then ({@select}) else node()" mode="#current">
-               <xsl:if test="$parameter"><xsl:sequence select="$parameter"/></xsl:if>
+          <xso:when test="({@select}) instance of text()+">
+           <xso:apply-templates select="if(({@select}) instance of text()+) then ({@select}) else node()" mode="#current">
+              <xsl:if test="$parameter"><xsl:sequence select="$parameter"/></xsl:if>
             </xso:apply-templates> 
-          </xso:when>-->
+          </xso:when>
           <!--  fallback: handle as simple text -->
           <xso:otherwise>
             <xso:value-of select="{@select}"/>
