@@ -152,12 +152,12 @@
                                       else concat('{', regex-group(1), '}')"/>
                 <xsl:variable name="tex-instr" select="$xml2tex:diacrits//mark[@hex eq $mark]/@tex" as="xs:string*"/>
                 <xsl:value-of select="if(string-length($tex-instr) gt 0 and not(matches(normalize-unicode(.), $texregex)))
-                                      then concat('$'[$mark-is-overset-letter], 
+                                      then concat('{','$'[$mark-is-overset-letter], 
                                                   $tex-instr, 
                                                   $char, 
-                                                  '$'[$mark-is-overset-letter])
+                                                  '$'[$mark-is-overset-letter], '}')
                                       else normalize-unicode(.)"/>
-              </xsl:matching-substring>
+                          </xsl:matching-substring>
               <xsl:non-matching-substring>
                 <xsl:value-of select="."/>
               </xsl:non-matching-substring>
