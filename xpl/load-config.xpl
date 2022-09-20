@@ -75,7 +75,7 @@
 
               <xsl:template match="/xml2tex:set">
                 <xsl:copy>
-                  <xsl:copy-of select="@*"/>
+                  <xsl:copy-of select="$imports/@*, @*"/>
                   <xsl:sequence select="xml2tex:import-elements('xsl:param', 'name', $root, $imports, $collect-all-xsl),
                                         xml2tex:import-elements('xsl:key', 'name', $root, $imports, $collect-all-xsl),
                                         xml2tex:import-elements('xsl:variable', 'name', $root, $imports, $collect-all-xsl),
