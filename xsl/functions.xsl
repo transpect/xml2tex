@@ -146,16 +146,20 @@
               <xsl:matching-substring>
                 <xsl:variable name="mark" select="regex-group(2)" as="xs:string"/>
                 <xsl:variable name="mark-is-overset-letter" select="matches($mark, $overset-letter-regex)" as="xs:boolean"/>
+              
                 <xsl:variable name="char" as="xs:string" 
                               select="if($mark-is-overset-letter)
                                       then concat('{\mathrm{', regex-group(1), '}}')
                                       else concat('{', regex-group(1), '}')"/>
                 <xsl:variable name="tex-instr" select="$xml2tex:diacrits//mark[@hex eq $mark]/@tex" as="xs:string*"/>
+                <xsl:variable name="is-special-for-href" select="$mark = '&#x301;' and  contains($char, '&#x75;')" as="xs:boolean">
+                  <!-- ú has to be quoted three times for hrefs-->
+                </xsl:variable>
                 <xsl:value-of select="if(string-length($tex-instr) gt 0 and not(matches(normalize-unicode(.), $texregex)))
-                                      then concat('{','$'[$mark-is-overset-letter], 
+                                      then concat('{'[$is-special-for-href], '{', '$'[$mark-is-overset-letter], 
                                                   $tex-instr, 
                                                   $char, 
-                                                  '$'[$mark-is-overset-letter], '}')
+                                                  '$'[$mark-is-overset-letter], '}', '}'[$is-special-for-href])
                                       else normalize-unicode(.)"/>
                           </xsl:matching-substring>
               <xsl:non-matching-substring>
