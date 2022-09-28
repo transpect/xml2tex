@@ -155,6 +155,12 @@
       
       <p:delete match="/xml2tex:set/xsl:variable[for $name in @name
                                                  return preceding-sibling::xsl:param[@name eq $name]]"/>
+      
+      <!-- prevent duplicates of named templates -->
+      
+      <p:delete match="/xml2tex:set/xsl:template[@name]
+                                                [for $name in @name
+                                                 return preceding-sibling::xsl:template[@name][@name eq $name]]"/>
 
       <xml2tex:load-config>
         <p:with-option name="fail-on-error" select="$fail-on-error"/>
