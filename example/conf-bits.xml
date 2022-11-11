@@ -92,6 +92,51 @@
       <param select="node()"/>
     </rule>
   </template>
+  
+  <template context="label">
+    <xsl:value-of select="'%', ."/>
+  </template>
+  
+  <template context="/book/book-body/book-part/book-part-meta/title-group/title">
+    <rule break-after="2" name="chapter" type="cmd">
+      <param/>
+    </rule>
+  </template>
+  
+  <template context="book-part[count(ancestor::book-part) eq 0]/book-part-meta/title-group/title
+                    |sec[count(ancestor::sec) eq 0]/title">
+    <rule break-after="2" name="section" type="cmd">
+      <param/>
+    </rule>
+  </template>
+  
+  <template context="book-part[count(ancestor::*[self::book-part]) eq 2]/book-part-meta/title-group/title
+                    |sec[count(ancestor::sec) eq 1]/title">
+    <rule break-after="2" name="subsection" type="cmd">
+      <param/>
+    </rule>
+  </template>
+  
+  <template context="book-part[count(ancestor::*[self::book-part]) eq 3]/book-part-meta/title-group/title
+                    |sec[count(ancestor::sec) eq 2]/title">
+    <rule break-after="2" name="subsubsection" type="cmd">
+      <param/>
+    </rule>
+  </template>
+  
+  <template context="book-part[count(ancestor::*[self::book-part]) eq 4]/book-part-meta/title-group/title
+                    |sec[count(ancestor::sec) eq 3]/title">
+    <rule break-after="2" name="paragraph" type="cmd">
+      <param/>
+    </rule>
+  </template>
+  
+  <template context="book-part[count(ancestor::*[self::book-part]) eq 5]/book-part-meta/title-group/title
+                    |sec[count(ancestor::sec) eq 4]/title">
+    <rule break-after="2" name="subparagraph" type="cmd">
+      <param/>
+    </rule>
+  </template>
 
   <template context="p">
     <rule break-before="1">
@@ -256,5 +301,7 @@
       <param/>
     </rule>
   </template>
+  
+  
 
 </set>
