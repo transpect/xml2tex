@@ -93,8 +93,18 @@
     </rule>
   </template>
   
+  <xsl:variable name="label-content-as-comment" as="xs:boolean"
+    select="true()"/>
+
   <template context="label">
-    <xsl:value-of select="'%', ."/>
+    <xsl:choose>
+      <xsl:when test="$label-content-as-comment">
+        <xsl:value-of select="'%', ."/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:apply-templates mode="#current"/>
+      </xsl:otherwise>
+    </xsl:choose>
   </template>
   
   <template context="/book/book-body/book-part/book-part-meta/title-group/title">
