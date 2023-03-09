@@ -299,22 +299,22 @@
         </attribute>
       </optional>
       <optional>
-        <a:documentation xmlns="http://www.w3.org/1999/xhtml">Overrides the table column declaration of the first column.</a:documentation>
         <attribute name="table-first-col-declaration">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">Overrides the table column declaration of the first column.</a:documentation>
           <text/>
         </attribute>
       </optional>
       <optional>
-        <a:documentation xmlns="http://www.w3.org/1999/xhtml">Overrides the table column declaration. You can specify different declarations
-          for first and last column with the options <code>table-first-col-declaration</code> and <code>table-last-col-declaration</code>. 
-        </a:documentation>
         <attribute name="table-col-declaration">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">Overrides the table column declaration. You can specify different declarations
+            for first and last column with the options <code>table-first-col-declaration</code> and <code>table-last-col-declaration</code>. 
+          </a:documentation>
           <text/>
         </attribute>
       </optional>
       <optional>
-        <a:documentation xmlns="http://www.w3.org/1999/xhtml">Overrides the table column declaration of the last column.</a:documentation>
         <attribute name="table-last-col-declaration">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">Overrides the table column declaration of the last column.</a:documentation>
           <text/>
         </attribute>
       </optional>

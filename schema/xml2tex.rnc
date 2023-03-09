@@ -452,22 +452,22 @@ xml2tex.set.attributes =
     attribute table-grid { "yes" | "no" }?
   & 
     ## Overrides the table column declaration of the first column.
-    (attribute table-first-col-declaration { text }?)
+    attribute table-first-col-declaration { text }?
   & [
       a:documentation [
         "Overrides the table column declaration. You can specify different declarations\x{a}" ~
-        "          for first and last column with the options "
+        "            for first and last column with the options "
         ns1:code [ "table-first-col-declaration" ]
         " and "
         ns1:code [ "table-last-col-declaration" ]
         ". \x{a}" ~
-        "        "
+        "          "
       ]
     ]
-    (attribute table-col-declaration { text }?)
+    attribute table-col-declaration { text }?
   & 
     ## Overrides the table column declaration of the last column.
-    (attribute table-last-col-declaration { text }?)
+    attribute table-last-col-declaration { text }?
 xml2tex.atom.attributes =
   ([
      a:documentation [
@@ -487,6 +487,24 @@ xml2tex.atom.attributes =
      ]
    ]
    attribute select { text }?
+   & [
+       a:documentation [
+         "\x{a}" ~
+         "              "
+         ns1:h1 [ "The " ns1:i [ "type" ] " attribute" ]
+         "\x{a}" ~
+         "              "
+         ns1:p [ "Value: " ns1:code [ "'text'" ] ]
+         "\x{a}" ~
+         "              "
+         ns1:p [
+           "Specify if XPath expression in @select should be evaluated as text only."
+         ]
+         "\x{a}" ~
+         "            "
+       ]
+     ]
+     attribute type { text }?
    & [
        a:documentation [
          "\x{a}" ~
