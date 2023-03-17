@@ -468,6 +468,11 @@ xml2tex.set.attributes =
   & 
     ## Overrides the table column declaration of the last column.
     attribute table-last-col-declaration { text }?
+  & 
+    ## Choose the method docx2tex detects lists.
+    attribute list-mode {
+      xsd:string "indent" | xsd:string "role" | xsd:string "none"
+    }?
 xml2tex.atom.attributes =
   ([
      a:documentation [

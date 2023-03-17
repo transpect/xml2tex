@@ -318,6 +318,16 @@
           <text/>
         </attribute>
       </optional>
+      <optional>
+        <attribute name="list-mode">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">Choose the method docx2tex detects lists.</a:documentation>
+          <choice>
+            <value type="string">indent</value>
+            <value type="string">role</value>
+            <value type="string">none</value>
+          </choice>
+        </attribute>
+      </optional>
     </interleave>
   </define>
 
