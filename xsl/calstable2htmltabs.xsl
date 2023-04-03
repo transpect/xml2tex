@@ -182,9 +182,11 @@
                                   if ($atts[local-name() = 'width']) 
                                   then concat('width=', xml2tex:escape-for-tex($atts[local-name() = 'width']),',') else '',
                                   string-join(
-                                              (xml2tex:css-atts-to-style-att($atts[namespace-uri() eq 'http://www.w3.org/1996/css' or local-name() = $no-css-atts-in-style]),
-                                               $atts[local-name() = ('id', 'class', 'colspan', 'rowspan')]/concat(local-name(), '=', ., '')),
-                                               ','),
+                                    (xml2tex:css-atts-to-style-att($atts[namespace-uri() eq 'http://www.w3.org/1996/css' or local-name() = $no-css-atts-in-style]
+                                                                        [local-name() ne 'width']
+                                     ),
+                                     $atts[local-name() = ('id', 'class', 'colspan', 'rowspan')]/concat(local-name(), '=', ., '')),
+                                    ','),
                                   ']')"/>
     </xsl:if>
   </xsl:function>
