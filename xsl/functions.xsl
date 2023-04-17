@@ -358,6 +358,7 @@
                           else if(matches($lang, '^(sr|bs|hr|sr)')) then 'serbian'
                           else if(starts-with($lang, 'sk'))         then 'slovak'
                           else if(starts-with($lang, 'sv'))         then 'swedish'
+                          else if(starts-with($lang, 'syr'))        then 'syriac'
                           else if(starts-with($lang, 'th'))         then 'thai'
                           else if(starts-with($lang, 'tr'))         then 'turkish'
                           else if(starts-with($lang, 'uk'))         then 'ukrainian'
