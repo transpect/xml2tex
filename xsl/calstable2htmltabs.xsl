@@ -83,7 +83,7 @@
   
   <xsl:template match="tgroup" mode="html2tabs">
     <xsl:copy>
-      <xsl:apply-templates select="@*, *" mode="#current"/>
+      <xsl:apply-templates select="@*, *:thead, *:tbody, *:tfoot" mode="#current"/>
     </xsl:copy>
   </xsl:template>
   

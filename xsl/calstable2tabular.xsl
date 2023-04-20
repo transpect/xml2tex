@@ -328,7 +328,7 @@
                                                  '}', 
                                                  $top-separator)"/>
       <xsl:text>&#xa;</xsl:text>
-      <xsl:apply-templates mode="#current"/>
+      <xsl:apply-templates select="*:thead, *:tbody, *:tfoot" mode="#current"/>
       <xsl:processing-instruction name="cals2tabular" 
                                   select="concat('\end{', 
                                                  if($table-model eq 'tabular') then 'tabular' else 'tabularx',
