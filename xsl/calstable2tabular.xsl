@@ -142,7 +142,7 @@
         <xsl:when test="$colspan gt 1">
           <xsl:variable name="col-count" select="cals2tabular:col-count(ancestor::*[3][self::*:tgroup])" as="xs:integer"/>
           <xsl:variable name="col-widths" as="xs:decimal*"
-                        select="for $i in ancestor::*[3][self::*:tgroup]/*:colspec
+                        select="for $i in ancestor::*[3][self::*:tgroup]/*:colspec[@colwidth]
                                 return xml2tex:absolute-to-relative-col-width($i/@colwidth, ancestor::*[3][self::*:tgroup]/*:colspec/@colwidth)"/>
           <xsl:variable name="multicol-width" as="xs:decimal" 
                         select="sum(for $i in ($pos to $pos + $colspan - 1) return $col-widths[$i])"/>
@@ -305,7 +305,7 @@
     <xsl:variable name="table-grid" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then 'no' else $table-grid"/>
     <xsl:variable name="col-count" select="cals2tabular:col-count(.)" as="xs:integer"/>
     <xsl:variable name="col-widths" as="xs:decimal*"
-                  select="for $i in *:colspec
+                  select="for $i in *:colspec[@colwidth]
                           return xml2tex:absolute-to-relative-col-width($i/@colwidth, *:colspec/@colwidth)"/>
     <xsl:variable name="col-declaration" as="xs:string"
                   select="concat($col-separator,
