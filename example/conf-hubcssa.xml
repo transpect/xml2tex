@@ -14,9 +14,10 @@
   
   <xsl:param name="table-model" as="xs:string"/>
   
-  <xsl:variable name="path" select="tr:path(base-uri())" as="xs:string"/>
-  <xsl:variable name="basename" select="tr:basename(/dbk:hub/@xml:base)" as="xs:string"/>
-  <xsl:variable name="colors" 
+  <xsl:variable name="xerif" as="xs:boolean" select="false()"/>
+  <xsl:variable name="path"       as="xs:string"  select="tr:path(base-uri())" />
+  <xsl:variable name="basename"   as="xs:string"  select="tr:basename(/dbk:hub/@xml:base)"/>
+  <xsl:variable name="colors"     as="xs:string*"
                 select="(
                          //@css:background-color,
                          //@css:color[not(every $i in  tr:hex-rgb-color-to-ints(.) satisfies $i &lt; 35  
@@ -45,11 +46,8 @@
   <xsl:key name="item-by-id" match="*[@xml:id]" use="@xml:id"/>
   
   <!-- tex document header, set declarations such as documentclass and usepackage -->
-  <preamble>% docx2tex 1.8 --- ``Who let the docx out?''
-    %
-    % docx2tex is Open Source and 
-    % you can download it on GitHub:
-    % https://github.com/transpect/docx2tex
+  <preamble>%
+    % xml2tex
     % 
     \documentclass{scrbook}
     \usepackage[T1]{fontenc}
@@ -130,35 +128,11 @@
       <text/>
     </rule>
   </template>
-
-  <template context="dbk:para[   @css:text-align='center'
-                              or exists(key('style', @role)[@css:text-align eq 'center'])]
-                             [not(parent::*/@css:text-align='center')]">
-    <rule name="center" type="env">
-      <xsl:next-match/>
-    </rule>
-  </template>
-  
-  <template context="dbk:para[   @css:text-align='right'
-                              or exists(key('style', @role)[@css:text-align eq 'right'])]
-                             [not(parent::*/@css:text-align='right')]">
-    <rule name="flushright" type="env">
-      <xsl:next-match/>
-    </rule>
-  </template>
-  
-  <template context="dbk:para[   @css:text-align='left'
-                              and key('style', @role)/@css:text-align = ('center', 'right')]
-                             [not(parent::*/@css:text-align='left')]">
-    <rule name="flushleft" type="env">
-      <xsl:next-match/>
-    </rule>
-  </template>
   
   <template context="*[not(local-name() = $elements-where-pagebreaks-are-ignored)]
                       [not(self::dbk:title and parent::dbk:info/parent::*/local-name() = $titles-where-pagebreaks-are-ignored)]
                       [@css:page-break-before eq 'always' or key('style', @role)/@css:page-break-before eq 'always']">
-    <xsl:if test="$new-common"><xsl:text>\pagebreak&#xa;</xsl:text></xsl:if>
+    <xsl:if test="$xerif"><xsl:text>\pagebreak&#xa;</xsl:text></xsl:if>
     <xsl:next-match/>
   </template>
   
@@ -231,9 +205,9 @@
                       [@css:text-decoration-line ne 'none']
                       [   (@css:text-decoration-line[. eq 'underline'] 
                        or exists(key('style', @role)[@css:text-decoration-line eq 'underline']))]
-		      [not(@role eq 'Hyperlink')] 
-		      [not(parent::dbk:link) and exists(..)(:if no root exists:)]
-		      [not(.//dbk:link)]">
+		 [not(@role eq 'Hyperlink')] 
+		 [not(parent::dbk:link) and exists(..)(:if no root exists:)]
+		 [not(.//dbk:link)]">
     <xsl:value-of select="if (some $ a in (@css:text-decoration-style, 
                                            key('style', @role)/@css:text-decoration-style)
                               satisfies $a = 'double') 
@@ -258,7 +232,7 @@
     <rule name="textit" type="cmd" break-after="2">
       <param/>
       <xsl:choose>
-        <xsl:when test="parent::dbk:entry">
+        <xsl:when test="parent::dbk:entry or parent::*:th or parent::*:td">
           <xsl:text>\newline&#xa;</xsl:text>
         </xsl:when>
         <xsl:when test="not(   parent::dbk:footnote
@@ -293,6 +267,36 @@
       <text/>
       <text>&#xa;</text>
     </rule>
+  </template>
+  
+  <template context="dbk:para[   @css:text-align='center'
+                              or exists(key('style', @role)[@css:text-align eq 'center'])]
+                             [not(parent::*/@css:text-align='center')]
+                             [not(parent::dbk:entry or parent::*:th or parent::*:td)]">
+    <xsl:text>{\centering </xsl:text>    
+    <xsl:next-match/>
+    <xsl:text>\par}</xsl:text>
+  </template>
+  
+  <template context="dbk:para[   @css:text-align='right'
+                              or exists(key('style', @role)[@css:text-align eq 'right'])]
+                             [not(parent::*/@css:text-align='right')]
+                             [not(parent::dbk:entry or parent::*:th or parent::*:td)]">
+    <xsl:text>{\raggedleft </xsl:text>
+    <xsl:next-match/>
+    <xsl:text>\par}</xsl:text>
+  </template>
+  
+  <template context="dbk:para[(    @css:text-align='left'
+                               and key('style', @role)/@css:text-align = ('center', 'right'))
+                              or (not(@css:text-align)
+                                  and parent::*[local-name() = ('td', 'th', 'entry')]
+                                  and following-sibling::*[1][@css:text-align[. ne 'left']])]
+                             [not(parent::*/@css:text-align='left')]
+                             [not(parent::dbk:entry or parent::*:th or parent::*:td)]">
+    <xsl:text>{\raggedright </xsl:text>
+    <xsl:next-match/>
+    <xsl:text>\par}</xsl:text>
   </template>
   
   <!-- manually lowered or raised position -->
@@ -434,17 +438,20 @@
       <xsl:number value="$level" format="i"/>
     </xsl:variable>
     <xsl:variable name="pos" select="count(preceding-sibling::*) + 1" as="xs:integer"/>
-    <xsl:if test="@override
-                  and not(  tr:list-number-to-integer(@override, parent::*/@numeration) 
+    <xsl:variable name="override" select="@override" as="attribute(override)?"/>
+    <xsl:variable name="numeration" select="parent::*/@numeration" as="attribute(numeration)?"/>
+    <xsl:if test="    $override
+                  and $numeration
+                  and not(  tr:list-number-to-integer($override, $numeration) 
                           - preceding-sibling::*[1]/tr:list-number-to-integer(@override, parent::*/@numeration)
                           = 1 )
                   and $pos ne 1">
       <xsl:value-of select="concat('&#xa;\setcounter{enum', $level-roman, '}{', 
                                    xs:string(
-                                       preceding-sibling::*[1]/tr:list-number-to-integer(@override, parent::*/@numeration)
-                                     + tr:list-number-to-integer(@override, parent::*/@numeration)
-                                     - preceding-sibling::*[1]/tr:list-number-to-integer(@override, parent::*/@numeration)
-                                     - 1), 
+                                               preceding-sibling::*[1]/tr:list-number-to-integer(@override, parent::*/@numeration)
+                                             + tr:list-number-to-integer($override, $numeration)
+                                             - preceding-sibling::*[1]/tr:list-number-to-integer(@override, parent::*/@numeration)
+                                             - 1), 
                                    '}&#xa;')"/>
     </xsl:if>
     <rule name="item" type="cmd" break-before="1">
@@ -487,7 +494,7 @@
                       [@css:color or key('style', @role)/@css:color]
                       [not(every $i in  tr:hex-rgb-color-to-ints((@css:color, key('style', @role)/@css:color)[1]) 
                            satisfies $i &lt; 35)]
-                      [not(@role = ('ZFinlineequation', 'ZFequation', 'Hyperlink'))]
+                      [not(@role = ('ZFinlineequation', 'ZFequation', 'ZFVerweis', 'ZFCaption', 'NOTE-CE', 'NOTE-TS', 'Hyperlink'))]
                       [not(preceding-sibling::*[@role = ('ZFinlineequation', 'ZFequation')])]
                       [not(following-sibling::*[@role = ('ZFinlineequation', 'ZFequation')])]
                       [not(ancestor-or-self::dbk:link)]/text()">
@@ -562,16 +569,10 @@
   </template>
 
   <template context="*[local-name() = $text-style-elements]
-                      [@css:text-transform eq 'uppercase'
-                       or exists(key('style', @role)[@css:text-transform eq 'uppercase'])]">
-    <xsl:text>\uppercase{</xsl:text>
-    <xsl:next-match/>
-    <xsl:text>}</xsl:text>
-  </template>
-
-  <template context="*[local-name() = $text-style-elements]
-                      [@css:font-variant eq 'small-caps'
-                       or exists(key('style', @role)[@css:font-variant eq 'small-caps'])]">
+                      [    (@css:font-variant eq 'small-caps'
+                            or exists(key('style', @role)[@css:font-variant eq 'small-caps']))
+                       and not(@css:text-transform eq 'uppercase'
+                               or exists(key('style', @role)[@css:text-transform eq 'uppercase']))]">
     <xsl:text>\textsc{</xsl:text>
     <xsl:next-match/>
     <xsl:text>}</xsl:text>
@@ -890,7 +891,7 @@
   
   <template context="dbk:primary">
     <rule>
-      <xsl:if test="@sortas">
+      <xsl:if test="@sortas[normalize-space()]">
         <text select="concat(@sortas, '@')"/>
       </xsl:if>
       <text/>
@@ -943,7 +944,7 @@
                     |dbk:denary">
     <rule>
       <text>!</text>
-      <xsl:if test="@sortas">
+      <xsl:if test="@sortas[normalize-space()]">
         <text select="concat(@sortas, '@')"/>
       </xsl:if>
       <text/>
@@ -1101,6 +1102,8 @@
                                [normalize-space(.)]
                                [xml2tex:lang-to-babel-lang(@xml:lang)]
                                [not(parent::dbk:link)]
+                               [every $lang in @xml:lang
+                                satisfies not(ancestor::*[@xml:lang][1]/@xml:lang = $lang)]
                                [not(ancestor::dbk:entry or self::dbk:term or self::dbk:listitem)]
                                [not((*/local-name() = ('link', 'mediaobject', 'inlinemediaobject'))
                                     and 
@@ -1108,15 +1111,44 @@
                                    )]
                                [not(matches(., '^[\p{P}\p{Z}\d&#x4e00;-&#x9fff;&#x530;-&#x58f;&#xfb13;-&#xfb17;]+$'))]">
     <xsl:param name="suppress-foreign-lang" as="xs:boolean?" tunnel="yes"/>
-    <xsl:value-of select="if ($suppress-foreign-lang and not(xml2tex:lang-to-babel-lang(@xml:lang) = ('greek', 'arabic', 'hebrew', 'japanese', 'chinese', 'armenian'))) then () else concat('\foreignlanguage{', xml2tex:lang-to-babel-lang(@xml:lang), '}{')"/>
+    <xsl:value-of select="if(    $suppress-foreign-lang 
+                             and not(xml2tex:lang-to-babel-lang(@xml:lang) = ('greek', 
+                                                                              'arabic', 
+                                                                              'hebrew', 
+                                                                              'japanese', 
+                                                                              'chinese', 
+                                                                              'syriac', 
+                                                                              'armenian'))) 
+                          then () 
+                          else concat('\foreignlanguage{', xml2tex:lang-to-babel-lang(@xml:lang), '}{')"/>
     <xsl:next-match/>
-    <xsl:value-of select="if ($suppress-foreign-lang and not(xml2tex:lang-to-babel-lang(@xml:lang) = ('greek', 'arabic', 'hebrew', 'japanese', 'chinese', 'armenian'))) then () else '}'"/>
+    <xsl:value-of select="if(    $suppress-foreign-lang 
+                             and not(xml2tex:lang-to-babel-lang(@xml:lang) = ('greek',
+                                                                              'arabic', 
+                                                                              'hebrew', 
+                                                                              'japanese', 
+                                                                              'chinese', 
+                                                                              'syriac', 
+                                                                              'armenian'))) 
+                          then ()
+                          else '}'"/>
+  </template>
+  
+  <template context="*[local-name() = $text-style-elements]
+                      [@css:text-transform eq 'uppercase'
+                       or exists(key('style', @role)[@css:text-transform eq 'uppercase'])]">
+    <xsl:text>\uppercase{</xsl:text>
+    <xsl:next-match/>
+    <xsl:text>}</xsl:text>
   </template>
   
   <template context="dbk:para[@xml:lang][not(@xml:lang = $langs[1])]">
-    <xsl:value-of select="concat('\selectlanguage{', xml2tex:lang-to-babel-lang(@xml:lang), '}%&#xa;')"/>
-    <xsl:next-match/>
-    <xsl:value-of select="concat('\selectlanguage{', xml2tex:lang-to-babel-lang($langs[1]), '}')"/>
+    <xsl:param name="suppress-select-lang" as="xs:boolean" select="false()"/>
+    <xsl:if test="not($suppress-select-lang)">
+      <xsl:value-of select="concat('\selectlanguage{', xml2tex:lang-to-babel-lang(@xml:lang), '}%&#xa;')"/>
+      <xsl:next-match/>
+      <xsl:value-of select="concat('\selectlanguage{', xml2tex:lang-to-babel-lang($langs[1]), '}')"/>
+    </xsl:if>
   </template>
   
   <!-- bibliographies -->
