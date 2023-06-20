@@ -416,7 +416,51 @@
             <xso:when test="$char-in-doc = '{@character}'">
               <xso:sequence select="'{@string}'"/>
             </xso:when>
-          </xsl:for-each>  
+          </xsl:for-each>
+          <xso:otherwise>
+            <!--
+              Avoid masking of context specific replacements of character 'A' by context specific replacement of character 'B'.
+              Given the charmap
+              
+                <charmap>
+                  <char character="A" string="A no context"/>
+                  <char character="A" string="A context 1" context="*[@css:font-style eq 'italic']"/>
+                  <char character="B" string="B no context"/>
+                  <char character="B" string="B context 2" context="dbk:title/dbk:phrase"/>
+                </charmap>
+              
+              we would get
+              
+                 <xsl:template match="*[@css:font-style eq 'italic']"
+                               mode="char-context"
+                               as="xs:string?">
+                    <xsl:param name="char-in-doc" as="xs:string?"/>
+                    <xsl:choose>
+                       <xsl:when test="$char-in-doc = 'A'">
+                          <xsl:sequence select="'A context 1'"/>
+                       </xsl:when>
+                    </xsl:choose>
+                 </xsl:template>
+              
+                <xsl:template match="dbk:title/dbk:phrase" mode="char-context" as="xs:string?">
+                    <xsl:param name="char-in-doc" as="xs:string?"/>
+                    <xsl:choose>
+                       <xsl:when test="$char-in-doc = 'B'">
+                          <xsl:sequence select="'B context 2'"/>
+                       </xsl:when>
+                    </xsl:choose>
+                 </xsl:template>
+              
+              This is a problem because an 'A' in an 'dbk:title/dbk:phrase[@css:font-style eq 'italic']' would match the second template although
+              no character mapping of 'A' has been defined for that context.
+              Therefor 'A no context' would be rendered, masking the first template.
+              
+              Solution: lets try the next matching template.
+            -->
+            <xso:next-match>
+              <xso:with-param name="char-in-doc" select="$char-in-doc"/>
+            </xso:next-match>
+          </xso:otherwise>
         </xso:choose>
       </xso:template>
     </xsl:for-each-group>
