@@ -199,7 +199,7 @@
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
-    <xsl:if test="position() ne last()">
+    <xsl:if test="following-sibling::*:entry">
       <xsl:text>&#x20;</xsl:text>
       <xsl:processing-instruction name="cals2tabular" select="'&amp;&#x20;'"/>
     </xsl:if>
@@ -215,7 +215,7 @@
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
-    <xsl:if test="not(position() eq last() or $is-colspan)">
+    <xsl:if test="following-sibling::*:entry or not($is-colspan)">
       <xsl:text>&#x20;</xsl:text>
       <xsl:processing-instruction name="cals2tabular" select="'&amp;&#x20;'"/>
     </xsl:if>
