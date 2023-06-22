@@ -113,7 +113,7 @@
     <!-- check if preceding rows contains entries with a corresponding xml:id -->
     <xsl:variable name="is-rowspan-ref" 
                   select="boolean(parent::*:row/preceding-sibling::*:row[*:entry[@xml:id][$entry-idref eq @xml:id]])" as="xs:boolean"/>
-    <xsl:variable name="is-last" select="position() eq last()" as="xs:boolean"/>
+    <xsl:variable name="is-last" select="not(following-sibling::*:entry)" as="xs:boolean"/>
     <xsl:copy>
       <xsl:choose>
         <xsl:when test="$is-rowspan-ref">
@@ -232,7 +232,7 @@
                   select="@morerows 
                           and not(preceding-sibling::*[1][@linkend eq $entry-idref]) 
                           and     following-sibling::*[1][@linkend eq $entry-idref]"/>
-    <xsl:variable name="is-last" select="position() eq last()" as="xs:boolean"/>
+    <xsl:variable name="is-last" select="not(following-sibling::*:entry)" as="xs:boolean"/>
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
