@@ -488,7 +488,7 @@
     <xso:template match="processing-instruction()" mode="clean"/>
     
     <xso:template match="text()" mode="clean">
-      <xso:variable name="remove-whitespace-before-pagebreaks" select="replace(., '([^\p{{Zs}}])[\p{{Zs}}\n]\p{{Zs}}?(\\(pagebreak|break|newline|\\))', '$1$2', 'm')" as="xs:string"/>
+      <xso:variable name="remove-whitespace-before-pagebreaks" select="replace(., '([^\p{{Zs}}])\p{{Zs}}*\n?\p{{Zs}}*(\\(pagebreak|break|newline|\\))', '$1$2', 'm')" as="xs:string"/>
       <xso:value-of select="$remove-whitespace-before-pagebreaks"/>
     </xso:template>
     
