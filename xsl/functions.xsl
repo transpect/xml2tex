@@ -317,6 +317,7 @@
   <xsl:function name="xml2tex:lang-to-babel-lang" as="xs:string?">
     <xsl:param name="lang" as="xs:string?"/>
     <xsl:value-of select="     if(matches($lang, '^(af|nl)'))       then 'dutch'
+                          else if(starts-with($lang, 'ar'))         then 'arabic'
                           else if(starts-with($lang, 'az'))         then 'azerbaijani'
                           else if(starts-with($lang, 'bg'))         then 'bulgarian'
                           else if(starts-with($lang, 'ca'))         then 'catalan'
@@ -345,6 +346,7 @@
                           else if(matches($lang, '^(id|ms)'))       then 'bahasa'
                           else if(matches($lang, '^(is|fo)'))       then 'icelandic'
                           else if(starts-with($lang, 'it'))         then 'italian'
+                          else if(starts-with($lang, 'jp'))         then 'japanese'
                           else if(starts-with($lang, 'ka'))         then 'georgian'
                           else if(starts-with($lang, 'la'))         then 'latin'
                           else if(matches($lang, '^(no|nb)'))       then 'norsk'
