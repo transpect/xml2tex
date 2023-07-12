@@ -53,7 +53,7 @@
     <xsl:attribute name="role" select="."/>
   </xsl:template>
   
-  <xsl:template match="*:entry[not(*) and not(normalize-space())]/@*[starts-with(name(), 'css:padding')]" mode="cals2html-table">
+  <xsl:template match="*:entry[not(*) and not(normalize-space())]/@*[matches(name(), '^css:padding-(left|right)')]" mode="cals2html-table">
     <xsl:attribute name="{name()}" select="'0pt'"/>
    <!-- set padding on empty cells to zero to avoid errors if padding exceeds col width, https://redmine.le-tex.de/issues/15094 -->
   </xsl:template>
