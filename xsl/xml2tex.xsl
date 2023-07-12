@@ -489,7 +489,7 @@
     
     <xso:template match="text()" mode="clean">
       <!-- do not remove space after `\` `\ `; mask it as `{\ }` -->
-      <xso:variable name="mask-backslash-space" select="replace(., '(^|[^\\])((\\\\|\p{{Zs}}*\n?\p{{Zs}}*)+)(\\ )', '$1$2{{$4}}', 'm')" as="xs:string"/>
+      <xso:variable name="mask-backslash-space" select="replace(., '(^|[^\\])((\\\\)+)?(\\ )', '$1$2{{$4}}', 'm')" as="xs:string"/>
       <xso:variable name="remove-whitespace-before-pagebreaks" select="replace($mask-backslash-space, '([^\p{{Zs}}])\p{{Zs}}*\n?\p{{Zs}}*(\\(pagebreak|break|newline|\\))', '$1$2', 'm')" as="xs:string"/>
       <xso:value-of select="$remove-whitespace-before-pagebreaks"/>
     </xso:template>
