@@ -57,7 +57,7 @@
     <xsl:attribute name="{name()}" select="'0pt'"/>
    <!-- set padding on empty cells to zero to avoid errors if padding exceeds col width, https://redmine.le-tex.de/issues/15094 -->
   </xsl:template>
-  
+
   <xsl:template match="@* | node()" mode="html2tabs">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
@@ -229,13 +229,22 @@
   
   <xsl:variable name="css-atts-to-dissolve" select="'^line-height$'"/>
   
+    
+  <xsl:template match="@css:*[matches(local-name(),$css-atts-with-generic-values)]
+                             [not(matches(.,$css-generic-values))]" mode="xml2tex:css-atts-to-style-att"/>
+  
   <xsl:template match="@css:*[matches(local-name(), $css-atts-to-dissolve)]" mode="xml2tex:css-atts-to-style-att"/>
   
   <xsl:variable name="css-generic-values" select="'(sans-)?serif|monospace|bold|normal|center|left|right|justify|bottom|top|(x?x-)?small(-caps)?|(x?x-)?large|auto|none|collapse|separate'"/>
   <xsl:variable name="css-atts-with-generic-values" select="'font-(weight|family|style|variant)|hyphens|border-collapse'"/>
   
-  <xsl:template match="@css:*[matches(local-name(),$css-atts-with-generic-values)]
-                             [not(matches(.,$css-generic-values))]" mode="xml2tex:css-atts-to-style-att"/>
+  <xsl:template match="@css:writing-mode" mode="xml2tex:css-atts-to-style-att">
+     <xsl:attribute name="{if (. = ('bt-lr', 'vertical-rl', 'vertical-lr', 'sideways-rl', 'sideways-lr')) then 'css:transform' else name()}" 
+                  select="if (. = ('vertical-rl', 'vertical-lr', 'sideways-rl')) 
+                          then 'rotate(90deg)' 
+                          else if (. = ('bt-lr','sideways-lr')) then 'rotate(-90deg)'
+                          else ."/>
+  </xsl:template>
   
   <xsl:function name="xml2tex:absolute-to-relative-col-width" as="xs:decimal">
     <xsl:param name="colwidth" as="xs:string"/>
