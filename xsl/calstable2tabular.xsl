@@ -199,7 +199,7 @@
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
-    <xsl:if test="following-sibling::*:entry">
+    <xsl:if test="position() ne last()">
       <xsl:text>&#x20;</xsl:text>
       <xsl:processing-instruction name="cals2tabular" select="'&amp;&#x20;'"/>
     </xsl:if>
@@ -209,13 +209,13 @@
     <xsl:variable name="entry-id" select="@xml:id" as="xs:string"/>
     <xsl:variable name="is-colspan" as="xs:boolean"
                   select="boolean(following-sibling::*:entry[$entry-id eq @linkend])"/>
-    <xsl:variable name="is-rowspan" as="xs:boolean"
+    <!--<xsl:variable name="is-rowspan" as="xs:boolean"
                   select="boolean(for $i in parent::*:row/following-sibling::*:row[*:entry[@linkend][$entry-id eq @linkend]] 
-                                  return $i)"/>
+                                  return $i)"/>-->
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
-    <xsl:if test="following-sibling::*:entry or not($is-colspan)">
+    <xsl:if test="not(position() eq last() or $is-colspan)">
       <xsl:text>&#x20;</xsl:text>
       <xsl:processing-instruction name="cals2tabular" select="'&amp;&#x20;'"/>
     </xsl:if>
@@ -232,7 +232,7 @@
                   select="@morerows 
                           and not(preceding-sibling::*[1][@linkend eq $entry-idref]) 
                           and     following-sibling::*[1][@linkend eq $entry-idref]"/>
-    <xsl:variable name="is-last" select="not(following-sibling::*:entry)" as="xs:boolean"/>
+    <xsl:variable name="is-last" select="position() eq last()" as="xs:boolean"/>
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
