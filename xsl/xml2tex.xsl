@@ -258,6 +258,14 @@
           </xsl:element>
         </xsl:if>
       </xsl:for-each>
+      <xsl:if test="self::xml2tex:option">
+        <xsl:element name="xsl:with-param">
+            <xsl:attribute name="name" select="'as-option'"/> 
+            <xsl:attribute name="select" select="'true()'"/> 
+            <xsl:attribute name="tunnel" select="'yes'"/>
+            <xsl:attribute name="as" select="'xs:boolean'"/>
+          </xsl:element>
+      </xsl:if>
     </xsl:variable>
     <xsl:choose>
       <!--  *
@@ -320,7 +328,7 @@
       <!--  *
             * text/option/param tag contains static text. if with-param is there ignore text
             * -->
-      <xsl:when test="text() and not(*)">
+      <xsl:when test="text()[normalize-space()] and not(*)">
         <xso:value-of select="$opening-delimiter"/>
         <xso:value-of select="{concat('''', string-join(text(),''), '''')}"/>
         <xso:value-of select="$closing-delimiter"/>
