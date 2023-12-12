@@ -326,9 +326,9 @@
         <xso:value-of select="$closing-delimiter"/>
       </xsl:when>
       <!--  *
-            * text/option/param tag contains static text. if with-param is there ignore text
+            * text/option/param tag contains static text. if with-param is there, ignore text
             * -->
-      <xsl:when test="text()[normalize-space()] and not(*)">
+      <xsl:when test="text() and not(*) and not(comment()) and not(processing-instruction())">
         <xso:value-of select="$opening-delimiter"/>
         <xso:value-of select="{concat('''', string-join(text(),''), '''')}"/>
         <xso:value-of select="$closing-delimiter"/>
