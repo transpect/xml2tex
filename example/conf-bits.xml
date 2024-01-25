@@ -270,7 +270,7 @@
 
   <template context="ext-link[@xlink:href]">
     <rule name="href" type="cmd">
-      <param select="@xlink:href"/>
+      <param select="replace((@xlink:href, @url)[1], '([%#_\\])', '\\$1')"/>
       <param/>
     </rule>
   </template>
