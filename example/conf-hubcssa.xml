@@ -35,6 +35,13 @@
   
   <xsl:variable name="footnotes" select="//dbk:footnote" as="element(dbk:footnote)*"/>
   
+  <xsl:variable name="letter-spacing-def" select="'soul'" as="xs:string?">
+    <!-- define which makro is used for letter spacing. allowed values: 
+    - 'soul' creates \so and includes package soul 
+    - 'microtype' creates \textls and includes package microtype 
+    - '' creates \textls and includes no package (for overriding) -->
+  </xsl:variable>
+
   <!-- elements where page breaks are ignored -->
   
   <xsl:variable name="elements-where-pagebreaks-are-ignored" as="xs:string+" 
@@ -46,8 +53,11 @@
   <xsl:key name="item-by-id" match="*[@xml:id]" use="@xml:id"/>
   
   <!-- tex document header, set declarations such as documentclass and usepackage -->
-  <preamble>%
-    % xml2tex
+  <preamble>% docx2tex 1.9 --- ``How I learned to stop worrying and love DOCX''
+    %
+    % docx2tex is Open Source and 
+    % you can download it on GitHub:
+    % https://github.com/transpect/docx2tex
     % 
     \documentclass{scrbook}
     \usepackage[T1]{fontenc}
@@ -82,8 +92,8 @@
     \usepackage{pifont}
     \usepackage{ulem}
     \usepackage{xfrac}
-    <xsl:if test="//*[@css:letter-spacing or exists(key('style', @role))]">
-      <xsl:text>\usepackage{soul}&#xa;</xsl:text>
+    <xsl:if test="//*[@css:letter-spacing or exists(key('style', @role)/@css:letter-spacing)] and $letter-spacing-def[normalize-space()]">
+      <xsl:value-of select="concat('\usepackage{', $letter-spacing-def,'}&#xa;')"/>
     </xsl:if>
     \usepackage{arydshln}
     <xsl:if test="//dbk:div[@role eq 'hub:index'][1]">
@@ -156,7 +166,7 @@
     <rule name="protect\newline" type="cmd" break-after="1"/>
   </template>
   
-  <template context="dbk:entry//dbk:br">
+  <template context="dbk:entry//dbk:br[not($xerif)]">
     <rule>
       <text> \newline </text>
     </rule>
@@ -169,14 +179,14 @@
   </template>
   
   <template context="dbk:entry[not(@*:morerows) or @*:morerows eq '0']/dbk:para[not(parent::dbk:footnote)]
-                                                                               [following-sibling::dbk:para]//dbk:br">
+                                                                               [following-sibling::dbk:para]//dbk:br[not($xerif)]">
     <rule>
       <text> \newline </text>
     </rule>
   </template>
   
   <template context="dbk:entry[not(@*:morerows) or @*:morerows eq '0']/dbk:para[not(parent::dbk:footnote)]
-                                                                               [following-sibling::dbk:para]">
+                                                                               [following-sibling::dbk:para][not($xerif)]">
     <rule>
       <xsl:next-match/>
       <text> \newline </text>
@@ -196,7 +206,7 @@
   <template context="*[local-name() = $text-style-elements]
                       [   (@css:letter-spacing and xs:double(replace(@css:letter-spacing, '[a-z]+$', '')) gt 0.5)
                        or exists(key('style', @role)[@css:letter-spacing[xs:double(replace(., '[a-z]+$', '')) gt 0.5]])]">
-    <xsl:text>\so{</xsl:text>
+    <xsl:value-of select="if ($letter-spacing-def = 'soul') then '\so{' else '\textls{'"/>
     <xsl:next-match/>
     <xsl:text>}</xsl:text>
   </template>
@@ -232,11 +242,13 @@
     <rule name="textit" type="cmd" break-after="2">
       <param/>
       <xsl:choose>
-        <xsl:when test="parent::dbk:entry or parent::*:th or parent::*:td">
+        <xsl:when test="parent::*[local-name() = ('entry', 'th', 'td')][not($xerif)]
+                        and following-sibling::*[1]">
           <xsl:text>\newline&#xa;</xsl:text>
         </xsl:when>
         <xsl:when test="not(   parent::dbk:footnote
-                            or (parent::dbk:listitem and not(following-sibling::*)))">
+                            or (parent::dbk:listitem and not(following-sibling::*)))
+                        and following-sibling::*[1]">
           <xsl:text>&#xa;&#xa;</xsl:text>
         </xsl:when>
       </xsl:choose>
@@ -250,11 +262,13 @@
     <rule name="textbf" type="cmd">
       <param/>
       <xsl:choose>
-        <xsl:when test="parent::*[local-name() = ('entry', 'th', 'td')]">
+        <xsl:when test="parent::*[local-name() = ('entry', 'th', 'td')][not($xerif)]
+                        and following-sibling::*[1]">
           <xsl:text>\newline&#xa;</xsl:text>
         </xsl:when>
         <xsl:when test="not(   parent::dbk:footnote
-                            or (parent::dbk:listitem and not(following-sibling::*)))">
+                            or (parent::dbk:listitem and not(following-sibling::*)))
+                        and following-sibling::*[1]">
           <xsl:text>&#xa;&#xa;</xsl:text>
         </xsl:when>
       </xsl:choose>
@@ -307,14 +321,6 @@
                     then concat('\raisebox{', replace((parent::*/@css:top, key('style', parent::*/@role)/@css:top)[1], '^-', ''), '}')
                     else concat('\raisebox{-', (parent::*/@css:top, key('style', parent::*/@role)/@css:top)[1], '}')"/>
       <param/>
-    </rule>
-  </template>
-  
-  <!-- tabs -->
-  
-  <template context="dbk:tab|dbk:phrase[@role eq 'tab']">
-    <rule>
-      <text>&#x9;</text>
     </rule>
   </template>
 
@@ -482,11 +488,7 @@
     <rule name="item" type="cmd" break-before="1">
       <option/>
     </rule>
-  </template>
-  
-  <!-- resolve tab when it's the begin of a term -->
-  
-  <template context="dbk:term/node()[1][self::dbk:tabs or self::dbk:tab]"/>
+  </template>  
 
   <!-- text styles -->
   
@@ -517,11 +519,28 @@
     <xsl:next-match/>
     <xsl:text>}</xsl:text>
   </template>
-
+  
+  <template context="*[local-name() = $text-style-elements]
+                      [    @css:font-weight eq 'normal' or @css:font-style eq 'normal']
+                      [not(@css:font-weight eq 'bold'   or @css:font-style eq 'italic')]
+                      [(ancestor::*[local-name() = $text-style-elements]/((@css:font-style, 
+                                                                           @css:font-weight, 
+                                                                           @css:font-variant) != 'normal')
+                        or empty(ancestor::*[local-name() = $text-style-elements]
+                                           [@css:font-style|@css:font-weight]))
+                       or (some $role in ancestor::*[@role]/@role
+                           satisfies exists(key('style', @role)[(@css:font-style, 
+                                                                 @css:font-weight, 
+                                                                 @css:font-variant) != 'normal']))]    ">
+    <xsl:text>\textnormal{</xsl:text>
+    <xsl:next-match/>
+    <xsl:text>}</xsl:text>
+  </template>
   
   <template context="*[local-name() = $text-style-elements]
                       [   @css:font-style eq 'italic' 
-                       or exists(key('style', @role)[@css:font-style eq 'italic'])]">
+                       or (    exists(key('style', @role)[@css:font-style eq 'italic'])
+                           and not(@css:font-style eq 'normal'))]">
     <xsl:text>\textit{</xsl:text>
     <xsl:next-match/>
     <xsl:text>}</xsl:text>
@@ -532,22 +551,6 @@
                        or (    exists(key('style', @role)[@css:font-weight eq 'bold'])
                            and not(@css:font-weight eq 'normal'))]">
     <xsl:text>\textbf{</xsl:text>
-    <xsl:next-match/>
-    <xsl:text>}</xsl:text>
-  </template>
-  
-  <template context="*[local-name() = $text-style-elements]
-                      [@css:font-weight eq 'normal']
-                      [(ancestor::*[local-name() = $text-style-elements]/((@css:font-style, 
-                                                                          @css:font-weight, 
-                                                                          @css:font-variant) != 'normal')
-                        or empty(ancestor::*[local-name() = $text-style-elements]
-                                           [@css:font-style|@css:font-weight]))
-                       or (some $role in ancestor::*[@role]/@role
-                           satisfies exists(key('style', @role)[(@css:font-style, 
-                                                                 @css:font-weight, 
-                                                                 @css:font-variant) != 'normal']))]    ">
-    <xsl:text>\textnormal{</xsl:text>
     <xsl:next-match/>
     <xsl:text>}</xsl:text>
   </template>
@@ -806,9 +809,16 @@
   
   <!-- replace tabs -->
   
-  <template context="dbk:tab[@xml:space eq 'preserve']">
+  <!-- resolve tab when it's the begin of a term or a tab definition -->
+  
+  <template context="dbk:term/node()[1][self::dbk:tab]
+                    |dbk:tabs"/>
+  
+  
+  <template context="dbk:tab
+                    |dbk:phrase[@role eq 'tab']">
     <rule>
-      <text>&#x20;</text>
+      <text>&#x9;</text>
     </rule>
   </template>
   
@@ -863,10 +873,14 @@
   </template>
 
   <template context="dbk:indexterm[@type]">
+    <xsl:param name="as-option" as="xs:boolean?" tunnel="yes"/>
+    <!-- param as option is automatically set in xml2tey if an option was triggered -->
+    <xsl:if test="$as-option"><xsl:text>{</xsl:text></xsl:if>
     <rule name="index" type="cmd">
       <option select="@type"/>
       <xsl:call-template name="index-content"/>
     </rule>
+    <xsl:if test="$as-option"><xsl:text>}</xsl:text></xsl:if>
   </template>
   
   <xsl:template name="index-content">
@@ -1147,7 +1161,9 @@
     <xsl:if test="not($suppress-select-lang)">
       <xsl:value-of select="concat('\selectlanguage{', xml2tex:lang-to-babel-lang(@xml:lang), '}%&#xa;')"/>
       <xsl:next-match/>
-      <xsl:value-of select="concat('\selectlanguage{', xml2tex:lang-to-babel-lang($langs[1]), '}')"/>
+      <xsl:if test="not(parent::dbk:footnote and not(following-sibling::*))">
+        <xsl:value-of select="concat('\selectlanguage{', xml2tex:lang-to-babel-lang($langs[1]), '}')"/>
+      </xsl:if>
     </xsl:if>
   </template>
   
