@@ -236,7 +236,7 @@
 
   <template context="list[@list-type = 'order']">
     <rule name="enumerate" type="env" break-before="1">
-      <option select="((list-item[string-length(label) = max(../list-item/label/string-length())][last()]/label)[last()]/label, count(list-item))[xs:string(.) != ''][1]"/>
+      <option select="((list-item[label/normalize-space()][string-length(label) = max(../list-item/label/string-length())][last()]/label, count(list-item))[not(. = '')][1])/xs:string(.)"/>
       <text/>
     </rule>
   </template>
