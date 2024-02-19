@@ -238,7 +238,7 @@
   <xsl:variable name="css-generic-values" select="'(sans-)?serif|monospace|bold|normal|center|left|right|justify|bottom|top|(x?x-)?small(-caps)?|(x?x-)?large|auto|none|collapse|separate'"/>
   <xsl:variable name="css-atts-with-generic-values" select="'font-(weight|family|style|variant)|hyphens|border-collapse'"/>
   
-  <xsl:template match="@css:writing-mode[not(every $cell in ../..[self::*:tr]/* satisfies $cell[@css:writing-mode])(:https://gitlab.le-tex.de/htmltabs/htmltabs/-/issues/24:)]" mode="xml2tex:css-atts-to-style-att">
+  <xsl:template match="@css:writing-mode" mode="xml2tex:css-atts-to-style-att">
      <xsl:attribute name="{if (. = ('bt-lr', 'vertical-rl', 'vertical-lr', 'sideways-rl', 'sideways-lr')) then 'css:transform' else name()}" 
                   select="if (. = ('vertical-rl', 'vertical-lr', 'sideways-rl')) 
                           then 'rotate(90deg)' 
