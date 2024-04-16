@@ -66,7 +66,7 @@ xml2tex.preamble =
       "      "
     ]
   ]
-  element xml2tex:preamble { xml2tex.atom.content }
+  element xml2tex:preamble { (xml2tex.atom.content | xml2tex.file)* }
 xml2tex.front =
   [
     a:documentation [
@@ -85,7 +85,7 @@ xml2tex.front =
       "      "
     ]
   ]
-  element xml2tex:front { xml2tex.atom.content }
+  element xml2tex:front { (xml2tex.atom.content | xml2tex.file)* }
 xml2tex.back =
   [
     a:documentation [
@@ -104,7 +104,7 @@ xml2tex.back =
       "      "
     ]
   ]
-  element xml2tex:back { xml2tex.atom.content }
+  element xml2tex:back { (xml2tex.atom.content | xml2tex.file)* }
 xml2tex.ns =
   [
     a:documentation [
@@ -233,7 +233,7 @@ xml2tex.file =
       "      "
     ]
   ]
-  element xml2tex:file { xml2tex.file.attributes }
+  element xml2tex:file { xml2tex.file.attributes, xml2tex.atom.content }
 xml2tex.char =
   [
     a:documentation [

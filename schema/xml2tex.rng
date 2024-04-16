@@ -44,7 +44,12 @@
         <p>Place declarations such as document class, used packages and other information 
           TeX will need to format the document correctly</p>
       </a:documentation>
-      <ref name="xml2tex.atom.content"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="xml2tex.atom.content"/>
+          <ref name="xml2tex.file"/>
+        </choice>
+      </zeroOrMore>
     </element>
   </define>
 
@@ -55,7 +60,12 @@
         <p>Used for TeX instructions to be placed immediately after 
         the begin of the document (e.g. <code>\begin{document}</code>).</p>
       </a:documentation>
-      <ref name="xml2tex.atom.content"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="xml2tex.atom.content"/>
+          <ref name="xml2tex.file"/>
+        </choice>
+      </zeroOrMore>
     </element>
   </define>
 
@@ -66,7 +76,12 @@
         <p>Used for TeX instructions to be placed immediately before 
           the end of the document (e.g. <code>\end{document}</code>).</p>
       </a:documentation>
-      <ref name="xml2tex.atom.content"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="xml2tex.atom.content"/>
+          <ref name="xml2tex.file"/>
+        </choice>
+      </zeroOrMore>
     </element>
   </define>
 
@@ -147,6 +162,7 @@
           to a separate file by specifying a file reference.</p>
       </a:documentation>
       <ref name="xml2tex.file.attributes"/>
+      <ref name="xml2tex.atom.content"/>
     </element>
   </define>
 

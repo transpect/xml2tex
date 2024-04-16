@@ -40,7 +40,7 @@
     <p:documentation>
       Used to switch debug mode on or off. Pass 'yes' to enable debug mode.
     </p:documentation>
-  </p:option> 
+  </p:option>
   
   <p:option name="debug-dir-uri" select="'debug'">
     <p:documentation>

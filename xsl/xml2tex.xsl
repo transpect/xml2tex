@@ -176,7 +176,7 @@
     </xso:template>
   </xsl:template>
 
-  <xsl:template match="xml2tex:template/xml2tex:file">
+  <xsl:template match="xml2tex:file">
     <c:data href="{@href}" method="{(@method, 'text')[1]}" content-type="text/plain"
             encoding="{(@encoding, 'utf-8')[1]}">
       <xsl:choose>
