@@ -318,7 +318,7 @@
     <xsl:param name="lang" as="xs:string?"/>
     <xsl:value-of select="     if(matches($lang, '^(af|nl)'))       then 'dutch'
                           else if(starts-with($lang, 'ar'))         then 'arabic'
-                          else if(starts-with($lang, 'am'))         then 'ethiop'
+                          else if(starts-with($lang, 'am'))         then 'amharic'
                           else if(starts-with($lang, 'az'))         then 'azerbaijani'
                           else if(starts-with($lang, 'bg'))         then 'bulgarian'
                           else if(starts-with($lang, 'ca'))         then 'catalan'
