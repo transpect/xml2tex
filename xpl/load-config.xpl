@@ -121,7 +121,7 @@
                 <xsl:param name="element-name" as="xs:string"/>
                 <xsl:param name="attribute-name" as="xs:string"/>
                 <xsl:param name="root" as="element(xml2tex:set)"/>
-                <xsl:param name="imports" as="element(xml2tex:set)"/>
+                <xsl:param name="imports" as="element(xml2tex:set)+"/>
                 <xsl:param name="collect-all-xsl" as="xs:string"/>
                 <xsl:message select="'params: coll-xsl', $collect-all-xsl, '|| elt-name: ', $element-name, '|| att-name: ', $attribute-name"/>
                 <xsl:choose>
