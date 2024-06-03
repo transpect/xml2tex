@@ -343,6 +343,7 @@
                           else if(starts-with($lang, 'he'))         then 'hebrew'
                           else if(starts-with($lang, 'hr'))         then 'croatian'
                           else if(starts-with($lang, 'hu'))         then 'magyar'
+                          else if(starts-with($lang, 'hy'))         then 'armenian'
                           else if(starts-with($lang, 'ia'))         then 'interlingua'
                           else if(matches($lang, '^(id|ms)'))       then 'bahasa'
                           else if(matches($lang, '^(is|fo)'))       then 'icelandic'
