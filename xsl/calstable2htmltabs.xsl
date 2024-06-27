@@ -162,6 +162,11 @@
     </xsl:copy>
   </xsl:template>
   
+   <!--  normalize trailing spaces -->
+  <xsl:template match="*:para[last()][matches(string-join(descendant::text(),''),'\p{Zs}+$')]/text()[last()][matches(.,'\p{Zs}+$')]" mode="html2tabs">
+    <xsl:sequence select="replace(.,'\p{Zs}+$','')"/>
+  </xsl:template>
+  
   <xsl:template match="td[node()][every $el in * satisfies matches($el/local-name(),$strut-element-names)]"  mode="html2tabs_atts">
     <xsl:attribute name="no-strut" select="'both'" />
   </xsl:template>
