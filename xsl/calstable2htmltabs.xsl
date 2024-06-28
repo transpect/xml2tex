@@ -163,7 +163,7 @@
   </xsl:template>
   
    <!--  normalize trailing spaces -->
-  <xsl:template match="*[self::td or self::th]/*:para[last()][matches(string-join(descendant::text(),''),'\p{Zs}+$')]/text()[last()][matches(.,'\p{Zs}+$')]" mode="html2tabs">
+  <xsl:template match="*[self::td or self::th]/*:para[last()][matches(string-join(descendant::text(),''),'\p{Zs}+$')]/text()[last()][not(following-sibling::node())][matches(.,'\p{Zs}+$')]" mode="html2tabs">
     <xsl:sequence select="replace(.,'\p{Zs}+$','')"/>
   </xsl:template>
   
