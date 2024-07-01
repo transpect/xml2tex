@@ -57,7 +57,7 @@
     <xsl:attribute name="{name()}" select="'0pt'"/>
    <!-- set padding on empty cells to zero to avoid errors if padding exceeds col width, https://redmine.le-tex.de/issues/15094 -->
   </xsl:template>
-
+  
   <xsl:template match="@* | node()" mode="html2tabs">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
@@ -72,7 +72,7 @@
         <xsl:value-of select="xml2tex:atts-to-option(@*)"/>
         <xsl:text>&#xa;</xsl:text>
       </xsl:processing-instruction>
-      <xsl:apply-templates select="*" mode="#current"/>
+      <xsl:apply-templates select="*:colgroup, *:thead, *:tfoot, *:tbody" mode="#current"/>
       <xsl:processing-instruction name="htmltabs" 
                                   select="'&#xa;\end{htmltab}&#xa;'"/>
     </xsl:copy>
@@ -84,12 +84,6 @@
     <xsl:apply-templates mode="#current"/>
     <xsl:processing-instruction name="htmltabs" 
                                 select="'}&#xa;'"/>
-  </xsl:template>
-  
-  <xsl:template match="tgroup" mode="html2tabs">
-    <xsl:copy>
-      <xsl:apply-templates select="@*, *:thead, *:tfoot, *:tbody" mode="#current"/>
-    </xsl:copy>
   </xsl:template>
   
   <xsl:template match="colgroup" mode="html2tabs">
