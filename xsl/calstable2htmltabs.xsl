@@ -72,7 +72,7 @@
         <xsl:value-of select="xml2tex:atts-to-option(@*)"/>
         <xsl:text>&#xa;</xsl:text>
       </xsl:processing-instruction>
-      <xsl:apply-templates select="*:colgroup, *:thead, *:tfoot, *:tbody" mode="#current"/>
+      <xsl:apply-templates select="* except (*:tfoot, *:tbody), *:tfoot, *:tbody" mode="#current"/>
       <xsl:processing-instruction name="htmltabs" 
                                   select="'&#xa;\end{htmltab}&#xa;'"/>
     </xsl:copy>
