@@ -133,7 +133,9 @@
                 select="for $i in //*[local-name() = ('template', 'regex')] 
                         return generate-id($i)"/>
 
-  <xsl:template match="xml2tex:template|xml2tex:regex">
+  <xsl:template match="xml2tex:regex"/>
+  
+  <xsl:template match="xml2tex:template">
     <!--  * the priority of a rule is determined by its order. If more than one 
           * rule matches against a particular element, the last rule declaration has a higher priority
           * and overwrites the rule with a lesser priority. Imported templates have always the priority 1.
@@ -377,8 +379,23 @@
         </xsl:for-each>
       </xso:variable>
     
+    <xso:variable name="regex-regex" select="{concat('''','(', 
+          string-join(/xml2tex:set/xml2tex:regex//@regex,'|'), ')',
+                                                  '''')}" as="xs:string"/>
+
+      <xso:variable name="regex-makros" as="element(xml2tex:regex)*">
+        <xsl:for-each select="//xml2tex:regex">
+          <xml2tex:regex>
+            <xml2tex:range><xsl:value-of select="@regex"/></xml2tex:range>
+            <xml2tex:makro><xsl:value-of select="concat('\',xml2tex:rule/@name)"/></xml2tex:makro>
+            <xml2tex:regex-group><xsl:value-of select="xml2tex:rule/xml2tex:param/@regex-group"/></xml2tex:regex-group>
+          </xml2tex:regex>
+        </xsl:for-each>
+      </xso:variable>
+    
     <!-- replacement with xpath context -->
     <xso:template match="text()[   matches(., $texregex) 
+                                or matches(., $regex-regex)
                                 or matches(., $xml2tex:simpleeq-regex)
                                 or matches(., $xml2tex:root-regex)
                                 or matches(normalize-unicode(., 'NFD'),  $xml2tex:diacrits-regex)
@@ -386,14 +403,18 @@
       <!-- this function needs to run before any character mapping, because of roots e.g. -->
       <xso:variable name="simplemath" select="normalize-unicode(string-join(xml2tex:convert-simplemath(.), ''))" as="xs:string"/>
       <!-- maps unicode to latex -->
+      <xso:variable name="handle-regexes" select="if(matches($simplemath, $regex-regex)) 
+                                           then string-join(xml2tex:apply-regexes((), ., $regex-makros, (), $regex-regex), '') 
+                                           else $simplemath" as="xs:string"/>
       <xsl:choose>
         <xsl:when test="/xml2tex:set/xml2tex:charmap">
-          <xso:variable name="utf2tex" select="if(matches($simplemath, $texregex)) 
-                                               then string-join(xml2tex:utf2tex(.., $simplemath, $charmap, (), $texregex), '') 
-                                               else $simplemath" as="xs:string"/>
+          <xso:variable name="utf2tex" select="if(matches($handle-regexes, $texregex)) 
+                                               then string-join(xml2tex:utf2tex(.., $handle-regexes, $charmap, (), $texregex), '') 
+                                               else $handle-regexes" as="xs:string"/>
         </xsl:when>
+        
         <xsl:otherwise>
-          <xso:variable name="utf2tex" select="$simplemath" as="xs:string"/>
+          <xso:variable name="utf2tex" select="$handle-regexes" as="xs:string"/>
         </xsl:otherwise>
       </xsl:choose>
       <!-- has to run last because it resolves combined unicode characters -->
