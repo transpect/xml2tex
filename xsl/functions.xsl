@@ -106,7 +106,7 @@
           </xsl:when>
           <xsl:otherwise>
             <xsl:variable name="replacement-group" 
-                          select=" replace(.,$makro-candidates-regex[1], concat('$',$makro-candidates-regex-group[1]))" />
+                          select=" replace(.,$makro-candidates-regex[1], concat('$',($makro-candidates-regex-group[1][. ne ''], '0')[1]))" />
             <xsl:variable name="replacement" select="replace(concat($makro-candidates[last()], '{',$replacement-group, '}'),'([\$\\])', '\\$1')" as="xs:string"/>
 <!--            <xsl:variable name="result" select="replace(., $pattern, $replacement)" as="xs:string"/>-->
             <xsl:variable name="result" select="replace(., $pattern, $replacement)" as="xs:string"/>
