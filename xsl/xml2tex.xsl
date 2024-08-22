@@ -404,7 +404,7 @@
       <xso:variable name="simplemath" select="normalize-unicode(string-join(xml2tex:convert-simplemath(.), ''))" as="xs:string"/>
       <!-- maps unicode to latex -->
       <xso:variable name="handle-regexes" select="if(matches($simplemath, $regex-regex)) 
-                                           then string-join(xml2tex:apply-regexes((), ., $regex-makros, (), $regex-regex), '') 
+                                           then string-join(xml2tex:apply-regexes((), $simplemath, $regex-makros, (), $regex-regex), '') 
                                            else $simplemath" as="xs:string"/>
       <xsl:choose>
         <xsl:when test="/xml2tex:set/xml2tex:charmap">
