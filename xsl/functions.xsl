@@ -95,20 +95,26 @@
                                 return $i"/>
         
         </xsl:variable>
+        <xsl:variable name="makro-candidates-text" as="xs:string*">
+          <xsl:sequence select="for $i in $regex-map[matches($pattern, xml2tex:range)]/xml2tex:text
+                                return $i"/>
+        
+        </xsl:variable>
         <xsl:variable name="makro-candidates-regex-group" as="xs:string*">
           <xsl:sequence select="for $i in $regex-map[matches($pattern, xml2tex:range)]/xml2tex:regex-group
                                 return string($i)"/>
         
         </xsl:variable>
         <xsl:choose>
-          <xsl:when test="empty($makro-candidates)">
+          <xsl:when test="empty($makro-candidates) and empty($makro-candidates-text)">
             <xsl:value-of select="."/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:variable name="replacement-group" 
                           select=" replace(.,$makro-candidates-regex[1], concat('$',($makro-candidates-regex-group[1][. ne ''], '0')[1]))" />
-            <xsl:variable name="replacement" select="replace(concat($makro-candidates[last()], '{',$replacement-group, '}'),'([\$\\])', '\\$1')" as="xs:string"/>
-<!--            <xsl:variable name="result" select="replace(., $pattern, $replacement)" as="xs:string"/>-->
+            <xsl:variable name="replacement" select="if ($makro-candidates-text[normalize-space()]) 
+                                                    then replace($makro-candidates-text[last()],'([\$\\])', '\\$1')
+                                                    else replace(concat($makro-candidates[last()], '{',$replacement-group, '}'),'([\$\\])', '\\$1')" as="xs:string"/>
             <xsl:variable name="result" select="replace(., $pattern, $replacement)" as="xs:string"/>
             <xsl:variable name="seen" select="concat($seen, $pattern)" as="xs:string"/>
             <xsl:choose>

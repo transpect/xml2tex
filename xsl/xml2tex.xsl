@@ -379,15 +379,17 @@
         </xsl:for-each>
       </xso:variable>
     
-    <xso:variable name="regex-regex" select="{concat('''','(', 
-          string-join(/xml2tex:set/xml2tex:regex//@regex,'|'), ')',
-                                                  '''')}" as="xs:string"/>
+    <xso:variable name="regex-regex" 
+                  select="{concat('''','(',
+                                  string-join(for $i in /xml2tex:set/xml2tex:regex//@regex return concat('(',$i,')'),'|'),
+                                  ')''')}" as="xs:string"/>
 
       <xso:variable name="regex-makros" as="element(xml2tex:regex)*">
         <xsl:for-each select="//xml2tex:regex">
           <xml2tex:regex>
             <xml2tex:range><xsl:value-of select="@regex"/></xml2tex:range>
-            <xml2tex:makro><xsl:value-of select="concat('\',xml2tex:rule/@name)"/></xml2tex:makro>
+            <xml2tex:makro><xsl:value-of select="if (xml2tex:rule/@name) then concat('\',xml2tex:rule/@name) else ''"/></xml2tex:makro>
+            <xml2tex:text><xsl:value-of select="replace((xml2tex:rule/xml2tex:text/@select, xml2tex:rule/xml2tex:text)[1],'''','')"/></xml2tex:text>
             <xml2tex:regex-group><xsl:value-of select="xml2tex:rule/xml2tex:param/@regex-group"/></xml2tex:regex-group>
           </xml2tex:regex>
         </xsl:for-each>
