@@ -217,7 +217,7 @@
                 <xsl:variable name="is-special-for-href" select="$mark = '&#x301;' and  contains($char, '&#x75;')" as="xs:boolean">
                   <!-- ú has to be quoted three times for hrefs-->
                 </xsl:variable>
-                <xsl:value-of select="if(string-length($tex-instr) gt 0 and not(matches(normalize-unicode(.), $texregex)))
+                <xsl:value-of select="if(string-length($tex-instr) gt 0 )
                                       then concat('{'[$is-special-for-href], '{', '$'[$mark-is-overset-letter], 
                                                   $tex-instr, 
                                                   $char, 
