@@ -427,7 +427,7 @@
           <xso:value-of select="string-join(xml2tex:convert-diacrits($utf2tex, $texregex, $xml2tex:diacrits, $charmap), '')"/>
         </xso:when>
         <xso:otherwise>
-          <xso:value-of select="$utf2tex"/>
+          <xso:value-of select="normalize-unicode($utf2tex)"/>
         </xso:otherwise>
       </xso:choose>
     </xso:template>

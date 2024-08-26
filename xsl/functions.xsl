@@ -199,6 +199,7 @@
                                                          $xml2tex:diacritical-marks-regex)"/>
     <xsl:variable name="replace-per-char">
       <xsl:for-each select="$split-string-to-chars[not(substring(., 1, 1) = $charmap/xml2tex:char/@string)]">
+        <xsl:variable name="context" select="."/>
         <xsl:variable name="normalize-unicode-NFD" select="normalize-unicode(., 'NFD')" as="xs:string"/>
         <xsl:variable name="normalize-unicode-NFKD" select="normalize-unicode(., 'NFKD')" as="xs:string"/>
         <xsl:variable name="overset-letter-regex" select="'[&#x363;-&#x36f;]'" as="xs:string"/>
@@ -217,7 +218,7 @@
                 <xsl:variable name="is-special-for-href" select="$mark = '&#x301;' and  contains($char, '&#x75;')" as="xs:boolean">
                   <!-- ú has to be quoted three times for hrefs-->
                 </xsl:variable>
-                <xsl:value-of select="if(string-length($tex-instr) gt 0 and not(matches($string, $texregex)))
+                <xsl:value-of select="if(string-length($tex-instr) gt 0 and not(matches($context, $texregex)))
                                       then concat('{'[$is-special-for-href], '{', '$'[$mark-is-overset-letter], 
                                                   $tex-instr, 
                                                   $char, 
