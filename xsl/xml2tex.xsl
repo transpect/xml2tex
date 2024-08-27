@@ -387,6 +387,7 @@
       <xso:variable name="regex-makros" as="element(xml2tex:regex)*">
         <xsl:for-each select="//xml2tex:regex">
           <xml2tex:regex>
+            <xsl:attribute name="normalize-unicode" select="if (@normalize-unicode='false') then false() else true()"/>
             <xml2tex:range><xsl:value-of select="@regex"/></xml2tex:range>
             <xml2tex:makro><xsl:value-of select="if (xml2tex:rule/@name) then concat('\',xml2tex:rule/@name) else ''"/></xml2tex:makro>
             <xml2tex:text><xsl:value-of select="replace((xml2tex:rule/xml2tex:text/@select, xml2tex:rule/xml2tex:text)[1],'''','')"/></xml2tex:text>
@@ -407,7 +408,7 @@
       <!-- maps unicode to latex -->
       <xso:variable name="handle-regexes" select="if(matches($simplemath, $regex-regex)) 
                                            then string-join(xml2tex:apply-regexes((), $simplemath, $regex-makros, (), $regex-regex), '') 
-                                           else $simplemath" as="xs:string"/>
+                                           else normalize-unicode($simplemath)" as="xs:string"/>
       <xsl:choose>
         <xsl:when test="/xml2tex:set/xml2tex:charmap">
           <xso:variable name="utf2tex" select="if(matches($handle-regexes, $texregex)) 
@@ -427,7 +428,7 @@
           <xso:value-of select="string-join(xml2tex:convert-diacrits($utf2tex, $texregex, $xml2tex:diacrits, $charmap), '')"/>
         </xso:when>
         <xso:otherwise>
-          <xso:value-of select="normalize-unicode($utf2tex)"/>
+          <xso:value-of select="$utf2tex"/>
         </xso:otherwise>
       </xso:choose>
     </xso:template>
