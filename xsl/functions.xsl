@@ -106,7 +106,7 @@
         
         </xsl:variable>
         <xsl:variable name="normalize-unicode-output" 
-                      select="for $i in $regex-map[matches($pattern, xml2tex:range)]/@normalize-unicode
+                      select="for $i in $regex-map[matches($pattern, xml2tex:range)][1]/@normalize-unicode
                                 return xs:boolean($i)"/>
         <xsl:choose>
           <xsl:when test="empty($makro-candidates) and empty($makro-candidates-text)">
