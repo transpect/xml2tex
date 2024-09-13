@@ -1003,9 +1003,7 @@ xml2tex.regex.attributes =
        "          "
      ]
    ]
-   attribute normalize-unicode {
-     xsd:boolean "true" | xsd:boolean "false"
-   }?
+   attribute normalize-unicode { xsd:boolean }?
    & [
        a:documentation [
          "\x{a}" ~

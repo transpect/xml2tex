@@ -630,10 +630,7 @@
             <p>Value: <code>true|false</code></p>
             <p>Wether a matching string should be normalized</p>
           </a:documentation>
-          <choice>
-            <value type="boolean">true</value>
-            <value type="boolean">false</value>
-          </choice>
+          <data type="boolean"/>
         </attribute>
       </optional>
       <optional>
