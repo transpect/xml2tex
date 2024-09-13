@@ -622,16 +622,28 @@
       </a:documentation>
       <text/>
     </attribute>
-    <optional>
-      <attribute name="normalize-unicode">
-      <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>normalize-unicode</i> attribute</h1>
-        <p>Value: <code>true|false</code></p>
-        <p>Wether a matching string should be normalized</p>
-      </a:documentation>
-      <text/>
-    </attribute>
-    </optional>
+    <interleave>
+      <optional>
+        <attribute name="normalize-unicode">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+            <h1>The <i>normalize-unicode</i> attribute</h1>
+            <p>Value: <code>true|false</code></p>
+            <p>Wether a matching string should be normalized</p>
+          </a:documentation>
+          <text/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="context">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+            <h1>The <i>context</i> attribute</h1>
+            <p>Value: <code>true|false</code></p>
+            <p>Restrict the scope of the regex to a specific XPath context</p>
+          </a:documentation>
+          <text/>
+        </attribute>
+      </optional>
+    </interleave>
   </define>
   
   <define name="xml2tex.file.attributes">

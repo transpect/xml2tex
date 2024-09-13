@@ -75,7 +75,7 @@
     </xsl:analyze-string>
   </xsl:function>
   
-<!--  replace regex ranges -->
+  <!--  replace regex ranges -->
   <xsl:function name="xml2tex:apply-regexes" as="xs:string+">
     <xsl:param name="context" as="element(*)?"/>
     <xsl:param name="string" as="xs:string"/>
@@ -84,48 +84,34 @@
     <xsl:param name="regex-regex" as="xs:string"/>
     <xsl:analyze-string select="$string" regex="{$regex-regex}">
       <xsl:matching-substring>
-        <xsl:variable name="pattern" select="functx:escape-for-regex(regex-group(1))" as="xs:string"/>
-        <xsl:variable name="makro-candidates" as="xs:string*">
-          <xsl:sequence select="for $i in $regex-map[matches($pattern, xml2tex:range)]/xml2tex:makro
-                                return string($i)"/>
-        
-        </xsl:variable>
-        <xsl:variable name="makro-candidates-regex" as="xs:string*">
-          <xsl:sequence select="for $i in $regex-map[matches($pattern, xml2tex:range)]/xml2tex:range
-                                return $i"/>
-        
-        </xsl:variable>
-        <xsl:variable name="makro-candidates-text" as="xs:string*">
-          <xsl:sequence select="for $i in $regex-map[matches($pattern, xml2tex:range)]/xml2tex:text
-                                return $i"/>
-        
-        </xsl:variable>
-        <xsl:variable name="makro-candidates-regex-group" as="xs:string*">
-          <xsl:sequence select="for $i in $regex-map[matches($pattern, xml2tex:range)]/xml2tex:regex-group
-                                return string($i)"/>
-        
-        </xsl:variable>
-        <xsl:variable name="normalize-unicode-output" 
-                      select="for $i in $regex-map[matches($pattern, xml2tex:range)][1]/@normalize-unicode
-                                return xs:boolean($i)"/>
+        <xsl:variable name="macro-candidates" as="xs:string*"
+                      select="$regex-map[matches($string, xml2tex:range)]/xml2tex:macro/string(.)"/>
+        <xsl:variable name="macro-candidates-regex" as="xs:string*" 
+                      select="$regex-map[matches($string, xml2tex:range)]/xml2tex:range/string(.)"/>
+        <xsl:variable name="macro-candidates-text" as="xs:string*" 
+                      select="$regex-map[matches($string, xml2tex:range)]/xml2tex:text/string(.)"/>
+        <xsl:variable name="macro-candidates-regex-group" as="xs:string*"
+                      select="$regex-map[matches($string, xml2tex:range)]/xml2tex:regex-group/string(.)"/>
+        <xsl:variable name="normalize-unicode-output" as="xs:boolean*"
+                      select="$regex-map[matches($string, xml2tex:range)][1]/@normalize-unicode/true()"/>
         <xsl:choose>
-          <xsl:when test="empty($makro-candidates) and empty($makro-candidates-text)">
+          <xsl:when test="empty($macro-candidates) and empty($macro-candidates-text)">
             <xsl:value-of select="."/>
           </xsl:when>
           <xsl:otherwise>
             <xsl:variable name="replacement-group" 
-                          select=" replace(.,$makro-candidates-regex[1], concat('$',($makro-candidates-regex-group[1][. ne ''], '0')[1]))" />
-            <xsl:variable name="replacement" select="if ($makro-candidates-text[normalize-space()]) 
-                                                    then replace($makro-candidates-text[last()],'([\$\\])', '\\$1')
-                                                    else replace(concat($makro-candidates[last()], '{',$replacement-group, '}'),'([\$\\])', '\\$1')" as="xs:string"/>
-            <xsl:variable name="result" select="replace(., $pattern, $replacement)" as="xs:string"/>
-            <xsl:variable name="seen" select="concat($seen, $pattern)" as="xs:string"/>
+                          select=" replace(.,$macro-candidates-regex[1], concat('$',($macro-candidates-regex-group[1][. ne ''], '0')[1]))" />
+            <xsl:variable name="replacement" select="if ($macro-candidates-text[normalize-space()]) 
+                                                    then replace($macro-candidates-text[last()],'([\$\\])', '\\$1')
+                                                    else replace(concat($macro-candidates[last()], '{',$replacement-group, '}'),'([\$\\])', '\\$1')" as="xs:string"/>
+            <xsl:variable name="result" select="replace(., $string, $replacement)" as="xs:string"/>
+            <xsl:variable name="seen" select="concat($seen, $string)" as="xs:string"/>
             <xsl:choose>
               <xsl:when test="matches($result, $regex-regex)
-                              and not(   $pattern = $seen 
+                              and not(   ($string = $seen)
                                       or matches($result, '^[a-z0-9A-Z\$\\%_&amp;\{\}\[\]#\|]+$')
                                       )">
-                <xsl:value-of select="string-join(xml2tex:apply-regexes($context, $result, $regex-map, ($seen, $pattern), $regex-regex), '')"/>
+                <xsl:value-of select="string-join(xml2tex:apply-regexes($context, $result, $regex-map, ($seen, $string), $regex-regex), '')"/>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:value-of select="if ($normalize-unicode-output) then normalize-unicode($result) else $result"/>

@@ -132,9 +132,9 @@
   <xsl:variable name="rule-indexes" as="xs:string*"
                 select="for $i in //*[local-name() = ('template', 'regex')] 
                         return generate-id($i)"/>
-
-  <xsl:template match="xml2tex:regex"/>
   
+  <xsl:template match="xml2tex:regex"/>
+
   <xsl:template match="xml2tex:template">
     <!--  * the priority of a rule is determined by its order. If more than one 
           * rule matches against a particular element, the last rule declaration has a higher priority
@@ -384,17 +384,41 @@
                                   string-join(for $i in /xml2tex:set/xml2tex:regex//@regex return concat('(',$i,')'),'|'),
                                   ')''')}" as="xs:string"/>
 
-      <xso:variable name="regex-makros" as="element(xml2tex:regex)*">
-        <xsl:for-each select="//xml2tex:regex">
-          <xml2tex:regex>
-            <xsl:attribute name="normalize-unicode" select="if (@normalize-unicode='false') then false() else true()"/>
-            <xml2tex:range><xsl:value-of select="@regex"/></xml2tex:range>
-            <xml2tex:makro><xsl:value-of select="if (xml2tex:rule/@name) then concat('\',xml2tex:rule/@name) else ''"/></xml2tex:makro>
-            <xml2tex:text><xsl:value-of select="replace((xml2tex:rule/xml2tex:text/@select, xml2tex:rule/xml2tex:text)[1],'''','')"/></xml2tex:text>
-            <xml2tex:regex-group><xsl:value-of select="xml2tex:rule/xml2tex:param/@regex-group"/></xml2tex:regex-group>
-          </xml2tex:regex>
-        </xsl:for-each>
-      </xso:variable>
+    <xso:variable name="regex-macros" as="element(xml2tex:regex)*">
+      <xsl:for-each select="//xml2tex:regex">
+        <xml2tex:regex>
+          <xsl:attribute name="normalize-unicode" select="if (@normalize-unicode='false') then false() else true()"/>
+          <xml2tex:range><xsl:value-of select="@regex"/></xml2tex:range>
+          <xml2tex:macro><xsl:value-of select="if (xml2tex:rule/@name) then concat('\',xml2tex:rule/@name) else ''"/></xml2tex:macro>
+          <xml2tex:text><xsl:value-of select="replace((xml2tex:rule/xml2tex:text/@select, xml2tex:rule/xml2tex:text)[1],'''','')"/></xml2tex:text>
+          <xml2tex:regex-group><xsl:value-of select="xml2tex:rule/xml2tex:param/@regex-group"/></xml2tex:regex-group>
+          <xsl:if test="@context">
+            <xml2tex:context><xsl:value-of select="@context"/></xml2tex:context>
+          </xsl:if>
+        </xml2tex:regex>
+      </xsl:for-each>
+    </xso:variable>
+    
+    <!-- filter $regex-macros document before it is applied by xml2tex:apply-regexes()
+         to restrict dynamically the XML context of certain regexes -->
+    
+    <xso:function name="xml2tex:filter-regex-document" as="element(xml2tex:regex)*">
+      <xso:param name="context" as="node()"/>
+      <xso:param name="regex-macros" as="element(xml2tex:regex)*"/>
+      <xsl:for-each select="//xml2tex:regex">
+        <xsl:variable name="pos" select="position()" as="xs:integer"/>
+        <xsl:choose>
+          <xsl:when test="@context">
+            <xso:if test="$context/{@context}">
+              <xso:copy-of select="$regex-macros[{$pos}]"/>
+            </xso:if>
+          </xsl:when>
+          <xsl:otherwise>
+            <xso:copy-of select="$regex-macros[{$pos}]"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:for-each>
+    </xso:function>
     
     <!-- replacement with xpath context -->
     <xso:template match="text()[   matches(., $texregex) 
@@ -404,16 +428,18 @@
                                 or matches(normalize-unicode(., 'NFD'),  $xml2tex:diacrits-regex)
                                 or matches(normalize-unicode(., 'NFKD'), $xml2tex:fraction-regex)]" mode="xml2tex">
       <!-- this function needs to run before any character mapping, because of roots e.g. -->
-      <xso:variable name="simplemath" select="string-join(xml2tex:convert-simplemath(.), '')" as="xs:string"/>
+      <xso:variable name="simplemath" select="normalize-unicode(string-join(xml2tex:convert-simplemath(.), ''))" as="xs:string"/>
       <!-- maps unicode to latex -->
-      <xso:variable name="handle-regexes" select="if(matches($simplemath, $regex-regex)) 
-                                           then string-join(xml2tex:apply-regexes((), $simplemath, $regex-makros, (), $regex-regex), '') 
-                                           else normalize-unicode($simplemath)" as="xs:string"/>
+      <xso:variable name="handle-regexes" 
+                    select="if(matches($simplemath, $regex-regex)) 
+                            then string-join(xml2tex:apply-regexes((), $simplemath, xml2tex:filter-regex-document(.., $regex-macros), (), $regex-regex), '') 
+                            else normalize-unicode($simplemath)" as="xs:string"/>
       <xsl:choose>
         <xsl:when test="/xml2tex:set/xml2tex:charmap">
-          <xso:variable name="utf2tex" select="if(matches($handle-regexes, $texregex)) 
-                                               then string-join(xml2tex:utf2tex(.., $handle-regexes, $charmap, (), $texregex), '') 
-                                               else $handle-regexes" as="xs:string"/>
+          <xso:variable name="utf2tex"
+                        select="if(matches($handle-regexes, $texregex)) 
+                                then string-join(xml2tex:utf2tex(.., $handle-regexes, $charmap, (), $texregex), '') 
+                                else $handle-regexes" as="xs:string"/>
         </xsl:when>
         
         <xsl:otherwise>

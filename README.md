@@ -262,6 +262,8 @@ If you want to use groups in your matching pattern, you can specify the optional
 </regex>
 ```
 
+Please note that you can restrict the scope of the regex with the optional `@context` attribute. To suppress Unicode normalization, you can also add the attribute `normalize-unicode` with the value `false`.
+
 ### Character Maps
 
 Some LaTeX processors are only able to handle constrained character sets. Therefore it is recommended to include a character map in your configuration and map certain characters to LaTeX instructions. 

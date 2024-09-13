@@ -987,7 +987,41 @@ xml2tex.regex.attributes =
       "      "
     ]
   ]
-  attribute regex { text }
+  attribute regex { text },
+  ([
+     a:documentation [
+       "\x{a}" ~
+       "            "
+       ns1:h1 [ "The " ns1:i [ "normalize-unicode" ] " attribute" ]
+       "\x{a}" ~
+       "            "
+       ns1:p [ "Value: " ns1:code [ "true|false" ] ]
+       "\x{a}" ~
+       "            "
+       ns1:p [ "Wether a matching string should be normalized" ]
+       "\x{a}" ~
+       "          "
+     ]
+   ]
+   attribute normalize-unicode { text }?
+   & [
+       a:documentation [
+         "\x{a}" ~
+         "            "
+         ns1:h1 [ "The " ns1:i [ "context" ] " attribute" ]
+         "\x{a}" ~
+         "            "
+         ns1:p [ "Value: " ns1:code [ "true|false" ] ]
+         "\x{a}" ~
+         "            "
+         ns1:p [
+           "Restrict the scope of the regex to a specific XPath context"
+         ]
+         "\x{a}" ~
+         "          "
+       ]
+     ]
+     attribute context { text }?)
 xml2tex.file.attributes =
   [
     a:documentation [
