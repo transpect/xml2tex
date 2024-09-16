@@ -381,7 +381,7 @@
     
     <xso:variable name="regex-regex" 
                   select="{concat('''','(',
-                                  string-join(for $i in /xml2tex:set/xml2tex:regex//@regex return concat('(',functx:escape-for-regex($i),')'),'|'),
+                                  string-join(for $i in /xml2tex:set/xml2tex:regex//@regex return concat('(', $i,')'), '|'),
                                   ')''')}" as="xs:string"/>
 
     <xso:variable name="regex-macros" as="element(xml2tex:regex)*">
