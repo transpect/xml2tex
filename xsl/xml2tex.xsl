@@ -428,7 +428,7 @@
                                 or matches(normalize-unicode(., 'NFD'),  $xml2tex:diacrits-regex)
                                 or matches(normalize-unicode(., 'NFKD'), $xml2tex:fraction-regex)]" mode="xml2tex">
       <!-- this function needs to run before any character mapping, because of roots e.g. -->
-      <xso:variable name="simplemath" select="normalize-unicode(string-join(xml2tex:convert-simplemath(.), ''))" as="xs:string"/>
+      <xso:variable name="simplemath" select="string-join(xml2tex:convert-simplemath(.), '')" as="xs:string"/>
       <!-- maps unicode to latex -->
       <xso:variable name="handle-regexes" 
                     select="if(matches($simplemath, $regex-regex)) 
