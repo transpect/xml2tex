@@ -96,7 +96,7 @@
         <xsl:analyze-string select="$string" regex="{$regex-candidate/@regex}">
           <xsl:matching-substring>
             <xsl:variable name="regex-candidate-index" as="xs:integer" 
-                          select="index-of($regex-map/generate-id(), $regex-map[matches($string, @regex)]/generate-id())"/>
+                          select="index-of($regex-map/generate-id(), $regex-candidate/generate-id())"/>
             <xsl:variable name="regex-map-minus-current-regex" as="element(xml2tex:regex)*"
                           select="remove($regex-map, $regex-candidate-index)"/>
             <xsl:for-each select="$regex-candidate/xml2tex:rule">
