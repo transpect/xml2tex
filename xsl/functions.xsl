@@ -19,9 +19,20 @@
     
   <xsl:function name="xml2tex:escape-for-tex" as="xs:string">
     <xsl:param name="string" as="xs:string"/>
-    <xsl:value-of select="replace(replace( $string, $xml2tex:bad-chars-regex, '\\$1' ),
-                                  '([\[\]])', 
-                                  '{$1}')"/>
+    <xsl:value-of select="replace(
+                            replace(
+                              $string, $xml2tex:bad-chars-regex, '\\$1'
+                            ), '([\[\]])', '{$1}'
+                          )"/>
+  </xsl:function>
+  
+  <xsl:function name="xml2tex:escape-for-xslt" as="xs:string">
+    <xsl:param name="string" as="xs:string"/>
+    <xsl:sequence select="replace(
+                            replace(
+                              $string, '\{', '{{'
+                            ), '\}', '}}'
+                          )"/>
   </xsl:function>
   
   <!-- replace unicode characters with latex from charmap -->
@@ -75,8 +86,77 @@
     </xsl:analyze-string>
   </xsl:function>
   
-  <!--  replace regex ranges -->
   <xsl:function name="xml2tex:apply-regexes" as="xs:string+">
+    <xsl:param name="string" as="xs:string"/>
+    <xsl:param name="regex-map" as="element(xml2tex:regex)*"/>
+    <xsl:variable name="regex-candidate" as="element(xml2tex:regex)?" 
+                  select="$regex-map[matches($string, @regex)][1]"/>
+    <xsl:choose>
+      <xsl:when test="exists($regex-candidate)">
+        <xsl:analyze-string select="$string" regex="{$regex-candidate/@regex}">
+          <xsl:matching-substring>
+            <xsl:variable name="regex-candidate-index" as="xs:integer" 
+                          select="index-of($regex-map/generate-id(), $regex-map[matches($string, @regex)]/generate-id())"/>
+            <xsl:variable name="regex-map-minus-current-regex" as="element(xml2tex:regex)*"
+                          select="remove($regex-map, $regex-candidate-index)"/>
+            <xsl:for-each select="$regex-candidate/xml2tex:rule">
+              <xsl:value-of select="xml2tex:rule-start(.)"/>
+              <xsl:for-each select="xml2tex:param
+                                   |xml2tex:option
+                                   |xml2tex:text">
+                <xsl:sequence select="string-join(
+                                        (xml2tex:get-delimiters(.)[1],
+                                         xml2tex:apply-regexes((@select, $string)[1], $regex-map-minus-current-regex),
+                                         xml2tex:get-delimiters(.)[2]
+                                        ), ''
+                                      )"/>
+              </xsl:for-each>
+              <xsl:value-of select="xml2tex:rule-end(.)"/>
+            </xsl:for-each>
+          </xsl:matching-substring>
+          <xsl:non-matching-substring>
+            <xsl:sequence select="."/>
+          </xsl:non-matching-substring>
+        </xsl:analyze-string>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$string"/>    
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
+  
+  <xsl:function name="xml2tex:rule-start" as="xs:string">
+    <xsl:param name="rule" as="element(xml2tex:rule)"/>
+    <!-- three types: 
+            env   ==> environment, eg. e.g. begin{bla} ... end{bla}
+            cmd   ==> commands, e.g. \bla ...
+            none  ==> no tex markup, needed for simple paras or other stuff you want to simply tunnel through the process -->
+    <xsl:variable name="rule-start" as="xs:string?"
+                  select="concat($rule[@break-before]/string-join(for $i in (1 to @break-before) 
+                                                                  return '&#xa;', ''),
+                                      if($rule/@type eq 'env') then concat($rule[not(@break-before)]/'&#xa;', 
+                                                                           '\begin{',$rule/@name,'}')
+                                 else if(not($rule/@type))     then ()             
+                                 else                               concat('\', $rule/@name),
+                                 $rule[@mathmode eq 'true']/'$')"/>
+    <xsl:value-of select="$rule-start"/>
+  </xsl:function>
+    
+  <xsl:function name="xml2tex:rule-end" as="xs:string">
+    <xsl:param name="rule" as="element(xml2tex:rule)"/>
+    <xsl:variable name="closing-tag" as="xs:string?"
+                  select="concat($rule[@mathmode eq 'true']/'$',
+                                 if($rule/@type eq 'env') 
+                                 then concat('&#xa;\end{',$rule/@name,'}', $rule[not(@break-after)]/'&#xa;')
+                                 else (),
+                                 $rule[@break-after]/string-join(for $i in (1 to @break-after) 
+                                 return '&#xa;', ''))"/>
+    <xsl:value-of select="$closing-tag"/>
+  </xsl:function>
+  
+  
+  <!--  replace regex ranges -->
+  <!--<xsl:function name="xml2tex:apply-regexes" as="xs:string+">
     <xsl:param name="context" as="element(*)?"/>
     <xsl:param name="string" as="xs:string"/>
     <xsl:param name="regex-map" as="element(xml2tex:regex)*"/>
@@ -84,6 +164,7 @@
     <xsl:param name="regex-regex" as="xs:string"/>
     <xsl:analyze-string select="$string" regex="{$regex-regex}">
       <xsl:matching-substring>
+        <xsl:variable name="pattern" select="functx:escape-for-regex(regex-group(1))" as="xs:string"/>
         <xsl:variable name="macro-candidates" as="xs:string*"
                       select="$regex-map[matches($string, xml2tex:range)]/xml2tex:macro/string(.)"/>
         <xsl:variable name="macro-candidates-regex" as="xs:string*" 
@@ -93,7 +174,7 @@
         <xsl:variable name="macro-candidates-regex-group" as="xs:string*"
                       select="$regex-map[matches($string, xml2tex:range)]/xml2tex:regex-group/string(.)"/>
         <xsl:variable name="normalize-unicode-output" as="xs:boolean*"
-                      select="$regex-map[matches($string, xml2tex:range)][1]/@normalize-unicode/true()"/>
+                      select="$regex-map[matches($string, xml2tex:range)][1]/@normalize-unicode = 'true'"/>
         <xsl:choose>
           <xsl:when test="empty($macro-candidates) and empty($macro-candidates-text)">
             <xsl:value-of select="."/>
@@ -104,8 +185,8 @@
             <xsl:variable name="replacement" select="if ($macro-candidates-text[normalize-space()]) 
                                                     then replace($macro-candidates-text[last()],'([\$\\])', '\\$1')
                                                     else replace(concat($macro-candidates[last()], '{',$replacement-group, '}'),'([\$\\])', '\\$1')" as="xs:string"/>
-            <xsl:variable name="result" select="replace(., $string, $replacement)" as="xs:string"/>
-            <xsl:variable name="seen" select="concat($seen, $string)" as="xs:string"/>
+            <xsl:variable name="result" select="replace(., $pattern, $replacement)" as="xs:string"/>
+            <xsl:variable name="seen" select="concat($seen, $pattern)" as="xs:string"/>
             <xsl:choose>
               <xsl:when test="matches($result, $regex-regex)
                               and not(   ($string = $seen)
@@ -124,7 +205,7 @@
         <xsl:value-of select="."/>
       </xsl:non-matching-substring>
     </xsl:analyze-string>
-  </xsl:function>
+  </xsl:function>-->
   
   <xsl:variable name="xml2tex:diacrits" as="element(diacrits)">
     <diacrits>
@@ -311,16 +392,13 @@
     </xsl:choose>
   </xsl:function>
   
-  <xsl:function name="xml2tex:get-delimiter" as="xs:string">
-    <xsl:param name="type" as="xs:string"/>
-    <xsl:param name="start" as="xs:boolean"/>
-    <xsl:variable name="open"  select="     if($type eq 'param')  then '{'
-                                       else if($type eq 'option') then '['
-                                       else ''" as="xs:string"/>
-    <xsl:variable name="close" select="     if($type eq 'param')  then '}'
-                                       else if($type eq 'option') then ']'
-                                       else ''" as="xs:string"/>
-    <xsl:value-of select="if($start) then $open else $close"/>
+  <xsl:function name="xml2tex:get-delimiters" as="xs:string*">
+    <xsl:param name="argument" as="element()"/>
+    <xsl:variable name="delimiters" as="xs:string*"  
+                  select="     if($argument/local-name() eq 'param')  then ('{', '}')
+                          else if($argument/local-name() eq 'option') then ('[', ']')
+                          else ()"/>
+    <xsl:sequence select="$delimiters"/>
   </xsl:function>
   
   <xsl:function name="xml2tex:index-of" as="xs:integer">

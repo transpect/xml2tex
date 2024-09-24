@@ -109,7 +109,9 @@
     <xsl:call-template name="handle-namespace"/>
   </xsl:template>
 
-  <xsl:template match="xml2tex:preamble|xml2tex:front|xml2tex:back">
+  <xsl:template match="xml2tex:preamble
+                      |xml2tex:front
+                      |xml2tex:back">
     <xsl:apply-templates mode="fixed-sections"/>
   </xsl:template>
   
@@ -141,7 +143,6 @@
           * and overwrites the rule with a lesser priority. Imported templates have always the priority 1.
           * -->
     <xsl:variable name="template-priority" select="(@priority, (index-of($rule-indexes, generate-id(.)), 1))[1]" as="xs:integer"/>
-    
     <xsl:choose>
       <xsl:when test="@name">
         <!-- allow named templates but process only last in document because not two templates with the same name are allowed -->
@@ -153,13 +154,9 @@
         </xsl:if>
       </xsl:when>
       <xsl:otherwise>
-        <xso:template match="{if(self::xml2tex:regex)
-                              then concat('text()[matches(., ''', @regex, ''')]') 
-                              else @context}" mode="xml2tex" priority="{$template-priority}">
+        <xso:template match="{@context}" mode="xml2tex" priority="{$template-priority}">
           <!-- if no tex child is present, then matched node will be discarded -->
-          <xsl:apply-templates>
-            <xsl:with-param name="xml2tex:regex" as="xs:string?" select="@regex" tunnel="yes"/>
-          </xsl:apply-templates>
+          <xsl:apply-templates/>
         </xso:template>  
       </xsl:otherwise>
     </xsl:choose>
@@ -201,6 +198,10 @@
             env   ==> environment, eg. e.g. begin{bla} ... end{bla}
             cmd   ==> commands, e.g. \bla ...
             none  ==> no tex markup, needed for simple paras or other stuff you want to simply tunnel through the process -->
+    <xso:text><xsl:value-of select="xml2tex:rule-start(.)"/></xso:text>
+    <xsl:apply-templates/>
+    <xso:text><xsl:value-of select="xml2tex:rule-end(.)"/></xso:text>
+    <!--
     <xsl:variable name="opening-tag" 
                   select="concat($rule[@break-before]/string-join(for $i in (1 to @break-before) 
                                                                   return '&#xa;', ''),
@@ -239,19 +240,22 @@
         </xso:analyze-string>
       </xsl:when>
     </xsl:choose>
+    -->
   </xsl:template>
   
-  <xsl:template match="xsl:*|xsl:variable//*|@*" priority="1000">
+  <xsl:template match="xsl:*
+                      |xsl:variable//*|@*" priority="1000">
     <xsl:copy>
       <xsl:apply-templates select="@*, node()"/>
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="xml2tex:option|xml2tex:param|xml2tex:text">
-    <xsl:param name="xml2tex:regex" as="xs:string?" tunnel="yes"/>
+  <xsl:template match="xml2tex:template//xml2tex:option
+                      |xml2tex:template//xml2tex:param
+                      |xml2tex:template//xml2tex:text">
     <!-- types: text | param | option -->
-    <xso:variable name="opening-delimiter" select="{concat('''', xml2tex:get-delimiter(local-name(), true()), '''')}"/>
-    <xso:variable name="closing-delimiter" select="{concat('''', xml2tex:get-delimiter(local-name(), false()), '''')}"/>
+    <xsl:variable name="opening-delimiter" select="xml2tex:get-delimiters(.)[1]" as="xs:string?"/>
+    <xsl:variable name="closing-delimiter" select="xml2tex:get-delimiters(.)[2]" as="xs:string?"/>
     <xsl:variable name="parameter" as="element(xsl:with-param)*">
       <xsl:for-each select="xml2tex:with-param">
         <xsl:if test="current()[@name and @select]">
@@ -273,35 +277,16 @@
       <!--  *
             * regex attribute exists either in text/option/param tag
             * -->
-      <xsl:when test="$xml2tex:regex">
-        <xsl:variable name="context" select="." as="element()"/>
-        <xso:value-of select="$opening-delimiter"/>
-        <xsl:choose>
-          <xsl:when test="$context/@regex-group">
-            <xso:value-of select="{concat('regex-group(', $context/@regex-group, ')')}"/>    
-          </xsl:when>
-          <xsl:when test="$context/@select">
-            <xso:value-of select="{$context/@select}"/>
-          </xsl:when>
-          <xsl:when test="$context/node()">
-            <xso:value-of select="'{$context/node()}'"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xso:value-of select="."/>
-          </xsl:otherwise>
-        </xsl:choose>
-        <xso:value-of select="$closing-delimiter"/>
-      </xsl:when>
       <xsl:when test="@select and @type='text'">
-        <xso:value-of select="$opening-delimiter"/>
+        <xso:text><xsl:value-of select="$opening-delimiter"/></xso:text>
         <xso:value-of select="{@select}"/>
-        <xso:value-of select="$closing-delimiter"/>
+        <xso:text><xsl:value-of select="$closing-delimiter"/></xso:text>
       </xsl:when>
       <!--  *
             * select attribute exists either in text/option/param tag
             * -->
       <xsl:when test="@select">
-        <xso:value-of select="$opening-delimiter"/>
+        <xso:text><xsl:value-of select="$opening-delimiter"/></xso:text>
         <xso:choose>
           <!--  handle elements -->
           <xso:when test="({@select}) instance of element()">
@@ -325,21 +310,21 @@
             <xso:value-of select="{@select}"/>
           </xso:otherwise>
         </xso:choose>
-        <xso:value-of select="$closing-delimiter"/>
+        <xso:text><xsl:value-of select="$closing-delimiter"/></xso:text>
       </xsl:when>
       <!--  *
             * text/option/param tag contains static text. if with-param is there, ignore text
             * -->
       <xsl:when test="text() and not(*) and not(comment()) and not(processing-instruction())">
-        <xso:value-of select="$opening-delimiter"/>
+        <xso:text><xsl:value-of select="$opening-delimiter"/></xso:text>
         <xso:value-of select="{concat('''', string-join(text(),''), '''')}"/>
-        <xso:value-of select="$closing-delimiter"/>
+        <xso:text><xsl:value-of select="$closing-delimiter"/></xso:text>
       </xsl:when>
       <!--  *
             * fallback for anything
             * -->
       <xsl:otherwise>
-        <xso:value-of select="$opening-delimiter"/>
+        <xso:text><xsl:value-of select="$opening-delimiter"/></xso:text>
         <xso:choose>
           <xso:when test="(.) instance of element()">
             <xso:apply-templates mode="#current">
@@ -350,9 +335,21 @@
             <xso:next-match/>
           </xso:otherwise>
         </xso:choose>
-        <xso:value-of select="$closing-delimiter"/>
+        <xso:text><xsl:value-of select="$closing-delimiter"/></xso:text>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template match="*|@*" mode="regex-map">
+    <xsl:copy>
+      <xsl:apply-templates select="@*, node()" mode="#current"/>
+    </xsl:copy>
+  </xsl:template>
+  
+  <xsl:template match="xml2tex:regex//xml2tex:param/@select
+                      |xml2tex:regex//xml2tex:option/@select
+                      |xml2tex:regex//xml2tex:text/@select" priority="5" mode="regex-map">
+    <xsl:attribute name="{local-name()}" select="xml2tex:escape-for-xslt(.)"/>
   </xsl:template>
 
   <!-- replace chars via character map -->
@@ -379,42 +376,36 @@
         </xsl:for-each>
       </xso:variable>
     
-    <xso:variable name="regex-regex" 
-                  select="{concat('''','(',
-                                  string-join(for $i in /xml2tex:set/xml2tex:regex//@regex return concat('(', $i,')'), '|'),
-                                  ')''')}" as="xs:string"/>
-
-    <xso:variable name="regex-macros" as="element(xml2tex:regex)*">
-      <xsl:for-each select="//xml2tex:regex">
-        <xml2tex:regex>
-          <xsl:attribute name="normalize-unicode" select="if (@normalize-unicode='false') then false() else true()"/>
-          <xml2tex:range><xsl:value-of select="@regex"/></xml2tex:range>
-          <xml2tex:macro><xsl:value-of select="if (xml2tex:rule/@name) then concat('\',xml2tex:rule/@name) else ''"/></xml2tex:macro>
-          <xml2tex:text><xsl:value-of select="replace((xml2tex:rule/xml2tex:text/@select, xml2tex:rule/xml2tex:text)[1],'''','')"/></xml2tex:text>
-          <xml2tex:regex-group><xsl:value-of select="xml2tex:rule/xml2tex:param/@regex-group"/></xml2tex:regex-group>
-          <xsl:if test="@context">
-            <xml2tex:context><xsl:value-of select="@context"/></xml2tex:context>
-          </xsl:if>
-        </xml2tex:regex>
+    <xso:variable name="regex-map" as="element(xml2tex:regex)*">
+      <xsl:for-each select="/xml2tex:set/xml2tex:regex">
+        <xsl:copy>
+          <xsl:attribute name="regex" select="xml2tex:escape-for-xslt(@regex)"/>
+          <xsl:apply-templates select="@* except @regex, node()" mode="regex-map"/>
+        </xsl:copy>
       </xsl:for-each>
     </xso:variable>
+    
+    <xso:variable name="regex-regex" as="xs:string"
+                  select="{concat('''(',
+                                  string-join(/xml2tex:set/xml2tex:regex/@regex/concat('(', .,')'), '|'),
+                                  ')''')}"/>
     
     <!-- filter $regex-macros document before it is applied by xml2tex:apply-regexes()
          to restrict dynamically the XML context of certain regexes -->
     
     <xso:function name="xml2tex:filter-regex-document" as="element(xml2tex:regex)*">
       <xso:param name="context" as="node()"/>
-      <xso:param name="regex-macros" as="element(xml2tex:regex)*"/>
-      <xsl:for-each select="//xml2tex:regex">
+      <xso:param name="regex-map" as="element(xml2tex:regex)*"/>
+      <xsl:for-each select="/xml2tex:set/xml2tex:regex">
         <xsl:variable name="pos" select="position()" as="xs:integer"/>
         <xsl:choose>
           <xsl:when test="@context">
             <xso:if test="$context/{@context}">
-              <xso:copy-of select="$regex-macros[{$pos}]"/>
+              <xso:copy-of select="$regex-map[{$pos}]"/>
             </xso:if>
           </xsl:when>
           <xsl:otherwise>
-            <xso:copy-of select="$regex-macros[{$pos}]"/>
+            <xso:copy-of select="$regex-map[{$pos}]"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:for-each>
@@ -432,7 +423,7 @@
       <!-- maps unicode to latex -->
       <xso:variable name="handle-regexes" 
                     select="if(matches($simplemath, $regex-regex)) 
-                            then string-join(xml2tex:apply-regexes((), $simplemath, xml2tex:filter-regex-document(.., $regex-macros), (), $regex-regex), '') 
+                            then string-join(xml2tex:apply-regexes($simplemath, xml2tex:filter-regex-document(.., $regex-map)), '') 
                             else normalize-unicode($simplemath)" as="xs:string"/>
       <xsl:choose>
         <xsl:when test="/xml2tex:set/xml2tex:charmap">
