@@ -95,6 +95,8 @@
                   select="index-of($regex-map/generate-id(), $regex-candidate/generate-id())"/>
     <xsl:variable name="regex-map-minus-current-regex" as="element(xml2tex:regex)*"
                   select="remove($regex-map, $regex-candidate-index)"/>
+    <xsl:variable name="normalize-unicode" as="xs:boolean" 
+                  select="$regex-candidate/@normalize-unicode = 'true'"/>
     <xsl:choose>
       <xsl:when test="exists($regex-candidate)">
         <xsl:analyze-string select="$string" regex="{$regex-candidate/@regex}">
@@ -107,7 +109,9 @@
                                    |xml2tex:text">
                 <xsl:sequence select="string-join(
                                         (xml2tex:get-delimiters(.)[1],
-                                         xml2tex:apply-regexes($match, $regex-map-minus-current-regex),
+                                         xml2tex:apply-regexes(
+                                           if($normalize-unicode) then normalize-unicode($match, 'NFD') else $match, 
+                                           $regex-map-minus-current-regex),
                                          xml2tex:get-delimiters(.)[2]
                                         ), ''
                                       )"/>
