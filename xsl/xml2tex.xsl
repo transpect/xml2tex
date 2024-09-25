@@ -250,9 +250,9 @@
     </xsl:copy>
   </xsl:template>
 
-  <xsl:template match="xml2tex:template//xml2tex:option
-                      |xml2tex:template//xml2tex:param
-                      |xml2tex:template//xml2tex:text">
+  <xsl:template match="xml2tex:option
+                      |xml2tex:param
+                      |xml2tex:text">
     <!-- types: text | param | option -->
     <xsl:variable name="opening-delimiter" select="xml2tex:get-delimiters(.)[1]" as="xs:string?"/>
     <xsl:variable name="closing-delimiter" select="xml2tex:get-delimiters(.)[2]" as="xs:string?"/>
