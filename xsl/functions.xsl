@@ -114,12 +114,12 @@
                 </xsl:variable>
                 <xsl:sequence select="string-join(
                                         (xml2tex:get-delimiters(.)[1],
-                                         if(node())
-                                         then $select-evaluated
-                                         else xml2tex:apply-regexes(
-                                                if($normalize-unicode) then normalize-unicode($match, 'NFD') else $match, 
-                                                $regex-map-minus-current-regex
-                                              ),
+                                              if(exists($select-evaluated)) then $select-evaluated
+                                         else if(node())                    then node()
+                                         else                                    xml2tex:apply-regexes(
+                                                                                   if($normalize-unicode) then normalize-unicode($match, 'NFD') else $match, 
+                                                                                   $regex-map-minus-current-regex
+                                                                                 ),
                                          xml2tex:get-delimiters(.)[2]
                                         ), ''
                                       )"/>
