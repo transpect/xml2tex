@@ -349,7 +349,15 @@
   <xsl:template match="xml2tex:regex//xml2tex:param/@select
                       |xml2tex:regex//xml2tex:option/@select
                       |xml2tex:regex//xml2tex:text/@select" priority="5" mode="regex-map">
-    <xsl:attribute name="{local-name()}" select="xml2tex:escape-for-xslt(.)"/>
+    <xsl:attribute name="select-evaluated" select="'true'"/>
+    <xso:choose>
+      <xso:when test="{.} instance of node()">
+        <xso:apply-templates select="{.}" mode="xml2tex"/>
+      </xso:when>
+      <xso:otherwise>
+        <xso:value-of select="{.}"/>
+      </xso:otherwise>
+    </xso:choose>
   </xsl:template>
 
   <!-- replace chars via character map -->

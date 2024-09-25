@@ -107,11 +107,19 @@
               <xsl:for-each select="xml2tex:param
                                    |xml2tex:option
                                    |xml2tex:text">
+                <xsl:variable name="select-evaluated" as="item()*">
+                  <xsl:if test="@select-evaluated = 'true'">
+                    <xsl:apply-templates/>
+                  </xsl:if>
+                </xsl:variable>
                 <xsl:sequence select="string-join(
                                         (xml2tex:get-delimiters(.)[1],
-                                         xml2tex:apply-regexes(
-                                           if($normalize-unicode) then normalize-unicode($match, 'NFD') else $match, 
-                                           $regex-map-minus-current-regex),
+                                         if(node())
+                                         then $select-evaluated
+                                         else xml2tex:apply-regexes(
+                                                if($normalize-unicode) then normalize-unicode($match, 'NFD') else $match, 
+                                                $regex-map-minus-current-regex
+                                              ),
                                          xml2tex:get-delimiters(.)[2]
                                         ), ''
                                       )"/>
