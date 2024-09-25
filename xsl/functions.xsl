@@ -91,14 +91,15 @@
     <xsl:param name="regex-map" as="element(xml2tex:regex)*"/>
     <xsl:variable name="regex-candidate" as="element(xml2tex:regex)?" 
                   select="$regex-map[matches($string, @regex)][1]"/>
+    <xsl:variable name="regex-candidate-index" as="xs:integer" 
+                  select="index-of($regex-map/generate-id(), $regex-candidate/generate-id())"/>
+    <xsl:variable name="regex-map-minus-current-regex" as="element(xml2tex:regex)*"
+                  select="remove($regex-map, $regex-candidate-index)"/>
     <xsl:choose>
       <xsl:when test="exists($regex-candidate)">
         <xsl:analyze-string select="$string" regex="{$regex-candidate/@regex}">
           <xsl:matching-substring>
-            <xsl:variable name="regex-candidate-index" as="xs:integer" 
-                          select="index-of($regex-map/generate-id(), $regex-candidate/generate-id())"/>
-            <xsl:variable name="regex-map-minus-current-regex" as="element(xml2tex:regex)*"
-                          select="remove($regex-map, $regex-candidate-index)"/>
+            <xsl:variable name="match" select="." as="xs:string"/>
             <xsl:for-each select="$regex-candidate/xml2tex:rule">
               <xsl:value-of select="xml2tex:rule-start(.)"/>
               <xsl:for-each select="xml2tex:param
@@ -106,7 +107,7 @@
                                    |xml2tex:text">
                 <xsl:sequence select="string-join(
                                         (xml2tex:get-delimiters(.)[1],
-                                         xml2tex:apply-regexes((@select, $string)[1], $regex-map-minus-current-regex),
+                                         xml2tex:apply-regexes($match, $regex-map-minus-current-regex),
                                          xml2tex:get-delimiters(.)[2]
                                         ), ''
                                       )"/>
@@ -115,7 +116,7 @@
             </xsl:for-each>
           </xsl:matching-substring>
           <xsl:non-matching-substring>
-            <xsl:sequence select="."/>
+            <xsl:sequence select="xml2tex:apply-regexes(., $regex-map-minus-current-regex)"/>
           </xsl:non-matching-substring>
         </xsl:analyze-string>
       </xsl:when>
