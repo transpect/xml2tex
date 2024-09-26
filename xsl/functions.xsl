@@ -115,7 +115,7 @@
                 <xsl:sequence select="string-join(
                                         (xml2tex:get-delimiters(.)[1],
                                               if(exists($select-evaluated)) then $select-evaluated
-                                              if(@regex-group)              then regex-group(@regex-group)
+                                         else if(@regex-group)              then regex-group(@regex-group)
                                          else if(node())                    then node()
                                          else                                    xml2tex:apply-regexes(
                                                                                    if($normalize-unicode) then normalize-unicode($match, 'NFD') else $match, 
