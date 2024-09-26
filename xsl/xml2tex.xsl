@@ -359,6 +359,10 @@
       </xso:otherwise>
     </xso:choose>
   </xsl:template>
+  
+  <xsl:template match="xml2tex:regex//xml2tex:rule/@name" mode="regex-map">
+    <xsl:attribute name="name" select="xml2tex:escape-for-xslt(.)"/>
+  </xsl:template>
 
   <!-- replace chars via character map -->
   
