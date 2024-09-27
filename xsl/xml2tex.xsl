@@ -406,7 +406,7 @@
          to restrict dynamically the XML context of certain regexes -->
     
     <xso:function name="xml2tex:filter-regex-document" as="element(xml2tex:regex)*">
-      <xso:param name="context" as="node()"/>
+      <xso:param name="context" as="node()?"/>
       <xso:param name="regex-map" as="element(xml2tex:regex)*"/>
       <xsl:for-each select="/xml2tex:set/xml2tex:regex">
         <xsl:variable name="pos" select="position()" as="xs:integer"/>
