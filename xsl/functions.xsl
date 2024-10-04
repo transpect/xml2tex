@@ -148,6 +148,7 @@
     <xsl:variable name="rule-start" as="xs:string?"
                   select="concat($rule[@break-before]/string-join(for $i in (1 to @break-before) 
                                                                   return '&#xa;', ''),
+                                      if($rule[@protect='true']) then '{\protect' else (),
                                       if($rule/@type eq 'env') then concat($rule[not(@break-before)]/'&#xa;', 
                                                                            '\begin{',$rule/@name,'}')
                                  else if(not($rule/@type))     then ()             
@@ -163,6 +164,7 @@
                                  if($rule/@type eq 'env') 
                                  then concat('&#xa;\end{',$rule/@name,'}', $rule[not(@break-after)]/'&#xa;')
                                  else (),
+                                 if($rule[@protect='true']) then '}' else (),
                                  $rule[@break-after]/string-join(for $i in (1 to @break-after) 
                                  return '&#xa;', ''))"/>
     <xsl:value-of select="$closing-tag"/>
