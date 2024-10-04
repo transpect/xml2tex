@@ -214,7 +214,7 @@
   </define>
 
   <define name="xml2tex.with-param.element">
-    <element name="with-param">
+    <element name="xml2tex:with-param">
       <ref name="xslt2.extension.atts"/>
       <attribute name="name">
         <ref name="xslt2.qname.datatype"/>
@@ -512,6 +512,16 @@
             <p>The content will be enclosed in '$' characters which cause TeX to 
               switch to math mode.</p>
           </a:documentation> 
+          <data type="boolean"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="protect">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+            <h1>The <i>protect</i> attribute</h1>
+            <p>Value: <code>true|false</code></p>
+            <p>The content will be enclosed in a protect macro with curly brackets.</p>
+          </a:documentation>
           <data type="boolean"/>
         </attribute>
       </optional>

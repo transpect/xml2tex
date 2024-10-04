@@ -339,7 +339,7 @@ xml2tex.param =
     xml2tex.atom.content
   }
 xml2tex.with-param.element =
-  element with-param {
+  element xml2tex:with-param {
     xslt2.extension.atts,
     attribute name { xslt2.qname.datatype },
     attribute as { xslt2.sequence.datatype }?,
@@ -768,6 +768,25 @@ xml2tex.rule.attributes =
       ]
     ]
     attribute mathmode { xsd:boolean }?
+  & [
+      a:documentation [
+        "\x{a}" ~
+        "            "
+        ns1:h1 [ "The " ns1:i [ "protect" ] " attribute" ]
+        "\x{a}" ~
+        "            "
+        ns1:p [ "Values: " ns1:code [ "true|false" ] ]
+        "\x{a}" ~
+        "            "
+        ns1:p [
+          "The content will be enclosed in a protect macro with curly brackets." ~
+          "              switch to math mode."
+        ]
+        "\x{a}" ~
+        "          "
+      ]
+    ]
+    attribute protect { xsd:boolean }?    
 xml2tex.charmap.attributes =
   [
     a:documentation [
