@@ -412,7 +412,7 @@
         <xsl:variable name="pos" select="position()" as="xs:integer"/>
         <xsl:choose>
           <xsl:when test="@context">
-            <xso:if test="$context/{@context}">
+            <xso:if test="$context/{@context} or empty($context)">
               <xso:copy-of select="$regex-map[{$pos}]"/>
             </xso:if>
           </xsl:when>
