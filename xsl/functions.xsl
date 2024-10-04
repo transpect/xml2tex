@@ -92,7 +92,7 @@
     <xsl:variable name="regex-candidate" as="element(xml2tex:regex)?" 
                   select="$regex-map[matches($string, @regex)][1]"/>
     <xsl:variable name="regex-candidate-index" as="xs:integer" 
-                  select="index-of($regex-map/generate-id(), $regex-candidate/generate-id())"/>
+                  select="if (empty($regex-candidate)) then 1 else index-of($regex-map/generate-id(),  $regex-candidate/generate-id())"/>
     <xsl:variable name="regex-map-minus-current-regex" as="element(xml2tex:regex)*"
                   select="remove($regex-map, $regex-candidate-index)"/>
     <xsl:variable name="normalize-unicode" as="xs:boolean" 
