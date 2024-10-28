@@ -169,60 +169,7 @@
                                  return '&#xa;', ''))"/>
     <xsl:value-of select="$closing-tag"/>
   </xsl:function>
-  
-  
-  <!--  replace regex ranges -->
-  <!--<xsl:function name="xml2tex:apply-regexes" as="xs:string+">
-    <xsl:param name="context" as="element(*)?"/>
-    <xsl:param name="string" as="xs:string"/>
-    <xsl:param name="regex-map" as="element(xml2tex:regex)*"/>
-    <xsl:param name="seen" as="xs:string*"/>
-    <xsl:param name="regex-regex" as="xs:string"/>
-    <xsl:analyze-string select="$string" regex="{$regex-regex}">
-      <xsl:matching-substring>
-        <xsl:variable name="pattern" select="functx:escape-for-regex(regex-group(1))" as="xs:string"/>
-        <xsl:variable name="macro-candidates" as="xs:string*"
-                      select="$regex-map[matches($string, xml2tex:range)]/xml2tex:macro/string(.)"/>
-        <xsl:variable name="macro-candidates-regex" as="xs:string*" 
-                      select="$regex-map[matches($string, xml2tex:range)]/xml2tex:range/string(.)"/>
-        <xsl:variable name="macro-candidates-text" as="xs:string*" 
-                      select="$regex-map[matches($string, xml2tex:range)]/xml2tex:text/string(.)"/>
-        <xsl:variable name="macro-candidates-regex-group" as="xs:string*"
-                      select="$regex-map[matches($string, xml2tex:range)]/xml2tex:regex-group/string(.)"/>
-        <xsl:variable name="normalize-unicode-output" as="xs:boolean*"
-                      select="$regex-map[matches($string, xml2tex:range)][1]/@normalize-unicode = 'true'"/>
-        <xsl:choose>
-          <xsl:when test="empty($macro-candidates) and empty($macro-candidates-text)">
-            <xsl:value-of select="."/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:variable name="replacement-group" 
-                          select=" replace(.,$macro-candidates-regex[1], concat('$',($macro-candidates-regex-group[1][. ne ''], '0')[1]))" />
-            <xsl:variable name="replacement" select="if ($macro-candidates-text[normalize-space()]) 
-                                                    then replace($macro-candidates-text[last()],'([\$\\])', '\\$1')
-                                                    else replace(concat($macro-candidates[last()], '{',$replacement-group, '}'),'([\$\\])', '\\$1')" as="xs:string"/>
-            <xsl:variable name="result" select="replace(., $pattern, $replacement)" as="xs:string"/>
-            <xsl:variable name="seen" select="concat($seen, $pattern)" as="xs:string"/>
-            <xsl:choose>
-              <xsl:when test="matches($result, $regex-regex)
-                              and not(   ($string = $seen)
-                                      or matches($result, '^[a-z0-9A-Z\$\\%_&amp;\{\}\[\]#\|]+$')
-                                      )">
-                <xsl:value-of select="string-join(xml2tex:apply-regexes($context, $result, $regex-map, ($seen, $string), $regex-regex), '')"/>
-              </xsl:when>
-              <xsl:otherwise>
-                <xsl:value-of select="if ($normalize-unicode-output) then normalize-unicode($result) else $result"/>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:matching-substring>
-      <xsl:non-matching-substring>
-        <xsl:value-of select="."/>
-      </xsl:non-matching-substring>
-    </xsl:analyze-string>
-  </xsl:function>-->
-  
+    
   <xsl:variable name="xml2tex:diacrits" as="element(diacrits)">
     <diacrits>
       <mark hex="&#x300;" tex="\`"/>          <!-- grave accent -->
