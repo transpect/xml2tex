@@ -390,6 +390,7 @@
     
     <xso:variable name="regex-map" as="element(xml2tex:regex)*">
       <xsl:for-each select="/xml2tex:set/xml2tex:regex">
+        <xsl:sort select="(xs:integer(@regex-priority), 1)[1]" order="descending"/>
         <xsl:copy>
           <xsl:attribute name="regex" select="xml2tex:escape-for-xslt(@regex)"/>
           <xsl:apply-templates select="@* except @regex, node()" mode="regex-map"/>

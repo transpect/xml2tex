@@ -775,18 +775,17 @@ xml2tex.rule.attributes =
         ns1:h1 [ "The " ns1:i [ "protect" ] " attribute" ]
         "\x{a}" ~
         "            "
-        ns1:p [ "Values: " ns1:code [ "true|false" ] ]
+        ns1:p [ "Value: " ns1:code [ "true|false" ] ]
         "\x{a}" ~
         "            "
         ns1:p [
-          "The content will be enclosed in a protect macro with curly brackets." ~
-          "              switch to math mode."
+          "The content will be enclosed in a protect macro with curly brackets."
         ]
         "\x{a}" ~
         "          "
       ]
     ]
-    attribute protect { xsd:boolean }?    
+    attribute protect { xsd:boolean }?
 xml2tex.charmap.attributes =
   [
     a:documentation [
@@ -1040,7 +1039,23 @@ xml2tex.regex.attributes =
          "          "
        ]
      ]
-     attribute context { text }?)
+     attribute context { text }?
+   & [
+       a:documentation [
+         "\x{a}" ~
+         "            "
+         ns1:p [
+           "The value determines the order in which the regex template \x{a}" ~
+           "            is applied compared to other regex templates. Specifying \x{a}" ~
+           "            a regex-priority has no effect on the order in which this template \x{a}" ~
+           "            is executed compared to non-regex templates, since these \x{a}" ~
+           "            are handled in a different process chain."
+         ]
+         "\x{a}" ~
+         "          "
+       ]
+     ]
+     attribute regex-priority { xsd:integer }?)
 xml2tex.file.attributes =
   [
     a:documentation [

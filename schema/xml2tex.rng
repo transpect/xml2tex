@@ -653,6 +653,18 @@
           <text/>
         </attribute>
       </optional>
+      <optional>
+        <attribute name="regex-priority">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+            <p>The value determines the order in which the regex template 
+            is applied compared to other regex templates. Specifying 
+            a regex-priority has no effect on the order in which this template 
+            is executed compared to non-regex templates, since these 
+            are handled in a different process chain.</p>
+          </a:documentation>
+          <data type="integer"/>
+        </attribute>
+      </optional>
     </interleave>
   </define>
   
