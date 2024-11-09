@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <grammar xmlns="http://relaxng.org/ns/structure/1.0" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:xml2tex="http://transpect.io/xml2tex" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
 
-  <a:documentation> The xml2tex configuration file schema. </a:documentation>
+  <a:documentation xmlns="http://www.w3.org/1999/xhtml">
+    <h1>The xml2tex configuration file schema.</h1>
+  </a:documentation>
 
   <include href="xslt2.rng"/>
 
@@ -16,7 +18,7 @@
   <define name="xml2tex.set">
     <element name="xml2tex:set">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>set</i> element</h1>
+        <h2>The <i>set</i> element</h2>
         <p>The root element of the xml2tex configuration.</p>
       </a:documentation>
       <ref name="xml2tex.set.attributes"/>
@@ -27,7 +29,7 @@
   <define name="xml2tex.import">
     <element name="xml2tex:import">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>import</i> element</h1>
+        <h2>The <i>import</i> element</h2>
         <p>Import other xml2tex configuration files. Imported character maps and templates will always have a 
           lower priority than those in the importing configuration. Imported <code>preamble</code>, <code>front</code> 
           and <code>back</code> will be replaced if they exist in the importing configuration</p>
@@ -40,7 +42,7 @@
   <define name="xml2tex.preamble">
     <element name="xml2tex:preamble">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>preamble</i> element</h1>
+        <h2>The <i>preamble</i> element</h2>
         <p>Place declarations such as document class, used packages and other information 
           TeX will need to format the document correctly</p>
       </a:documentation>
@@ -56,7 +58,7 @@
   <define name="xml2tex.front">
     <element name="xml2tex:front">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>front</i> element</h1>
+        <h2>The <i>front</i> element</h2>
         <p>Used for TeX instructions to be placed immediately after 
         the begin of the document (e.g. <code>\begin{document}</code>).</p>
       </a:documentation>
@@ -72,7 +74,7 @@
   <define name="xml2tex.back">
     <element name="xml2tex:back">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>back</i> element</h1>
+        <h2>The <i>back</i> element</h2>
         <p>Used for TeX instructions to be placed immediately before 
           the end of the document (e.g. <code>\end{document}</code>).</p>
       </a:documentation>
@@ -88,7 +90,7 @@
   <define name="xml2tex.ns">
     <element name="xml2tex:ns">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>ns</i> element</h1>
+        <h2>The <i>ns</i> element</h2>
         <p>Specify the XML namespaces used in the document.</p>
       </a:documentation>
       <ref name="xml2tex.ns.attributes"/>
@@ -99,7 +101,7 @@
   <define name="xml2tex.template">
     <element name="xml2tex:template">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>template</i> element</h1>
+        <h2>The <i>template</i> element</h2>
         <p>Used to create a TeX instruction for a specified XML context.</p>
       </a:documentation>
       <ref name="xml2tex.template.attributes"/>
@@ -110,7 +112,7 @@
   <define name="xml2tex.style">
     <element name="xml2tex:style">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>style</i> element</h1>
+        <h2>The <i>style</i> element</h2>
         <p>This is a shorter but less powerful alternative for <code>template</code>. You can select 
           elements by a specific attribute and value. The attribute name has to be declared
           globally with <code>@style-attribute</code> at <code>xml2tex:set</code>.</p>
@@ -122,7 +124,7 @@
   <define name="xml2tex.regex">
     <element name="xml2tex:regex">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>regex</i> element</h1>
+        <h2>The <i>regex</i> element</h2>
         <p>Create TeX instructions where the specified regular expression 
           pattern matches a part of text.</p>
       </a:documentation>
@@ -134,7 +136,7 @@
   <define name="xml2tex.charmap">
     <element name="xml2tex:charmap">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>charmap</i> element</h1>
+        <h2>The <i>charmap</i> element</h2>
         <p>A collection of mapping instructions for mapping 
           characters to specific TeX instructions.</p>
       </a:documentation>
@@ -146,7 +148,7 @@
   <define name="xml2tex.rule">
     <element name="xml2tex:rule">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>rule</i> element</h1>
+        <h2>The <i>rule</i> element</h2>
         <p>Specify name and type of the TeX instruction and additional formatting.</p>
       </a:documentation>
       <ref name="xml2tex.rule.attributes"/>
@@ -157,7 +159,7 @@
   <define name="xml2tex.file">
     <element name="xml2tex:file">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>file</i> element</h1>
+        <h2>The <i>file</i> element</h2>
         <p>You can store the evaluated context of the <code>template</code> 
           to a separate file by specifying a file reference.</p>
       </a:documentation>
@@ -169,7 +171,7 @@
   <define name="xml2tex.char">
     <element name="xml2tex:char">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>char</i> element</h1>
+        <h2>The <i>char</i> element</h2>
         <p>Used to replace a character with a TeX instruction.</p>
       </a:documentation>
       <ref name="xml2tex.char.attributes"/>
@@ -180,7 +182,7 @@
   <define name="xml2tex.text">
     <element name="xml2tex:text">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>text</i> element</h1>
+        <h2>The <i>text</i> element</h2>
         <p>Used to add text after the TeX instruction such as <code>\foo bar</code>. 
           There are three ways to control how the content is applied:</p>
         <p>a) <code>&lt;text/&gt;</code> The context which is specified by <code>template/@content</code> is applied.<br/>
@@ -198,7 +200,7 @@
   <define name="xml2tex.param">
     <element name="xml2tex:param">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>param</i> element</h1>
+        <h2>The <i>param</i> element</h2>
         <p>Used to create a parameter for a TeX instruction such as <code>\foo{bar}</code>. 
           There are three ways to control how the content is applied:</p>
         <p>a) <code>&lt;param/&gt;</code> The context which is specified by <code>template/@content</code> is applied.<br/>
@@ -244,7 +246,7 @@
   <define name="xml2tex.option">
     <element name="xml2tex:option">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>option</i> element</h1>
+        <h2>The <i>option</i> element</h2>
         <p>Used to create an option for a TeX instruction such as <code>\foo[bar]</code>. 
           There are three ways to control how the content is applied:</p>
         <p>a) <code>&lt;text/&gt;</code> The context which is specified by <code>template/@content</code> is applied.<br/>
@@ -353,7 +355,7 @@
         <optional>
           <attribute name="select">
             <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-              <h1>The <i>select</i> attribute</h1>
+              <h2>The <i>select</i> attribute</h2>
               <p>Value: <code>XPath expression</code></p>
               <p>Specify an XPath expression to select a node within the selected context.</p>
             </a:documentation>
@@ -363,7 +365,7 @@
         <optional>
           <attribute name="type">
             <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-              <h1>The <i>type</i> attribute</h1>
+              <h2>The <i>type</i> attribute</h2>
               <p>Value: <code>'text'</code></p>
               <p>Specify if XPath expression in @select should be evaluated as text only.</p>
             </a:documentation>
@@ -373,7 +375,7 @@
         <optional>
           <attribute name="regex-group">
             <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-              <h1>The <i>select</i> attribute</h1>
+              <h2>The <i>select</i> attribute</h2>
               <p>Value: <code>xs:integer</code></p>
               <p>Specify the number of the regex groups to be selected.</p>
             </a:documentation>
@@ -387,7 +389,7 @@
   <define name="xml2tex.import.attributes">
     <attribute name="href">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>href</i> attribute</h1>
+        <h2>The <i>href</i> attribute</h2>
         <p>Value: <code>path</code></p>
         <p>Import other xml2tex configuration files by specifying their relative or absolute path.</p>
       </a:documentation>
@@ -399,7 +401,7 @@
     <interleave>
       <attribute name="prefix">
         <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-          <h1>The <i>prefix</i> attribute</h1>
+          <h2>The <i>prefix</i> attribute</h2>
           <p>Value: <code>xs:string</code></p>
           <p>Specify the namespace prefix. The values of <code>prefix</code> and 
             <code>uri</code> are used to create an XML namespace declaration
@@ -409,7 +411,7 @@
       </attribute>
       <attribute name="uri">
         <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-          <h1>The <i>uri</i> attribute</h1>
+          <h2>The <i>uri</i> attribute</h2>
           <p>Value: <code>xs:string</code></p>
           <p>Specify the namespace URI. The values of <code>prefix</code> and 
             <code>uri</code> are used to create an XML namespace declaration
@@ -425,7 +427,7 @@
       <choice>
         <attribute name="context">
           <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-            <h1>The <i>context</i> attribute</h1>
+            <h2>The <i>context</i> attribute</h2>
             <p>Value: <code>XPath expression</code></p>
             <p>The content of this attribute is an XSLT 2 matching pattern that may contain 
               QNames with namespace prefixes. These prefixes and the namespaces must be declared 
@@ -435,7 +437,7 @@
         </attribute>
         <attribute name="name">
           <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-            <h1>The <i>name</i> attribute</h1>
+            <h2>The <i>name</i> attribute</h2>
             <p>Value: <code>xs:string</code></p>
             <p>Provides a name for the template. will be expanded to an XSLT 2 named template with the possibility to declare rule-Elements within..</p>
           </a:documentation>
@@ -445,7 +447,7 @@
       <optional>
         <attribute name="priority">
           <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-            <h1>The <i>priority</i> attribute</h1>
+            <h2>The <i>priority</i> attribute</h2>
             <p>Value: <code>xs:integer</code></p>
             <p>Can be used to override the internally evaluated priority of the template order.</p>
           </a:documentation>
@@ -461,7 +463,7 @@
         <interleave>
           <attribute name="name">
             <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-              <h1>The <i>name</i> attribute</h1>
+              <h2>The <i>name</i> attribute</h2>
               <p>Value: <code>xs:string</code></p>
               <p>Provides a name for the TeX instruction. The name <i>foo</i> will expand to 
                 either <code>\foo</code> or <code>\begin{foo}…\end{foo}</code> depending on the value of the 
@@ -471,7 +473,7 @@
           </attribute>
           <attribute name="type">
             <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-              <h1>The <i>type</i> attribute</h1>
+              <h2>The <i>type</i> attribute</h2>
               <p>Values: <code>cmd|env</code></p>
               <p>Declares whether you want to create a command (<i>cmd</i>)such as <code>\foo</code> or 
                 an environment <i>env</i> such as <code>\begin{foo}…\end{foo}</code></p>
@@ -487,7 +489,7 @@
       <optional>
         <attribute name="break-after">
           <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-            <h1>The <i>break-after</i> attribute</h1>
+            <h2>The <i>break-after</i> attribute</h2>
             <p>Value: <code>xs:integer</code></p>
             <p>Specifiies the number of breaks which will be added <i>after</i> the TeX instruction</p>
           </a:documentation>
@@ -497,7 +499,7 @@
       <optional>
         <attribute name="break-before">
           <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-            <h1>The <i>break-before</i> attribute</h1>
+            <h2>The <i>break-before</i> attribute</h2>
             <p>Value: <code>xs:integer</code></p>
             <p>Specifies the number of breaks which will be added <i>before</i> the TeX instruction</p>
           </a:documentation>
@@ -507,7 +509,7 @@
       <optional>
         <attribute name="mathmode">
           <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-            <h1>The <i>mathmode</i> attribute</h1>
+            <h2>The <i>mathmode</i> attribute</h2>
             <p>Values: <code>true|false</code></p>
             <p>The content will be enclosed in '$' characters which cause TeX to 
               switch to math mode.</p>
@@ -518,7 +520,7 @@
       <optional>
         <attribute name="protect">
           <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-            <h1>The <i>protect</i> attribute</h1>
+            <h2>The <i>protect</i> attribute</h2>
             <p>Value: <code>true|false</code></p>
             <p>The content will be enclosed in a protect macro with curly brackets.</p>
           </a:documentation>
@@ -532,7 +534,7 @@
     <optional>
       <attribute name="ignore-imported-charmaps">
         <a:documentation>
-          <h1>The <i>ignore-imported-charmaps</i> attribute</h1>
+          <h2>The <i>ignore-imported-charmaps</i> attribute</h2>
           <p>Value: <code>xs:boolean</code></p>
           <p>Whether character maps from imported configurations should be 
             ignored (<code>true</code>) or overridden (<code>false</code>). 
@@ -549,7 +551,7 @@
     <interleave>
       <attribute name="character">
         <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-          <h1>The <i>character</i> attribute</h1>
+          <h2>The <i>character</i> attribute</h2>
           <p>Value: <code>xs:string</code></p>
           <p>Character to be replaced</p>
         </a:documentation>
@@ -557,7 +559,7 @@
       </attribute>
       <attribute name="string">
         <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-          <h1>The <i>string</i> attribute</h1>
+          <h2>The <i>string</i> attribute</h2>
           <p>Value: <code>xs:string</code></p>
           <p>The value of the <code>@character</code> attribute is replaced with the value of this attribute.</p>
         </a:documentation>
@@ -566,7 +568,7 @@
       <optional>
         <attribute name="context">
           <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-            <h1>The <i>context</i> attribute</h1>
+            <h2>The <i>context</i> attribute</h2>
             <p>Value: <code>XPath expression</code></p>
             <p>The content of this attribute is an XSLT 2 matching pattern that may contain 
               QNames with namespace prefixes. These prefixes and the namespaces must be declared 
@@ -581,7 +583,7 @@
       <optional>
         <attribute name="mode">
           <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-            <h1>The <i>mode</i> attribute</h1>
+            <h2>The <i>mode</i> attribute</h2>
             <p>Values: <code>text</code> or <code>math</code></p>
             <p>Specifies the mode to which the character mapping is applied. If no mode
             attribute was specified, the character mapping can be applied to both modes (if applicable).</p>
@@ -598,7 +600,7 @@
   <define name="xml2tex.style.attributes">
     <attribute name="name">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>name</i> attribute</h1>
+        <h2>The <i>name</i> attribute</h2>
         <p>Value: <code>XML Attribute value</code></p>
         <p>Specifies the attribute value of an XML element. The attribute name has to be declared
           globally with <code>@style-attribute</code> at <code>xml2tex:set</code>.</p>
@@ -606,14 +608,14 @@
     </attribute>
     <attribute name="start">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>start</i> attribute</h1>
+        <h2>The <i>start</i> attribute</h2>
         <p>Value: <code>Plain text</code></p>
         <p>The value of this attribute is inserted before the selected XML element.</p>
       </a:documentation>
     </attribute>
     <attribute name="end">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>end</i> attribute</h1>
+        <h2>The <i>end</i> attribute</h2>
         <p>Value: <code>Plain text</code></p>
         <p>The value of this attribute is inserted after the selected XML element.</p>
       </a:documentation>
@@ -623,7 +625,7 @@
   <define name="xml2tex.regex.attributes">
     <attribute name="regex">
       <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-        <h1>The <i>regex</i> attribute</h1>
+        <h2>The <i>regex</i> attribute</h2>
         <p>Value: <code>regular expression pattern</code></p>
         <p>Specifies the regular expression pattern to match certain text strings.</p>
         <p>You can also use regular expression groups to reference them later with
@@ -636,7 +638,7 @@
       <optional>
         <attribute name="normalize-unicode">
           <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-            <h1>The <i>normalize-unicode</i> attribute</h1>
+            <h2>The <i>normalize-unicode</i> attribute</h2>
             <p>Value: <code>true|false</code></p>
             <p>Wether a matching string should be normalized</p>
           </a:documentation>
@@ -646,7 +648,7 @@
       <optional>
         <attribute name="context">
           <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-            <h1>The <i>context</i> attribute</h1>
+            <h2>The <i>context</i> attribute</h2>
             <p>Value: <code>true|false</code></p>
             <p>Restrict the scope of the regex to a specific XPath context</p>
           </a:documentation>
@@ -672,7 +674,7 @@
     <interleave>
       <attribute name="href">
         <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-          <h1>The <i>href</i> attribute</h1>
+          <h2>The <i>href</i> attribute</h2>
           <p>Specifies a path on the local file system.</p>
         </a:documentation>
         <text/>
@@ -680,7 +682,7 @@
       <optional>
         <attribute name="encoding">
           <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-            <h1>The <i>encoding</i> attribute</h1>
+            <h2>The <i>encoding</i> attribute</h2>
             <p>With this optional attribute, you can specify the 
               file encoding. The default value is 'utf-8'</p>
           </a:documentation>
@@ -690,7 +692,7 @@
       <optional>
         <attribute name="method">
           <a:documentation xmlns="http://www.w3.org/1999/xhtml">
-            <h1>The <i>method</i> attribute</h1>
+            <h2>The <i>method</i> attribute</h2>
             <p>With this optional attribute, you can specify the 
               serialization method. The default value is 'text', 
               other permitted values are 'xml' and 'html'.</p>

@@ -4,7 +4,13 @@ namespace rng = "http://relaxng.org/ns/structure/1.0"
 namespace sch = "http://purl.oclc.org/dsdl/schematron"
 namespace xml2tex = "http://transpect.io/xml2tex"
 
-a:documentation [ " The xml2tex configuration file schema. " ]
+a:documentation [
+  "\x{a}" ~
+  "    "
+  ns1:h1 [ "The xml2tex configuration file schema." ]
+  "\x{a}" ~
+  "  "
+]
 include "xslt2.rnc"
 start = xml2tex.set
 # *
@@ -15,7 +21,7 @@ xml2tex.set =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "set" ] " element" ]
+      ns1:h2 [ "The " ns1:i [ "set" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [ "The root element of the xml2tex configuration." ]
@@ -29,7 +35,7 @@ xml2tex.import =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "import" ] " element" ]
+      ns1:h2 [ "The " ns1:i [ "import" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [
@@ -55,7 +61,7 @@ xml2tex.preamble =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "preamble" ] " element" ]
+      ns1:h2 [ "The " ns1:i [ "preamble" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [
@@ -72,7 +78,7 @@ xml2tex.front =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "front" ] " element" ]
+      ns1:h2 [ "The " ns1:i [ "front" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [
@@ -91,7 +97,7 @@ xml2tex.back =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "back" ] " element" ]
+      ns1:h2 [ "The " ns1:i [ "back" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [
@@ -110,7 +116,7 @@ xml2tex.ns =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "ns" ] " element" ]
+      ns1:h2 [ "The " ns1:i [ "ns" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [ "Specify the XML namespaces used in the document." ]
@@ -124,7 +130,7 @@ xml2tex.template =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "template" ] " element" ]
+      ns1:h2 [ "The " ns1:i [ "template" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [
@@ -142,7 +148,7 @@ xml2tex.style =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "style" ] " element" ]
+      ns1:h2 [ "The " ns1:i [ "style" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [
@@ -166,7 +172,7 @@ xml2tex.regex =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "regex" ] " element" ]
+      ns1:h2 [ "The " ns1:i [ "regex" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [
@@ -185,7 +191,7 @@ xml2tex.charmap =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "charmap" ] " element" ]
+      ns1:h2 [ "The " ns1:i [ "charmap" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [
@@ -204,7 +210,7 @@ xml2tex.rule =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "rule" ] " element" ]
+      ns1:h2 [ "The " ns1:i [ "rule" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [
@@ -220,7 +226,7 @@ xml2tex.file =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "file" ] " element" ]
+      ns1:h2 [ "The " ns1:i [ "file" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [
@@ -239,7 +245,7 @@ xml2tex.char =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "char" ] " element" ]
+      ns1:h2 [ "The " ns1:i [ "char" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [ "Used to replace a character with a TeX instruction." ]
@@ -255,7 +261,7 @@ xml2tex.text =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "text" ] " element" ]
+      ns1:h2 [ "The " ns1:i [ "text" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [
@@ -299,7 +305,7 @@ xml2tex.param =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "param" ] " element" ]
+      ns1:h2 [ "The " ns1:i [ "param" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [
@@ -352,7 +358,7 @@ xml2tex.option =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "option" ] " element" ]
+      ns1:h2 [ "The " ns1:i [ "option" ] " element" ]
       "\x{a}" ~
       "        "
       ns1:p [
@@ -478,7 +484,7 @@ xml2tex.atom.attributes =
      a:documentation [
        "\x{a}" ~
        "              "
-       ns1:h1 [ "The " ns1:i [ "select" ] " attribute" ]
+       ns1:h2 [ "The " ns1:i [ "select" ] " attribute" ]
        "\x{a}" ~
        "              "
        ns1:p [ "Value: " ns1:code [ "XPath expression" ] ]
@@ -496,7 +502,7 @@ xml2tex.atom.attributes =
        a:documentation [
          "\x{a}" ~
          "              "
-         ns1:h1 [ "The " ns1:i [ "type" ] " attribute" ]
+         ns1:h2 [ "The " ns1:i [ "type" ] " attribute" ]
          "\x{a}" ~
          "              "
          ns1:p [ "Value: " ns1:code [ "'text'" ] ]
@@ -514,7 +520,7 @@ xml2tex.atom.attributes =
        a:documentation [
          "\x{a}" ~
          "              "
-         ns1:h1 [ "The " ns1:i [ "select" ] " attribute" ]
+         ns1:h2 [ "The " ns1:i [ "select" ] " attribute" ]
          "\x{a}" ~
          "              "
          ns1:p [ "Value: " ns1:code [ "xs:integer" ] ]
@@ -533,7 +539,7 @@ xml2tex.import.attributes =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "href" ] " attribute" ]
+      ns1:h2 [ "The " ns1:i [ "href" ] " attribute" ]
       "\x{a}" ~
       "        "
       ns1:p [ "Value: " ns1:code [ "path" ] ]
@@ -552,7 +558,7 @@ xml2tex.ns.attributes =
     a:documentation [
       "\x{a}" ~
       "          "
-      ns1:h1 [ "The " ns1:i [ "prefix" ] " attribute" ]
+      ns1:h2 [ "The " ns1:i [ "prefix" ] " attribute" ]
       "\x{a}" ~
       "          "
       ns1:p [ "Value: " ns1:code [ "xs:string" ] ]
@@ -576,7 +582,7 @@ xml2tex.ns.attributes =
       a:documentation [
         "\x{a}" ~
         "          "
-        ns1:h1 [ "The " ns1:i [ "uri" ] " attribute" ]
+        ns1:h2 [ "The " ns1:i [ "uri" ] " attribute" ]
         "\x{a}" ~
         "          "
         ns1:p [ "Value: " ns1:code [ "xs:string" ] ]
@@ -601,7 +607,7 @@ xml2tex.template.attributes =
      a:documentation [
        "\x{a}" ~
        "            "
-       ns1:h1 [ "The " ns1:i [ "context" ] " attribute" ]
+       ns1:h2 [ "The " ns1:i [ "context" ] " attribute" ]
        "\x{a}" ~
        "            "
        ns1:p [ "Value: " ns1:code [ "XPath expression" ] ]
@@ -623,7 +629,7 @@ xml2tex.template.attributes =
        a:documentation [
          "\x{a}" ~
          "            "
-         ns1:h1 [ "The " ns1:i [ "name" ] " attribute" ]
+         ns1:h2 [ "The " ns1:i [ "name" ] " attribute" ]
          "\x{a}" ~
          "            "
          ns1:p [ "Value: " ns1:code [ "xs:string" ] ]
@@ -641,7 +647,7 @@ xml2tex.template.attributes =
       a:documentation [
         "\x{a}" ~
         "            "
-        ns1:h1 [ "The " ns1:i [ "priority" ] " attribute" ]
+        ns1:h2 [ "The " ns1:i [ "priority" ] " attribute" ]
         "\x{a}" ~
         "            "
         ns1:p [ "Value: " ns1:code [ "xs:integer" ] ]
@@ -660,7 +666,7 @@ xml2tex.rule.attributes =
       a:documentation [
         "\x{a}" ~
         "              "
-        ns1:h1 [ "The " ns1:i [ "name" ] " attribute" ]
+        ns1:h2 [ "The " ns1:i [ "name" ] " attribute" ]
         "\x{a}" ~
         "              "
         ns1:p [ "Value: " ns1:code [ "xs:string" ] ]
@@ -686,7 +692,7 @@ xml2tex.rule.attributes =
         a:documentation [
           "\x{a}" ~
           "              "
-          ns1:h1 [ "The " ns1:i [ "type" ] " attribute" ]
+          ns1:h2 [ "The " ns1:i [ "type" ] " attribute" ]
           "\x{a}" ~
           "              "
           ns1:p [ "Values: " ns1:code [ "cmd|env" ] ]
@@ -713,7 +719,7 @@ xml2tex.rule.attributes =
       a:documentation [
         "\x{a}" ~
         "            "
-        ns1:h1 [ "The " ns1:i [ "break-after" ] " attribute" ]
+        ns1:h2 [ "The " ns1:i [ "break-after" ] " attribute" ]
         "\x{a}" ~
         "            "
         ns1:p [ "Value: " ns1:code [ "xs:integer" ] ]
@@ -733,7 +739,7 @@ xml2tex.rule.attributes =
       a:documentation [
         "\x{a}" ~
         "            "
-        ns1:h1 [ "The " ns1:i [ "break-before" ] " attribute" ]
+        ns1:h2 [ "The " ns1:i [ "break-before" ] " attribute" ]
         "\x{a}" ~
         "            "
         ns1:p [ "Value: " ns1:code [ "xs:integer" ] ]
@@ -753,7 +759,7 @@ xml2tex.rule.attributes =
       a:documentation [
         "\x{a}" ~
         "            "
-        ns1:h1 [ "The " ns1:i [ "mathmode" ] " attribute" ]
+        ns1:h2 [ "The " ns1:i [ "mathmode" ] " attribute" ]
         "\x{a}" ~
         "            "
         ns1:p [ "Values: " ns1:code [ "true|false" ] ]
@@ -772,7 +778,7 @@ xml2tex.rule.attributes =
       a:documentation [
         "\x{a}" ~
         "            "
-        ns1:h1 [ "The " ns1:i [ "protect" ] " attribute" ]
+        ns1:h2 [ "The " ns1:i [ "protect" ] " attribute" ]
         "\x{a}" ~
         "            "
         ns1:p [ "Value: " ns1:code [ "true|false" ] ]
@@ -791,7 +797,7 @@ xml2tex.charmap.attributes =
     a:documentation [
       "\x{a}" ~
       "          "
-      rng:h1 [
+      rng:h2 [
         "The "
         rng:i [ "ignore-imported-charmaps" ]
         " attribute"
@@ -822,7 +828,7 @@ xml2tex.char.attributes =
     a:documentation [
       "\x{a}" ~
       "          "
-      ns1:h1 [ "The " ns1:i [ "character" ] " attribute" ]
+      ns1:h2 [ "The " ns1:i [ "character" ] " attribute" ]
       "\x{a}" ~
       "          "
       ns1:p [ "Value: " ns1:code [ "xs:string" ] ]
@@ -838,7 +844,7 @@ xml2tex.char.attributes =
       a:documentation [
         "\x{a}" ~
         "          "
-        ns1:h1 [ "The " ns1:i [ "string" ] " attribute" ]
+        ns1:h2 [ "The " ns1:i [ "string" ] " attribute" ]
         "\x{a}" ~
         "          "
         ns1:p [ "Value: " ns1:code [ "xs:string" ] ]
@@ -858,7 +864,7 @@ xml2tex.char.attributes =
       a:documentation [
         "\x{a}" ~
         "            "
-        ns1:h1 [ "The " ns1:i [ "context" ] " attribute" ]
+        ns1:h2 [ "The " ns1:i [ "context" ] " attribute" ]
         "\x{a}" ~
         "            "
         ns1:p [ "Value: " ns1:code [ "XPath expression" ] ]
@@ -893,7 +899,7 @@ xml2tex.char.attributes =
       a:documentation [
         "\x{a}" ~
         "            "
-        ns1:h1 [ "The " ns1:i [ "mode" ] " attribute" ]
+        ns1:h2 [ "The " ns1:i [ "mode" ] " attribute" ]
         "\x{a}" ~
         "            "
         ns1:p [
@@ -918,7 +924,7 @@ xml2tex.style.attributes =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "name" ] " attribute" ]
+      ns1:h2 [ "The " ns1:i [ "name" ] " attribute" ]
       "\x{a}" ~
       "        "
       ns1:p [ "Value: " ns1:code [ "XML Attribute value" ] ]
@@ -941,7 +947,7 @@ xml2tex.style.attributes =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "start" ] " attribute" ]
+      ns1:h2 [ "The " ns1:i [ "start" ] " attribute" ]
       "\x{a}" ~
       "        "
       ns1:p [ "Value: " ns1:code [ "Plain text" ] ]
@@ -959,7 +965,7 @@ xml2tex.style.attributes =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "end" ] " attribute" ]
+      ns1:h2 [ "The " ns1:i [ "end" ] " attribute" ]
       "\x{a}" ~
       "        "
       ns1:p [ "Value: " ns1:code [ "Plain text" ] ]
@@ -978,7 +984,7 @@ xml2tex.regex.attributes =
     a:documentation [
       "\x{a}" ~
       "        "
-      ns1:h1 [ "The " ns1:i [ "regex" ] " attribute" ]
+      ns1:h2 [ "The " ns1:i [ "regex" ] " attribute" ]
       "\x{a}" ~
       "        "
       ns1:p [ "Value: " ns1:code [ "regular expression pattern" ] ]
@@ -1010,7 +1016,7 @@ xml2tex.regex.attributes =
      a:documentation [
        "\x{a}" ~
        "            "
-       ns1:h1 [ "The " ns1:i [ "normalize-unicode" ] " attribute" ]
+       ns1:h2 [ "The " ns1:i [ "normalize-unicode" ] " attribute" ]
        "\x{a}" ~
        "            "
        ns1:p [ "Value: " ns1:code [ "true|false" ] ]
@@ -1026,7 +1032,7 @@ xml2tex.regex.attributes =
        a:documentation [
          "\x{a}" ~
          "            "
-         ns1:h1 [ "The " ns1:i [ "context" ] " attribute" ]
+         ns1:h2 [ "The " ns1:i [ "context" ] " attribute" ]
          "\x{a}" ~
          "            "
          ns1:p [ "Value: " ns1:code [ "true|false" ] ]
@@ -1061,7 +1067,7 @@ xml2tex.file.attributes =
     a:documentation [
       "\x{a}" ~
       "          "
-      ns1:h1 [ "The " ns1:i [ "href" ] " attribute" ]
+      ns1:h2 [ "The " ns1:i [ "href" ] " attribute" ]
       "\x{a}" ~
       "          "
       ns1:p [ "Specifies a path on the local file system." ]
@@ -1074,7 +1080,7 @@ xml2tex.file.attributes =
       a:documentation [
         "\x{a}" ~
         "            "
-        ns1:h1 [ "The " ns1:i [ "encoding" ] " attribute" ]
+        ns1:h2 [ "The " ns1:i [ "encoding" ] " attribute" ]
         "\x{a}" ~
         "            "
         ns1:p [
@@ -1090,7 +1096,7 @@ xml2tex.file.attributes =
       a:documentation [
         "\x{a}" ~
         "            "
-        ns1:h1 [ "The " ns1:i [ "method" ] " attribute" ]
+        ns1:h2 [ "The " ns1:i [ "method" ] " attribute" ]
         "\x{a}" ~
         "            "
         ns1:p [
