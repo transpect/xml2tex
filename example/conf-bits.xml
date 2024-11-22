@@ -312,6 +312,53 @@
     </rule>
   </template>
   
+  <!-- babel support -->
   
+  <template context="named-content[@content-type = 'foreign-phrase'][@xml:lang]
+                                  [normalize-space(.)]
+                                  [xml2tex:lang-to-babel-lang(@xml:lang)]
+                                  [not(parent::ext-link)]
+                                  [every $lang in @xml:lang
+                                   satisfies not(ancestor::*[@xml:lang][1]/@xml:lang = $lang)]
+                                  [not(ancestor::*:entry or self::term or self::list-item)]
+                                  [not((*/local-name() = ('ext-link', 'graphic', 'inline-graphic'))
+                                       and 
+                                       not(normalize-space(string-join(.//text()[not(ancestor::*/local-name() = ('ext-link', 'graphic', 'inline-graphic'))], '')))
+                                      )]
+                                  [not(matches(., '^[\p{P}\p{Z}\d&#x4e00;-&#x9fff;&#x530;-&#x58f;&#xfb13;-&#xfb17;]+$'))]">
+    <xsl:param name="suppress-foreign-lang" as="xs:boolean?" tunnel="yes"/>
+    <xsl:value-of select="if(    $suppress-foreign-lang 
+                             and not(xml2tex:lang-to-babel-lang(@xml:lang) = ('greek', 
+                                                                              'arabic', 
+                                                                              'hebrew', 
+                                                                              'japanese', 
+                                                                              'chinese', 
+                                                                              'syriac', 
+                                                                              'armenian'))) 
+                          then () 
+                          else concat('\foreignlanguage{', xml2tex:lang-to-babel-lang(@xml:lang), '}{')"/>
+    <xsl:next-match/>
+    <xsl:value-of select="if(    $suppress-foreign-lang 
+                             and not(xml2tex:lang-to-babel-lang(@xml:lang) = ('greek',
+                                                                              'arabic', 
+                                                                              'hebrew', 
+                                                                              'japanese', 
+                                                                              'chinese', 
+                                                                              'syriac', 
+                                                                              'armenian'))) 
+                          then ()
+                          else '}'"/>
+  </template>
+  
+  <template context="p[@xml:lang][not(@xml:lang = $langs[1])]">
+    <xsl:param name="suppress-select-lang" as="xs:boolean" select="false()"/>
+    <xsl:if test="not($suppress-select-lang)">
+      <xsl:value-of select="concat('\selectlanguage{', xml2tex:lang-to-babel-lang(@xml:lang), '}%&#xa;')"/>
+      <xsl:next-match/>
+      <xsl:if test="not(parent::fn and not(following-sibling::*))">
+        <xsl:value-of select="concat('\selectlanguage{', xml2tex:lang-to-babel-lang($langs[1]), '}')"/>
+      </xsl:if>
+    </xsl:if>
+  </template>
 
 </set>
