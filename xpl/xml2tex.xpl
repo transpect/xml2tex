@@ -103,6 +103,12 @@
     </p:documentation>
   </p:option>
   
+  <p:option name="texmap-uri" select="'../texmap/texmap.xml'" required="false">
+    <p:documentation>
+      choose a tex map for mml2tex conversion
+    </p:documentation>
+  </p:option>
+  
   <p:option name="only-tex-body" select="'no'">
     <p:documentation>
       Just output the tex body document without preamble, 
@@ -437,7 +443,8 @@
     <p:input port="paths">
       <p:pipe port="paths" step="xml2tex"/>
     </p:input>
-    <p:with-option name="preprocessing" select="$preprocessing"/>    
+    <p:with-option name="preprocessing" select="$preprocessing"/>
+    <p:with-option name="texmap-uri" select="$texmap-uri"/>
     <p:with-option name="debug" select="$debug"/>
     <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
   </mml2tex:convert>
