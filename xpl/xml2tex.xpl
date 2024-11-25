@@ -208,7 +208,7 @@
     <p:input port="msgs">
       <p:inline>
         <c:messages>
-          <c:message xml:lang="en">Validation of xml2tex configuration successfull</c:message>
+          <c:message xml:lang="en">Validation of xml2tex configuration successful</c:message>
           <c:message xml:lang="de">Validierung der xml2tex Konfiguration erfolgreich</c:message>
         </c:messages>
       </p:inline>
