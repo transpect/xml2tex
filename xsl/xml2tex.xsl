@@ -182,11 +182,16 @@
         <xsl:when test="@method = ('xml', 'html', 'xhtml')">
           <xso:copy-of select="."/>
         </xsl:when>
+        <xsl:when test="text()">
+          <xso:text>
+            <xsl:apply-templates/>
+          </xso:text>    
+        </xsl:when>
         <xsl:when test="not(node())">
           <xso:apply-templates mode="#current"/>    
         </xsl:when>
         <xsl:otherwise>
-          <xsl:apply-templates select="xsl:*"/>
+          <xsl:apply-templates/>
         </xsl:otherwise>
       </xsl:choose>
     </c:data>
