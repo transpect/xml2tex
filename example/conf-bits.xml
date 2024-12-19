@@ -318,6 +318,7 @@
                                   [normalize-space(.)]
                                   [xml2tex:lang-to-babel-lang(@xml:lang)]
                                   [not(parent::ext-link)]
+                                  [not(parent::article-title)]
                                   [every $lang in @xml:lang
                                    satisfies not(ancestor::*[@xml:lang][1]/@xml:lang = $lang)]
                                   [not(ancestor::*:entry or self::term or self::list-item)]
