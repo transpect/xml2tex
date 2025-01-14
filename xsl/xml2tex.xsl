@@ -278,20 +278,18 @@
           </xsl:element>
       </xsl:if>
     </xsl:variable>
+    <xso:text><xsl:value-of select="$opening-delimiter"/></xso:text>
     <xsl:choose>
       <!--  *
             * regex attribute exists either in text/option/param tag
             * -->
       <xsl:when test="@select and @type='text'">
-        <xso:text><xsl:value-of select="$opening-delimiter"/></xso:text>
         <xso:value-of select="{@select}"/>
-        <xso:text><xsl:value-of select="$closing-delimiter"/></xso:text>
       </xsl:when>
       <!--  *
             * select attribute exists either in text/option/param tag
             * -->
       <xsl:when test="@select">
-        <xso:text><xsl:value-of select="$opening-delimiter"/></xso:text>
         <xso:choose>
           <!--  handle elements -->
           <xso:when test="({@select}) instance of element()">
@@ -315,21 +313,23 @@
             <xso:value-of select="{@select}"/>
           </xso:otherwise>
         </xso:choose>
-        <xso:text><xsl:value-of select="$closing-delimiter"/></xso:text>
+      </xsl:when>
+      <!--  *
+            * text/option/param tag contains XSLT instructions
+            * -->
+      <xsl:when test="xsl:*">
+        <xsl:apply-templates/> 
       </xsl:when>
       <!--  *
             * text/option/param tag contains static text. if with-param is there, ignore text
             * -->
       <xsl:when test="text() and not(*) and not(comment()) and not(processing-instruction())">
-        <xso:text><xsl:value-of select="$opening-delimiter"/></xso:text>
         <xso:value-of select="{concat('''', string-join(text(),''), '''')}"/>
-        <xso:text><xsl:value-of select="$closing-delimiter"/></xso:text>
       </xsl:when>
       <!--  *
             * fallback for anything
             * -->
       <xsl:otherwise>
-        <xso:text><xsl:value-of select="$opening-delimiter"/></xso:text>
         <xso:choose>
           <xso:when test="(.) instance of element()">
             <xso:apply-templates mode="#current">
@@ -340,9 +340,9 @@
             <xso:next-match/>
           </xso:otherwise>
         </xso:choose>
-        <xso:text><xsl:value-of select="$closing-delimiter"/></xso:text>
       </xsl:otherwise>
     </xsl:choose>
+    <xso:text><xsl:value-of select="$closing-delimiter"/></xso:text>
   </xsl:template>
   
   <xsl:template match="*|@*" mode="regex-map">
