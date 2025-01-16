@@ -541,7 +541,10 @@
                         |processing-instruction('mml2tex')
                         |processing-instruction('latex')
                         |processing-instruction('mathtype')" mode="clean">
-      <xso:value-of select="replace(., '\s\s+', ' ')"/>
+      <xso:value-of select="replace(
+                              replace(., '\s\s+', ' '
+                              ), '(^|[^\\])((\\\\)+)?(\\ )', '$1$2{{$4}}', 'm'
+                            )"/>
     </xso:template>
     
     <xso:template match="processing-instruction('passthru')" mode="clean">
