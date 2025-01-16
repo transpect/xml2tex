@@ -540,11 +540,11 @@
                         |processing-instruction('htmltabs')
                         |processing-instruction('mml2tex')
                         |processing-instruction('latex')
-                        |processing-instruction('mathtype')" mode="xml2tex">
+                        |processing-instruction('mathtype')" mode="clean">
       <xso:value-of select="replace(., '\s\s+', ' ')"/>
     </xso:template>
     
-    <xso:template match="processing-instruction('passthru')" mode="xml2tex">
+    <xso:template match="processing-instruction('passthru')" mode="clean">
       <xso:value-of select="."/>
     </xso:template>
     
