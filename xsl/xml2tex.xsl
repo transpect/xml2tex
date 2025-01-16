@@ -538,13 +538,13 @@
     
     <xso:template match="processing-instruction('cals2tabular')
                         |processing-instruction('htmltabs')
-                        |processing-instruction('mml2tex')
-                        |processing-instruction('latex')
+                        |processing-instruction('latex')" mode="xml2tex">
+      <xso:value-of select="replace(., '\s\s+', ' ')"/>
+    </xso:template>
+    
+    <xso:template match="processing-instruction('mml2tex')
                         |processing-instruction('mathtype')" mode="clean">
-      <xso:value-of select="replace(
-                              replace(., '\s\s+', ' '
-                              ), '(^|[^\\])((\\\\)+)?(\\ )', '$1$2{{$4}}', 'm'
-                            )"/>
+      <xso:value-of select="replace(., '\s\s+', ' ')"/>
     </xso:template>
     
     <xso:template match="processing-instruction('passthru')" mode="clean">
