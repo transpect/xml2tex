@@ -556,9 +556,13 @@
     
     <xso:template match="text()" mode="clean">
       <!-- do not remove space after `\` `\ `; mask it as `{\ }` -->
-      <xso:variable name="mask-backslash-space" select="replace(., '(^|[^\\])((\\\\)+)?(\\ )', '$1$2{{$4}}', 'm')" as="xs:string"/>
-      <xso:variable name="remove-whitespace-before-pagebreaks" select="replace($mask-backslash-space, '([^\p{{Zs}}])\p{{Zs}}*\n?\p{{Zs}}*(\\(pagebreak|break|newline|\\))', '$1$2', 'm')" as="xs:string"/>
-      <xso:value-of select="$remove-whitespace-before-pagebreaks"/>
+      <xso:variable name="mask-backslash-space" as="xs:string"
+                    select="replace(., '(^|[^\\])((\\\\)+)?(\\ )', '$1$2{{$4}}', 'm')" />
+      <xso:variable name="remove-whitespace-before-pagebreaks" as="xs:string"
+                    select="replace($mask-backslash-space, '([^\p{{Zs}}])\p{{Zs}}*\n?\p{{Zs}}*(\\(pagebreak|break|newline|\\))', '$1$2', 'm')"/>
+      <xso:variable name="move-leading-and-trailing-whitespace-out-of-macros" as="xs:string"
+                    select="replace($remove-whitespace-before-pagebreaks, '((\\[a-z]+)(\[[a-z\p{{P}}\p{{Zs}}]+\])?\{{)(\p{{Zs}}*)(.+?)(\p{{Zs}}*)(\}})', '$4$1$5$7$6', 'i')"/>
+      <xso:value-of select="$move-leading-and-trailing-whitespace-out-of-macros"/>
     </xso:template>
     
   </xsl:template>
