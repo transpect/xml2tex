@@ -479,5 +479,21 @@
                                   '}')"/>
     </xsl:for-each>
   </xsl:function>
+  
+  <xsl:variable name="xml2tex:whitespace-in-macros-regex" as="xs:string" 
+                select="'((\\[a-z]+)(\[[a-z\p{P}\p{Zs}]+\])?\{)(\p{Zs}*)(.+?)(\p{Zs}*)(\})'"/>
+  
+  <xsl:function name="xml2tex:move-whitespace-out-of-macros" as="xs:string">
+    <xsl:param name="str" as="xs:string"/>
+    <xsl:choose>
+      <xsl:when test="matches($str, '\\[a-z]+\[[a-z\p{P}\p{Zs}]+\]?\{\p{Zs}+')">
+        <xsl:sequence select="xml2tex:move-whitespace-out-of-macros(
+                                replace($str, $xml2tex:whitespace-in-macros-regex, '$4$1$5$7$6', 'i'))"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="$str"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:function>
 
 </xsl:stylesheet>
