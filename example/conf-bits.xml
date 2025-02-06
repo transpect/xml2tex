@@ -261,7 +261,7 @@
 
   <template context="fn">
     <rule name="footnote" type="cmd">
-      <xsl:if test="label">
+      <xsl:if test="label[normalize-space()]">
         <option select="label"/>
       </xsl:if>
       <param select="*[not(self::label)]"/>
