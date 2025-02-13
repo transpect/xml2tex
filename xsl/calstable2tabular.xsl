@@ -15,7 +15,7 @@
   
   <!-- this template expects a hub file with normalized tables -->
   
-  <xsl:param name="table-model" select="'tabularx'" as="xs:string"/><!-- tabularx | tabular -->
+  <xsl:param name="table-model" select="'tabular'" as="xs:string"/><!-- tabularx | tabular -->
   <xsl:param name="table-col-declaration" select="''" as="xs:string"/>
   <xsl:param name="table-first-col-declaration" select="''" as="xs:string"/>
   <xsl:param name="table-last-col-declaration" select="''" as="xs:string"/>
@@ -328,7 +328,7 @@
       <xsl:apply-templates select="*:thead, *:tbody, *:tfoot" mode="#current"/>
       <xsl:processing-instruction name="cals2tabular" 
                                   select="concat('\end{', 
-                                                 if($table-model eq 'tabular') then 'tabularx' else 'tabular',
+                                                 if($table-model eq 'tabularx') then 'tabularx' else 'tabular',
                                                  '}')"/>
     </xsl:copy>
   </xsl:template>
