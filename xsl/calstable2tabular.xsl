@@ -84,20 +84,17 @@
               <xsl:apply-templates mode="#current"/>    
             </xsl:when>
             <xsl:otherwise>
-              <xsl:processing-instruction name="cals2tabular" 
-                                          select="'\parbox{\textwidth}{'"/>
               <xsl:for-each select="*:para">
                 <xsl:copy>
                   <xsl:apply-templates select="@*, node()" mode="#current"/>  
                 </xsl:copy>                
                 <xsl:processing-instruction name="cals2tabular" 
-                                            select="if(position() ne last()) then ' \\ ' else ''"/>
+                                            select="if(position() ne last()) then ' \newline ' else ''"/>
               </xsl:for-each>
               <xsl:processing-instruction name="cals2tabular" 
                                           select="'}'"/>
             </xsl:otherwise>
           </xsl:choose>
-          <xsl:processing-instruction name="cals2tabular" select="'} '"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates select="@*" mode="#current"/>
