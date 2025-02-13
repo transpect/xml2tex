@@ -77,7 +77,7 @@
         <xsl:when test="$rowspan gt 1">
           <xsl:apply-templates select="@*" mode="#current"/>
           <xsl:processing-instruction name="cals2tabular" 
-                                      select="concat('\multirow', $vertical-align, '{', $rowspan, '}{=}{' )"/>
+                                      select="concat('\multirow', $vertical-align, '{', $rowspan, '}{*}{' )"/>
           <xsl:sequence select="cals2tabular:cell-align(@css:text-align, *:para[@css:direction][1]/@css:direction)"/>
           <xsl:choose>
             <xsl:when test="count(*:para) lt 2">

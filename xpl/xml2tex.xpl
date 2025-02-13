@@ -68,8 +68,8 @@
   
   <p:option name="table-model" select="''" required="false">
     <p:documentation>
-      Use LaTeX package to draw tables. Permitted values are 'tabular',
-      'tabularx' (default) and 'htmltabs'.
+      Use LaTeX package to draw tables. Permitted values are 'tabular' (default),
+      'tabularx' and 'htmltabs'.
     </p:documentation>
   </p:option>
   
