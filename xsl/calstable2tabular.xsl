@@ -91,10 +91,9 @@
                 <xsl:processing-instruction name="cals2tabular" 
                                             select="if(position() ne last()) then ' \newline ' else ''"/>
               </xsl:for-each>
-              <xsl:processing-instruction name="cals2tabular" 
-                                          select="'}'"/>
             </xsl:otherwise>
           </xsl:choose>
+          <xsl:processing-instruction name="cals2tabular" select="'}'"/>
         </xsl:when>
         <xsl:otherwise>
           <xsl:apply-templates select="@*" mode="#current"/>
