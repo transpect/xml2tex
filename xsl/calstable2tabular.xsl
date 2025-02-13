@@ -322,7 +322,7 @@
       <xsl:text>&#xa;</xsl:text>
       <xsl:processing-instruction name="cals2tabular" 
                                   select="concat('\begin{', 
-                                                 if($table-model eq 'tabular') then 'tabular' else 'tabularx}{\textwidth', 
+                                                 if($table-model eq 'tabularx') then 'tabularx}{\textwidth' else 'tabular', 
                                                  '}{', 
                                                  $col-declaration, 
                                                  '}', 
@@ -331,7 +331,7 @@
       <xsl:apply-templates select="*:thead, *:tbody, *:tfoot" mode="#current"/>
       <xsl:processing-instruction name="cals2tabular" 
                                   select="concat('\end{', 
-                                                 if($table-model eq 'tabular') then 'tabular' else 'tabularx',
+                                                 if($table-model eq 'tabular') then 'tabularx' else 'tabular',
                                                  '}')"/>
     </xsl:copy>
   </xsl:template>
