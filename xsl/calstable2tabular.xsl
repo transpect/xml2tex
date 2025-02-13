@@ -308,8 +308,7 @@
                   select="concat($col-separator,
                                  string-join(for $i in (1 to $col-count)
                                              return if(exists($col-widths))
-                                                    then concat('&#xa;',
-                                                                cals2tabular:col-declaration($col-widths[$i], $table-grid eq 'yes', $i, $col-count))
+                                                    then cals2tabular:col-declaration($col-widths[$i], $table-grid eq 'yes', $i, $col-count)
                                                     else 'l', 
                                              $col-separator), 
                                  $col-separator)"/>
