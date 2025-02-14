@@ -147,7 +147,7 @@
           <xsl:apply-templates select="." mode="html2tabs_atts"/>
         </xsl:variable>
       <xsl:processing-instruction name="htmltabs" 
-                                  select="concat('\HTtd',
+                                  select="concat('\HT', local-name(),
                                                  xml2tex:atts-to-option((@*, $additional-atts)),
                                                  '{')"/>
       <xsl:apply-templates select="node()" mode="#current"/>
