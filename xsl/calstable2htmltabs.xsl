@@ -15,7 +15,6 @@
   
   <xsl:import href="functions.xsl"/>
   <xsl:import href="http://transpect.io/xslt-util/cals2htmltable/xsl/cals2htmltables.xsl"/>
-  <xsl:import href="http://transpect.io/xslt-util/lengths/xsl/lengths.xsl"/>
   
   <xsl:param name="table-col-declaration" select="''" as="xs:string"/>
   <xsl:param name="table-first-col-declaration" select="''" as="xs:string"/>
@@ -245,13 +244,5 @@
                           else ."/>
   </xsl:template>
   
-  <xsl:function name="xml2tex:absolute-to-relative-col-width" as="xs:decimal">
-    <xsl:param name="colwidth" as="xs:string"/>
-    <xsl:param name="sum-colwidths" as="xs:string+"/>
-    <xsl:sequence select="round-half-to-even(    tr:length-to-unitless-twip($colwidth) 
-                                             div sum(for $i in  $sum-colwidths 
-                                                     return tr:length-to-unitless-twip($i)), 
-                                             3)"/>
-  </xsl:function>
   
 </xsl:stylesheet>

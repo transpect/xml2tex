@@ -11,7 +11,7 @@
   version="3.0">
   
   <xsl:import href="http://transpect.io/xslt-util/num/xsl/num.xsl"/>
-  <xsl:import href="calstable2htmltabs.xsl"/>
+  <xsl:import href="functions.xsl"/>
   
   <!-- this template expects a hub file with normalized tables -->
   
