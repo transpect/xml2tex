@@ -4,6 +4,8 @@
   xmlns:c="http://www.w3.org/ns/xproc-step" 
   xmlns:cx="http://xmlcalabash.com/ns/extensions"
   xmlns:tr="http://transpect.io"
+  xmlns:dbk="http://docbook.org/ns/docbook"
+  xmlns:mml="http://www.w3.org/1998/Math/MathML"
   xmlns:mml2tex="http://transpect.io/mml2tex"
   xmlns:xml2tex="http://transpect.io/xml2tex"
   version="1.0" 
@@ -333,127 +335,140 @@
     <p:with-option name="base-uri" select="$debug-dir-uri"/>
   </tr:store-debug>
   
-  <p:sink/>
-  
-  <p:choose name="choose-table-model-xslt">
-    <p:when test="($table-model[normalize-space()], xml2tex:set/@table-model)[1] = 'htmltabs'">
-      <p:xpath-context>
-        <p:pipe port="result" step="load-config"/>
-      </p:xpath-context>
-      <p:output port="result">
-        <p:pipe port="result" step="load-cals2tabular-xsl"/>
-      </p:output>
+  <p:choose name="only-run-if-tables-present">
+    <p:when test="exists(//dbk:entry | //entry)">
+    <p:choose name="choose-table-model-xslt">
+      <p:when test="($table-model[normalize-space()], xml2tex:set/@table-model)[1] = 'htmltabs'">
+        <p:xpath-context>
+          <p:pipe port="result" step="load-config"/>
+        </p:xpath-context>
+        <p:output port="result">
+          <p:pipe port="result" step="load-cals2tabular-xsl"/>
+        </p:output>
+        
+        <tr:load-cascaded name="load-cals2tabular-xsl" filename="xml2tex/calstable2htmltabs.xsl">
+          <p:with-option name="fallback" select="resolve-uri('../xsl/calstable2htmltabs.xsl')"/>
+          <p:input port="paths">
+            <p:pipe port="paths" step="xml2tex"/>
+          </p:input>
+          <p:with-option name="debug" select="$debug"/>
+          <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+        </tr:load-cascaded>
+        <p:sink/>
+      </p:when>
+      <p:otherwise>
+        <p:output port="result">
+          <p:pipe port="result" step="load-cals2tabular-xsl"/>
+        </p:output>
+        
+        <tr:load-cascaded name="load-cals2tabular-xsl" filename="xml2tex/calstable2tabular.xsl">
+          <p:with-option name="fallback" select="resolve-uri('../xsl/calstable2tabular.xsl')"/>
+          <p:input port="paths">
+            <p:pipe port="paths" step="xml2tex"/>
+          </p:input>
+          <p:with-option name="debug" select="$debug"/>
+          <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
+        </tr:load-cascaded>
+        <p:sink/>
+      </p:otherwise>
       
-      <tr:load-cascaded name="load-cals2tabular-xsl" filename="xml2tex/calstable2htmltabs.xsl">
-        <p:with-option name="fallback" select="resolve-uri('../xsl/calstable2htmltabs.xsl')"/>
-        <p:input port="paths">
-          <p:pipe port="paths" step="xml2tex"/>
-        </p:input>
-        <p:with-option name="debug" select="$debug"/>
-        <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-      </tr:load-cascaded>
-      <p:sink/>
+    </p:choose>
+  
+    <p:sink/>
+  
+    <p:xslt name="cals2tabular" template-name="main">
+      <p:documentation>
+        This stylesheet converts CALS tables to LaTeX tables. The LaTeX Code 
+        is inserted as "cals2tabular" processing instructions. 
+      </p:documentation>
+      <p:input port="source">
+        <p:pipe port="result" step="debug-calstables"/>
+      </p:input>
+      <p:input port="stylesheet">
+        <p:pipe port="result" step="choose-table-model-xslt"/>
+      </p:input>
+      <p:input port="parameters">
+        <p:pipe port="paths" step="xml2tex"/>
+      </p:input>    
+      <p:with-param name="table-model" select="($table-model[normalize-space()], xml2tex:set/@table-model, 'tabularx')[1]">
+        <p:pipe port="result" step="load-config"/>
+      </p:with-param>
+      <p:with-param name="table-grid" select="($table-grid[normalize-space()], xml2tex:set/@table-grid, 'yes')[1]">
+        <p:pipe port="result" step="load-config"/>
+      </p:with-param>
+      <p:with-param name="table-col-declaration" select="xml2tex:set/@table-col-declaration">
+        <p:pipe port="result" step="load-config"/>
+      </p:with-param>
+      <p:with-param name="table-first-col-declaration" select="xml2tex:set/@table-first-col-declaration">
+        <p:pipe port="result" step="load-config"/>
+      </p:with-param>
+      <p:with-param name="table-last-col-declaration" select="xml2tex:set/@table-last-col-declaration">
+        <p:pipe port="result" step="load-config"/>
+      </p:with-param>
+      <p:with-param name="table-col-separator" select="xml2tex:set/@table-col-separator">
+        <p:pipe port="result" step="load-config"/>
+      </p:with-param>
+      <p:with-param name="table-first-col-separator" select="xml2tex:set/@table-first-col-separator">
+        <p:pipe port="result" step="load-config"/>
+      </p:with-param>
+      <p:with-param name="table-last-col-separator" select="xml2tex:set/@table-last-col-separator">
+        <p:pipe port="result" step="load-config"/>
+      </p:with-param>
+      <p:with-param name="no-table-grid-att" select="$no-table-grid-att"/>
+      <p:with-param name="no-table-grid-style" select="$no-table-grid-style"/>
+      <p:with-param name="debug" select="$debug"/>
+      <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
+    </p:xslt>
+  
+    <tr:store-debug name="debug-cals2tex">
+      <p:with-option name="pipeline-step" select="concat($prefix, '18.cals2tex')"/>
+      <p:with-option name="active" select="$debug"/>
+      <p:with-option name="base-uri" select="$debug-dir-uri"/>
+    </tr:store-debug>
+  
     </p:when>
     <p:otherwise>
-      <p:output port="result">
-        <p:pipe port="result" step="load-cals2tabular-xsl"/>
-      </p:output>
+      <p:identity/>
+    </p:otherwise>
+  </p:choose>
+  
+  <p:choose>
+    <p:when test="exists(//mml:math)">
+      <tr:simple-progress-msg file="xml2tex-convert-mml.txt" name="msg-3">
+        <p:input port="msgs">
+          <p:inline>
+            <c:messages>
+              <c:message xml:lang="en">Convert MathML equations to TeX</c:message>
+              <c:message xml:lang="de">Konvertiere MathML-Formeln nach TeX</c:message>
+            </c:messages>
+          </p:inline>
+        </p:input>
+        <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
+      </tr:simple-progress-msg>
       
-      <tr:load-cascaded name="load-cals2tabular-xsl" filename="xml2tex/calstable2tabular.xsl">
-        <p:with-option name="fallback" select="resolve-uri('../xsl/calstable2tabular.xsl')"/>
+      <mml2tex:convert name="mml2tex">
+        <p:documentation>
+          MathML equations are converted to "mml2tex" processing instructions.
+        </p:documentation>
         <p:input port="paths">
           <p:pipe port="paths" step="xml2tex"/>
         </p:input>
+        <p:with-option name="preprocessing" select="$preprocessing"/>
+        <p:with-option name="texmap-uri" select="$texmap-uri"/>
         <p:with-option name="debug" select="$debug"/>
         <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-      </tr:load-cascaded>
-      <p:sink/>
+      </mml2tex:convert>
+      
+      <tr:store-debug name="debug-mml2tex">
+        <p:with-option name="pipeline-step" select="concat($prefix, '20.mml2tex')"/>
+        <p:with-option name="active" select="$debug"/>
+        <p:with-option name="base-uri" select="$debug-dir-uri"/>
+      </tr:store-debug>
+    </p:when>
+    <p:otherwise>
+      <p:identity/>
     </p:otherwise>
-    
   </p:choose>
-  
-  <p:sink/>
-  
-  <p:xslt name="cals2tabular" template-name="main">
-    <p:documentation>
-      This stylesheet converts CALS tables to LaTeX tables. The LaTeX Code 
-      is inserted as "cals2tabular" processing instructions. 
-    </p:documentation>
-    <p:input port="source">
-      <p:pipe port="result" step="debug-calstables"/>
-    </p:input>
-    <p:input port="stylesheet">
-      <p:pipe port="result" step="choose-table-model-xslt"/>
-    </p:input>
-    <p:input port="parameters">
-      <p:pipe port="paths" step="xml2tex"/>
-    </p:input>    
-    <p:with-param name="table-model" select="($table-model[normalize-space()], xml2tex:set/@table-model, 'tabularx')[1]">
-      <p:pipe port="result" step="load-config"/>
-    </p:with-param>
-    <p:with-param name="table-grid" select="($table-grid[normalize-space()], xml2tex:set/@table-grid, 'yes')[1]">
-      <p:pipe port="result" step="load-config"/>
-    </p:with-param>
-    <p:with-param name="table-col-declaration" select="xml2tex:set/@table-col-declaration">
-      <p:pipe port="result" step="load-config"/>
-    </p:with-param>
-    <p:with-param name="table-first-col-declaration" select="xml2tex:set/@table-first-col-declaration">
-      <p:pipe port="result" step="load-config"/>
-    </p:with-param>
-    <p:with-param name="table-last-col-declaration" select="xml2tex:set/@table-last-col-declaration">
-      <p:pipe port="result" step="load-config"/>
-    </p:with-param>
-    <p:with-param name="table-col-separator" select="xml2tex:set/@table-col-separator">
-      <p:pipe port="result" step="load-config"/>
-    </p:with-param>
-    <p:with-param name="table-first-col-separator" select="xml2tex:set/@table-first-col-separator">
-      <p:pipe port="result" step="load-config"/>
-    </p:with-param>
-    <p:with-param name="table-last-col-separator" select="xml2tex:set/@table-last-col-separator">
-      <p:pipe port="result" step="load-config"/>
-    </p:with-param>
-    <p:with-param name="no-table-grid-att" select="$no-table-grid-att"/>
-    <p:with-param name="no-table-grid-style" select="$no-table-grid-style"/>
-    <p:with-param name="debug" select="$debug"/>
-    <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
-  </p:xslt>
-  
-  <tr:store-debug name="debug-cals2tex">
-    <p:with-option name="pipeline-step" select="concat($prefix, '18.cals2tex')"/>
-    <p:with-option name="active" select="$debug"/>
-    <p:with-option name="base-uri" select="$debug-dir-uri"/>
-  </tr:store-debug>
-  
-  <tr:simple-progress-msg file="xml2tex-convert-mml.txt" name="msg-3">
-    <p:input port="msgs">
-      <p:inline>
-        <c:messages>
-          <c:message xml:lang="en">Convert MathML equations to TeX</c:message>
-          <c:message xml:lang="de">Konvertiere MathML-Formeln nach TeX</c:message>
-        </c:messages>
-      </p:inline>
-    </p:input>
-    <p:with-option name="status-dir-uri" select="$status-dir-uri"/>
-  </tr:simple-progress-msg>
-  
-  <mml2tex:convert name="mml2tex">
-    <p:documentation>
-      MathML equations are converted to "mml2tex" processing instructions.
-    </p:documentation>
-    <p:input port="paths">
-      <p:pipe port="paths" step="xml2tex"/>
-    </p:input>
-    <p:with-option name="preprocessing" select="$preprocessing"/>
-    <p:with-option name="texmap-uri" select="$texmap-uri"/>
-    <p:with-option name="debug" select="$debug"/>
-    <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
-  </mml2tex:convert>
-  
-  <tr:store-debug name="debug-mml2tex">
-    <p:with-option name="pipeline-step" select="concat($prefix, '20.mml2tex')"/>
-    <p:with-option name="active" select="$debug"/>
-    <p:with-option name="base-uri" select="$debug-dir-uri"/>
-  </tr:store-debug>
   
   <tr:simple-progress-msg file="xml2tex-convert-xml.txt" name="msg-4">
     <p:input port="msgs">
