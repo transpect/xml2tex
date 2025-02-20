@@ -449,7 +449,9 @@
     <!-- replacement with xpath context -->
     <xso:template match="text()[{string-join($text-match-tokens, ' or ')}]" mode="xml2tex">
       <!-- this function needs to run before any character mapping, because of roots e.g. -->
-      <xso:variable name="simplemath" select="string-join(xml2tex:convert-simplemath(.), '')" as="xs:string"/>
+      <xso:variable name="simplemath" select="if(matches(., $xml2tex:simpleeq-regex)) 
+                                              then string-join(xml2tex:convert-simplemath(.), '')
+                                              else ." as="xs:string"/>
       <!-- maps unicode to latex -->
       <xsl:choose>
         <xsl:when test="/xml2tex:set/xml2tex:regex">
