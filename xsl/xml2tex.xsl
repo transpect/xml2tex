@@ -436,13 +436,18 @@
       </xsl:for-each>
     </xso:function>
     
+    <xsl:variable name="text-match-tokens" as="xs:string+" 
+                  select="(
+                  /xml2tex:set/xml2tex:charmap/xml2tex:char[1]/'matches(., $texregex)',
+                  /xml2tex:set/xml2tex:regex[1]/'matches(., $regex-regex)',
+                  'matches(., $xml2tex:simpleeq-regex)',
+                  'matches(., $xml2tex:root-regex)',
+                  'matches(normalize-unicode(., ''NFD''),  $xml2tex:diacrits-regex)',
+                  'matches(normalize-unicode(., ''NFKD''), $xml2tex:fraction-regex)'
+                  )"/>
+    
     <!-- replacement with xpath context -->
-    <xso:template match="text()[   matches(., $texregex) 
-                                or matches(., $regex-regex)
-                                or matches(., $xml2tex:simpleeq-regex)
-                                or matches(., $xml2tex:root-regex)
-                                or matches(normalize-unicode(., 'NFD'),  $xml2tex:diacrits-regex)
-                                or matches(normalize-unicode(., 'NFKD'), $xml2tex:fraction-regex)]" mode="xml2tex">
+    <xso:template match="text()[{string-join($text-match-tokens, ' or ')}]" mode="xml2tex">
       <!-- this function needs to run before any character mapping, because of roots e.g. -->
       <xso:variable name="simplemath" select="string-join(xml2tex:convert-simplemath(.), '')" as="xs:string"/>
       <!-- maps unicode to latex -->
