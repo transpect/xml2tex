@@ -68,9 +68,16 @@
       </xso:template>
       
       <!-- identity template for generated stylesheet -->
-      <xsl:comment select="'identity template'"/>
+      <xsl:comment select="'identity templates'"/>
 
-      <xso:template match="@* | node()" mode="#all" priority="-10">
+      <xso:template match="node()" mode="escape-bad-chars" priority="-10">
+        <xso:copy>
+          <xso:copy-of select="@*"/>
+          <xso:apply-templates select="node()" mode="#current"/>
+        </xso:copy>
+      </xso:template>
+
+      <xso:template match="@* | node()" mode="xml2tex clean" priority="-10">
         <xso:copy>
           <xso:apply-templates select="@*, node()" mode="#current"/>
         </xso:copy>
@@ -80,7 +87,7 @@
       <xsl:comment select="'template section'"/>
 
       <!-- escape bad chars, necessary for tex commands -->
-      <xso:template match="text()" mode="escape-bad-chars">
+      <xso:template match="text()[normalize-space()]" mode="escape-bad-chars">
         <xso:variable name="content" select="xml2tex:escape-for-tex(replace( ., '\\', '\\textbackslash ' ))" as="xs:string"/>
         <xso:value-of select="$content"/>
       </xso:template>
