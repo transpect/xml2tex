@@ -459,7 +459,7 @@
                                 else normalize-unicode($simplemath)" as="xs:string"/>
         </xsl:when>
         <xsl:otherwise>
-          <xso:variable name="handle-regexes" select="$simplemath"/>
+          <xso:variable name="handle-regexes" select="$simplemath" as="xs:string"/>
         </xsl:otherwise>
       </xsl:choose>
       <xsl:choose>
@@ -469,7 +469,6 @@
                                 then string-join(xml2tex:utf2tex(.., $handle-regexes, $charmap, (), $texregex), '') 
                                 else $handle-regexes" as="xs:string"/>
         </xsl:when>
-        
         <xsl:otherwise>
           <xso:variable name="utf2tex" select="$handle-regexes" as="xs:string"/>
         </xsl:otherwise>
