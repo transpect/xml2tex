@@ -451,10 +451,17 @@
       <!-- this function needs to run before any character mapping, because of roots e.g. -->
       <xso:variable name="simplemath" select="string-join(xml2tex:convert-simplemath(.), '')" as="xs:string"/>
       <!-- maps unicode to latex -->
-      <xso:variable name="handle-regexes" 
-                    select="if(matches($simplemath, $regex-regex)) 
-                            then string-join(xml2tex:apply-regexes($simplemath, xml2tex:filter-regex-document(.., $regex-map)), '') 
-                            else normalize-unicode($simplemath)" as="xs:string"/>
+      <xsl:choose>
+        <xsl:when test="/xml2tex:set/xml2tex:regex">
+          <xso:variable name="handle-regexes" 
+                        select="if(matches($simplemath, $regex-regex)) 
+                                then string-join(xml2tex:apply-regexes($simplemath, xml2tex:filter-regex-document(.., $regex-map)), '') 
+                                else normalize-unicode($simplemath)" as="xs:string"/>
+        </xsl:when>
+        <xsl:otherwise>
+          <xso:variable name="handle-regexes" select="$simplemath"/>
+        </xsl:otherwise>
+      </xsl:choose>
       <xsl:choose>
         <xsl:when test="/xml2tex:set/xml2tex:charmap">
           <xso:variable name="utf2tex"
