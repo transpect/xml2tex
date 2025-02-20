@@ -87,7 +87,8 @@
       <xsl:comment select="'template section'"/>
 
       <!-- escape bad chars, necessary for tex commands -->
-      <xso:template match="text()[normalize-space()]" mode="escape-bad-chars">
+      <xso:template match="text()[normalize-space()]
+                                 [matches(., concat($xml2tex:bad-chars-regex, '|(\\)'))]" mode="escape-bad-chars">
         <xso:variable name="content" select="xml2tex:escape-for-tex(replace( ., '\\', '\\textbackslash ' ))" as="xs:string"/>
         <xso:value-of select="$content"/>
       </xso:template>
