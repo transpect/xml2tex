@@ -448,7 +448,8 @@
                   )"/>
     
     <!-- replacement with xpath context -->
-    <xso:template match="text()[{string-join($text-match-tokens, ' or ')}]" mode="xml2tex">
+    <xso:template match="text()[normalize-space()]
+                               [{string-join($text-match-tokens, ' or ')}]" mode="xml2tex">
       <!-- this function needs to run before any character mapping, because of roots e.g. -->
       <xso:variable name="simplemath" select="if(matches(., $xml2tex:simpleeq-regex)) 
                                               then string-join(xml2tex:convert-simplemath(.), '')
