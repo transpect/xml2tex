@@ -18,6 +18,9 @@
   
   <xsl:variable name="xml2tex:bad-chars-regex" as="xs:string"
                 select="'([\{\}%_&amp;\$#])'"/>
+  
+  <xsl:variable name="xml2tex:all-bad-chars-regex" as="xs:string"
+                select="concat($xml2tex:bad-chars-regex, '|([\[\]\\])')"/>
     
   <xsl:function name="xml2tex:escape-for-tex" as="xs:string">
     <xsl:param name="string" as="xs:string"/>

@@ -81,7 +81,7 @@
 
       <!-- escape bad chars, necessary for tex commands -->
       <xso:template match="text()[normalize-space()]
-                                 [matches(., concat($xml2tex:bad-chars-regex, '|(\\)'))]" mode="escape-bad-chars">
+                                 [matches(., $xml2tex:all-bad-chars-regex)]" mode="escape-bad-chars">
         <xso:variable name="content" select="xml2tex:escape-for-tex(replace( ., '\\', '\\textbackslash ' ))" as="xs:string"/>
         <xso:value-of select="$content"/>
       </xso:template>
