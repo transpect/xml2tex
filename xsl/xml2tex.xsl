@@ -68,16 +68,9 @@
       </xso:template>
       
       <!-- identity template for generated stylesheet -->
-      <xsl:comment select="'identity templates'"/>
+      <xsl:comment select="'identity template'"/>
 
-      <xso:template match="node()" mode="escape-bad-chars" priority="-10">
-        <xso:copy>
-          <xso:copy-of select="@*"/>
-          <xso:apply-templates select="node()" mode="#current"/>
-        </xso:copy>
-      </xso:template>
-
-      <xso:template match="@* | node()" mode="xml2tex clean" priority="-10">
+      <xso:template match="@* | node()" mode="#all" priority="-10">
         <xso:copy>
           <xso:apply-templates select="@*, node()" mode="#current"/>
         </xso:copy>
