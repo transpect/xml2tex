@@ -570,7 +570,7 @@
   
   <xsl:template name="clean">
     
-    <xso:template match="processing-instruction()" mode="clean"/>
+    <xso:template match="processing-instruction() | comment() " mode="clean"/>
     
     <xso:template match="text()" mode="clean">
       <!-- do not remove space after `\` `\ `; mask it as `{\ }` -->
