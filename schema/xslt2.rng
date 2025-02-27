@@ -320,7 +320,15 @@
       </optional>
       <optional>
         <attribute name="mode">
-          <ref name="xslt2.qname.datatype"/>
+          <choice>
+            <value>#all</value>
+            <ref name="xslt2.qname.datatype"/>
+            <list>
+              <oneOrMore>
+                <ref name="xslt2.qname.datatype"/>
+              </oneOrMore>
+            </list>
+          </choice>
         </attribute>
       </optional>
       <optional>

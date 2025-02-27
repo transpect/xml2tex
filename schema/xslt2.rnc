@@ -138,7 +138,7 @@ xslt2.template.element =
     attribute match { xslt2.pattern.datatype }?,
     attribute name { xslt2.qname.datatype }?,
     attribute priority { xslt2.number.datatype }?,
-    attribute mode { xslt2.qname.datatype }?,
+    attribute mode { "#all" | xslt2.qname.datatype | list { xslt2.qname.datatype }}?,
     attribute as { xslt2.sequence.datatype }?,
     (xslt2.param.element*, xslt2.template.model)
   }
