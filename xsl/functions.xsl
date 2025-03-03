@@ -42,7 +42,7 @@
   
   <!-- replace unicode characters with latex from charmap -->
   
-  <xsl:function name="xml2tex:utf2tex" as="xs:string+" cache="yes">
+  <xsl:function name="xml2tex:utf2tex" as="xs:string+" saxon:memo-function="yes">
     <xsl:param name="context" as="element(*)?"/>
     <xsl:param name="string" as="xs:string"/>
     <xsl:param name="charmap" as="element(xml2tex:char)*"/>
@@ -144,7 +144,7 @@
     </xsl:choose>
   </xsl:function>
   
-  <xsl:function name="xml2tex:rule-start" as="xs:string" cache="yes">
+  <xsl:function name="xml2tex:rule-start" as="xs:string" saxon:memo-function="yes">
     <xsl:param name="rule" as="element(xml2tex:rule)"/>
     <!-- three types: 
             env   ==> environment, eg. e.g. begin{bla} ... end{bla}
@@ -162,7 +162,7 @@
     <xsl:value-of select="$rule-start"/>
   </xsl:function>
     
-  <xsl:function name="xml2tex:rule-end" as="xs:string" cache="yes">
+  <xsl:function name="xml2tex:rule-end" as="xs:string" saxon:memo-function="yes">
     <xsl:param name="rule" as="element(xml2tex:rule)"/>
     <xsl:variable name="closing-tag" as="xs:string?"
                   select="concat($rule[@mathmode eq 'true']/'$',
@@ -360,7 +360,7 @@
     </xsl:choose>
   </xsl:function>
   
-  <xsl:function name="xml2tex:get-delimiters" as="xs:string*" cache="yes">
+  <xsl:function name="xml2tex:get-delimiters" as="xs:string*" saxon:memo-function="yes">
     <xsl:param name="argument" as="element()"/>
     <xsl:variable name="delimiters" as="xs:string*"  
                   select="     if($argument/local-name() eq 'param')  then ('{', '}')
