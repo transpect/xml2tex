@@ -475,6 +475,9 @@ xml2tex.set.attributes =
     ## Overrides the table column declaration of the last column.
     attribute table-last-col-declaration { text }?
   & 
+    ## Sets entries whose style or para style matches this regex to th cells. (outside of thead)
+    attribute table-subhead-cell-style-regex { text }?
+  & 
     ## Choose the method docx2tex detects lists.
     attribute list-mode {
       xsd:string "indent" | xsd:string "role" | xsd:string "none"

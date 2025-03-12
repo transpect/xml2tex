@@ -337,6 +337,12 @@
         </attribute>
       </optional>
       <optional>
+        <attribute name="table-subhead-cell-style-regex">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">Sets entries whose style or para style matches this regex to th cells. (outside of thead)</a:documentation>
+          <text/>
+        </attribute>
+      </optional>
+      <optional>
         <attribute name="list-mode">
           <a:documentation xmlns="http://www.w3.org/1999/xhtml">Choose the method docx2tex detects lists.</a:documentation>
           <choice>

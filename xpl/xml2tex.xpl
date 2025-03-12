@@ -414,6 +414,9 @@
       <p:with-param name="table-last-col-separator" select="xml2tex:set/@table-last-col-separator">
         <p:pipe port="result" step="load-config"/>
       </p:with-param>
+      <p:with-param name="table-subhead-cell-style-regex" select="xml2tex:set/@table-subhead-cell-style-regex">
+        <p:pipe port="result" step="load-config"/>
+      </p:with-param>
       <p:with-param name="no-table-grid-att" select="$no-table-grid-att"/>
       <p:with-param name="no-table-grid-style" select="$no-table-grid-style"/>
       <p:with-param name="debug" select="$debug"/>
