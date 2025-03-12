@@ -57,7 +57,7 @@
   
   <xsl:template match="*:entry" mode="cals2html-table">
     <!-- overwritten to allow th outside of thead for vertical heads -->  
-    <xsl:element name="{if (ancestor::*:thead or (./*:para[1])[@role[matches(., $table-subhead-cell-style-regex)]]) then 'th' else 'td'}">
+    <xsl:element name="{if (ancestor::*:thead or (some $a in (.|./*:para[1]) satisfies $a[@role[matches(., $table-subhead-cell-style-regex)]])) then 'th' else 'td'}">
       <xsl:if test="@namest">
         <!-- should be more robust than just relying on certain column name literals -->
         <xsl:attribute name="colspan"
