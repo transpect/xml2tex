@@ -414,7 +414,7 @@
       <p:with-param name="table-last-col-separator" select="xml2tex:set/@table-last-col-separator">
         <p:pipe port="result" step="load-config"/>
       </p:with-param>
-      <p:with-param name="table-subhead-cell-style-regex" select="xml2tex:set/@table-subhead-cell-style-regex">
+      <p:with-param name="table-subhead-cell-style-regex" select="(xml2tex:set/@table-subhead-cell-style-regex,'xerif-subhead-cell-style')[1]">
         <p:pipe port="result" step="load-config"/>
       </p:with-param>
       <p:with-param name="no-table-grid-att" select="$no-table-grid-att"/>
