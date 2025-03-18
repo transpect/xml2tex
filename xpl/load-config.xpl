@@ -132,6 +132,14 @@
                       <xsl:copy-of select="($templates[xml2tex:hash-atts(.) = $hash])[last()]"/>
                     </xsl:for-each>
                   </xsl:when>
+                  <xsl:when test="$collect-all-xsl = ('yes', 'true') and $element-name = 'xsl:function'">
+                    <xsl:variable name="functions" select="$imports/xsl:function, $root/xsl:function"/>
+                    <xsl:for-each select="distinct-values(for $f in $functions return concat($f/@name, '~', count($f/xsl:param)))">
+                      <xsl:variable name="name" as="xs:string" select="."/>
+                      <xsl:copy-of select="($functions[@name = tokenize($name, '~')[1]]
+                                                      [string(count(xsl:param)) = tokenize($name, '~')[2]])[last()]"/>
+                    </xsl:for-each>
+                  </xsl:when>
                   <xsl:otherwise>
                      <xsl:for-each select="distinct-values(($root/*[name() eq $element-name]/@*[name() eq $attribute-name], 
                                                            $imports/*[name() eq $element-name]/@*[name() eq $attribute-name]))">
