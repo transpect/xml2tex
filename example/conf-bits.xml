@@ -162,7 +162,7 @@
 
   <template context="disp-quote">
     <rule name="quotation" type="env" break-before="1">
-      <text/>
+      <param select="*"/>
     </rule>
   </template>
 
