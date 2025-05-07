@@ -19,6 +19,7 @@
   <xsl:param name="debug-dir-uri" select="'debug'"/>
   <!-- output only tex body without preamble, \begin{document} and \end{document} -->
   <xsl:param name="only-tex-body" select="'no'"/>
+  <xsl:param name="xslt-version" select="'2.0'"/>
   
   <xsl:include href="handle-namespace.xsl"/>
 
@@ -37,7 +38,7 @@
       
       <xsl:apply-templates select="xml2tex:ns"/>
       
-      <xsl:attribute name="version">2.0</xsl:attribute>
+      <xsl:attribute name="version" select="$xslt-version"/>
 
       <xso:import href="http://transpect.io/xslt-util/functx/xsl/functx.xsl"/>
       <xso:import href="http://transpect.io/xml2tex/xsl/functions.xsl"/>

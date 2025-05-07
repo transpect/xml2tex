@@ -118,8 +118,12 @@
     </p:documentation>
   </p:option>
   
-   <p:option name="collect-all-xsl" required="false" select="'no'">
+  <p:option name="collect-all-xsl" required="false" select="'no'">
     <p:documentation>if this option is set to 'yes' or 'true' all xsl:templates with match attribute are collected.</p:documentation>
+  </p:option>
+  
+  <p:option name="xslt-version" required="false" select="'2.0'">
+    <p:documentation>Sets the XSLT version of the generated stylesheet.</p:documentation>
   </p:option>
   
   <p:import href="load-config.xpl"/>
@@ -251,6 +255,7 @@
     </p:input>
     <p:with-param name="debug" select="$debug"/>
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
+    <p:with-param name="xslt-version" select="$xslt-version"/>
     <p:with-param name="only-tex-body" select="$only-tex-body"/>
   </p:xslt>
   
