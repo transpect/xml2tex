@@ -181,7 +181,9 @@
     <xsl:sequence select="replace(.,'\p{Zs}+$','')"/>
   </xsl:template>
   
-  <xsl:template match="td[node()][every $el in * satisfies matches($el/local-name(),$strut-element-names)]"  mode="html2tabs_atts">
+  <xsl:template match="td[node()]
+                         [*[1][self::*[matches(local-name(),$strut-element-names)]]]
+                         [*[last()][self::*[matches(local-name(),$strut-element-names)]]]" mode="html2tabs_atts" priority="3">
     <xsl:attribute name="no-strut" select="'both'" />
   </xsl:template>
   
