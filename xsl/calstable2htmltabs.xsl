@@ -19,9 +19,10 @@
   <xsl:param name="table-col-declaration" select="''" as="xs:string"/>
   <xsl:param name="table-first-col-declaration" select="''" as="xs:string"/>
   <xsl:param name="table-last-col-declaration" select="''" as="xs:string"/>
-  <xsl:param name="table-subhead-cell-style-regex" select="'xerif-subhead-cell-style'" as="xs:string">
-    <!-- style regex for entries that will be mapped to th, even if not in thead -->
-  </xsl:param>
+  <!-- style regex for entries that will be mapped to th, even if not in thead -->
+  <xsl:param name="table-subhead-cell-style-regex" select="'xerif-subhead-cell-style'" as="xs:string"/>
+  <!-- process only table nodes by cals2htmltables.xsl to save computing time -->
+  <xsl:param name="process-tables-only" as="xs:string" select="'yes'"/>
   
   <xsl:param name="debug" select="'no'"/>
   <xsl:param name="debug-dir-uri" select="'debug'"/>

@@ -297,14 +297,12 @@
         <p:input port="stylesheet">
           <p:pipe step="xml2tex" port="html2calstable-xslt"/>
         </p:input>
-        <p:input port="parameters">
-          <p:empty/>
-        </p:input>
         <p:input port="models"><p:empty/></p:input>
         <p:with-option name="debug" select="$debug"/>
         <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
         <p:with-option name="fail-on-error" select="$fail-on-error"/>
         <p:with-option name="prefix" select="concat($prefix, '10')"/>
+        <p:with-param name="process-tables-only" select="'yes'"/>
       </tr:xslt-mode>
       
     </p:when>
