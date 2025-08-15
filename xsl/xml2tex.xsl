@@ -340,7 +340,7 @@
       <xsl:otherwise>
         <xso:choose>
           <xso:when test="(.) instance of element()">
-            <xso:apply-templates mode="#current">
+            <xso:apply-templates mode="xml2tex">
                <xsl:if test="$parameter"><xsl:sequence select="$parameter"/></xsl:if>
             </xso:apply-templates>
           </xso:when>
