@@ -19,6 +19,7 @@
   <xsl:param name="debug-dir-uri" select="'debug'"/>
   <!-- output only tex body without preamble, \begin{document} and \end{document} -->
   <xsl:param name="only-tex-body" select="'no'"/>
+  <xsl:param name="table-model" as="xs:string?"/>
   <xsl:param name="xslt-version" select="'2.0'"/>
   
   <xsl:include href="handle-namespace.xsl"/>
@@ -47,6 +48,11 @@
       
       <xso:param name="decompose-diacritics" as="xs:boolean"
                  select="{not(@decompose-diacritics eq 'no')}()"/>
+      
+      <xsl:if test="not(xsl:param[@name = 'table-model'])">
+        <xso:param name="table-model" as="xs:string?"
+                   select="concat('', ($table-model, @table-model)[1], '')"/>
+      </xsl:if>
       
       <xso:output method="text" media-type="text/plain" encoding="UTF8"/>
 

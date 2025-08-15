@@ -256,6 +256,7 @@
     <p:with-param name="debug" select="$debug"/>
     <p:with-param name="debug-dir-uri" select="$debug-dir-uri"/>
     <p:with-param name="xslt-version" select="$xslt-version"/>
+    <p:with-param name="table-model" select="$table-model"/>
     <p:with-param name="only-tex-body" select="$only-tex-body"/>
   </p:xslt>
   

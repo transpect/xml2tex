@@ -12,7 +12,6 @@
   <xsl:import href="http://transpect.io/xslt-util/paths/xsl/paths.xsl"/>
   <xsl:import href="http://transpect.io/xslt-util/roman-numerals/xsl/roman2int.xsl"/>
   
-  <xsl:param name="table-model" as="xs:string"/>
   <xsl:param name="a11y" as="xs:boolean" select="false()">
     <!-- if true() add paragraph structures -->
   </xsl:param>
