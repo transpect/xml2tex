@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:hub="http://docbook.org/ns/docbook"
   xmlns:css="http://www.w3.org/1996/css"
   xmlns:xml2tex="http://transpect.io/xml2tex"
   xmlns:tr="http://transpect.io"
@@ -58,7 +59,10 @@
   
   <xsl:template match="*:entry" mode="cals2html-table">
     <!-- overwritten to allow th outside of thead for vertical heads -->  
-    <xsl:element name="{if (ancestor::*:thead or (some $a in (.|./*:para[1]) satisfies $a[@role[matches(., $table-subhead-cell-style-regex)]])) then 'th' else 'td'}">
+    <xsl:element name="{if (   parent::*/*:row/parent::*:thead 
+                            or @hub:condition eq 'header'
+                            or (some $a in (.|./*:para[1]) 
+                                satisfies $a[@role[matches(., $table-subhead-cell-style-regex)]])) then 'th' else 'td'}">
       <xsl:if test="@namest">
         <!-- should be more robust than just relying on certain column name literals -->
         <xsl:attribute name="colspan"
