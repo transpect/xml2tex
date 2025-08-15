@@ -51,7 +51,7 @@
       
       <xsl:if test="not(xsl:param[@name = 'table-model'])">
         <xso:param name="table-model" as="xs:string?"
-                   select="concat('', ($table-model, @table-model)[1], '')"/>
+                   select="'{if(normalize-space($table-model)) then $table-model else @table-model}'"/>
       </xsl:if>
       
       <xso:output method="text" media-type="text/plain" encoding="UTF8"/>
