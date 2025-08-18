@@ -59,7 +59,7 @@
   
   <xsl:template match="*:entry" mode="cals2html-table">
     <!-- overwritten to allow th outside of thead for vertical heads -->  
-    <xsl:element name="{if (   parent::*/*:row/parent::*:thead 
+    <xsl:element name="{if (   parent::*:row/parent::*:thead 
                             or @hub:condition eq 'header'
                             or (some $a in (.|./*:para[1]) 
                                 satisfies $a[@role[matches(., $table-subhead-cell-style-regex)]])) then 'th' else 'td'}">
