@@ -313,6 +313,7 @@
 
   <xsl:variable name="xml2tex:root-regex" select="'([&#x221a;&#x221b;&#x221c;])(\d+)'" as="xs:string"/>
   <xsl:variable name="xml2tex:simpleeq-regex" select="'(\p{L}|\d+([\.,]\d+)*)((\s*[=\-+/]\s*)+(\p{L}|\d+([\.,]\d+)*)){2,}'" as="xs:string"/>
+  <xsl:variable name="xml2tex:dont-convert-simplemath" select="false()"/>
 
   <!-- set simple math expressions in math mode -->
   
@@ -327,6 +328,9 @@
     </xsl:variable>
     <xsl:choose>
       <!-- simple root -->
+      <xsl:when test="$xml2tex:dont-convert-simplemath">
+        <xsl:value-of select="$string"/>
+      </xsl:when>
       <xsl:when test="matches($string, $xml2tex:root-regex)">
         <xsl:analyze-string select="$string" regex="{$xml2tex:root-regex}" flags="i">
           <xsl:matching-substring>
