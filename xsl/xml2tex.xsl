@@ -566,7 +566,7 @@
     
     <xso:template match="processing-instruction('mml2tex')
                         |processing-instruction('mathtype')" mode="clean">
-      <xso:value-of select="replace(., '\s\s+', ' ')"/>
+      <xso:value-of select="replace(replace(., '\s\s+', ' '),'&#xa;$','')"/>
     </xso:template>
     
     <xso:template match="processing-instruction('passthru')" mode="clean">
