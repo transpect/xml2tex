@@ -118,6 +118,12 @@
     </p:documentation>
   </p:option>
   
+  <p:option name="set-math-style" select="'no'">
+    <p:documentation>
+      [yes|no] Whether to output \textstyle or \displaystyle when math/@display is set
+    </p:documentation>
+  </p:option>
+  
   <p:option name="collect-all-xsl" required="false" select="'no'">
     <p:documentation>if this option is set to 'yes' or 'true' all xsl:templates with match attribute are collected.</p:documentation>
   </p:option>
@@ -461,6 +467,7 @@
           <p:pipe port="paths" step="xml2tex"/>
         </p:input>
         <p:with-option name="preprocessing" select="$preprocessing"/>
+        <p:with-option name="set-math-style" select="$set-math-style"/>
         <p:with-option name="texmap-uri" select="$texmap-uri"/>
         <p:with-option name="debug" select="$debug"/>
         <p:with-option name="debug-dir-uri" select="$debug-dir-uri"/>
