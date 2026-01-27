@@ -66,7 +66,7 @@
       <xsl:if test="@namest">
         <!-- should be more robust than just relying on certain column name literals -->
         <xsl:attribute name="colspan"
-          select="number(replace(@nameend, '^c(ol)?', '')) - number(replace(@namest, 'c(ol)?', '')) + 1"
+          select="number(replace(@nameend, '\D+', '')) - number(replace(@namest, '\D+', '')) + 1"
         />
       </xsl:if>
       <xsl:if test="@morerows &gt; 0">
