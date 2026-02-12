@@ -58,7 +58,7 @@
   
   <p:option name="fail-on-error" select="'yes'">
     <p:documentation>
-      Whether the pipeline should fail on some errors.
+      'yes' to keep nested tables. 'no' to resolve nested tables (experimental).
     </p:documentation>
   </p:option>
   
@@ -93,7 +93,7 @@
     </p:documentation>
   </p:option>
 
-  <p:option name="nested-tables" select="'no'" required="false">
+  <p:option name="nested-tables" select="'yes'" required="false">
     <p:documentation>
       Whether nested tables should remain or resolved in one table.
     </p:documentation>
