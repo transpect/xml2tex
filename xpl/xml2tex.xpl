@@ -17,24 +17,58 @@
   </p:documentation>
   
   <p:input port="source" primary="true">
+    <p:documentation>
+      The XML input document
+    </p:documentation>
     <p:document href="../example/example.xml"/>
   </p:input>
+  
   <p:input port="conf" primary="false">
+    <p:documentation>
+      Expects an xml2tex configuration file.
+    </p:documentation>
     <p:document href="../example/conf-hubcssa.xml"/>
   </p:input>
+  
   <p:input port="paths" primary="false">
+    <p:documentation>
+      Expects a transpect paths document if 
+      used within a transpect project.
+    </p:documentation>
     <p:inline>
       <c:param-set/>
     </p:inline>
   </p:input>
+  
   <p:input port="html2calstable-xslt" primary="false">
+    <p:documentation>
+      Override the XSLT used to convert HTML tables into CALS tables. For 
+      the subsequent TeX conversion, only CALS tables are supported. Therefore, 
+      HTML tables are converted to CALS format beforehand.
+    </p:documentation>
     <p:document href="http://this.transpect.io/xslt-util/calstable/xsl/html2calstable.xsl"/>
   </p:input>
+  
   <p:input port="additional-source"  primary="false">
+    <p:documentation>
+      If you want to somehow process other XML documents 
+      in your xml2tex configuration, just use this port.
+    </p:documentation>
     <p:empty/>
   </p:input>
 
-  <p:output port="result"/>
+  <p:output port="result" primary="true">
+    <p:documentation>
+      Provides the TeX document
+    </p:documentation>
+  </p:output>
+  
+  <p:output port="xml-with-normalized-equations" primary="false">
+    <p:documentation>
+      This output provides the XML document but with normalized equations. 
+    </p:documentation>
+    <p:pipe port="xml-with-normalized-equations" step="choose-to-run-mml2tex"/>
+  </p:output>
   
   <p:serialization port="result" method="text" media-type="text/plain" encoding="utf8"/>
   
@@ -445,8 +479,12 @@
     </p:otherwise>
   </p:choose>
   
-  <p:choose>
+  <p:choose name="choose-to-run-mml2tex">
     <p:when test="exists(//mml:math)">
+      <p:output port="result" primary="true"/>
+      <p:output port="xml-with-normalized-equations" primary="false">
+        <p:pipe port="xml-with-normalized-equations" step="mml2tex"/>
+      </p:output>
       <tr:simple-progress-msg file="xml2tex-convert-mml.txt" name="msg-3">
         <p:input port="msgs">
           <p:inline>
@@ -480,7 +518,11 @@
       </tr:store-debug>
     </p:when>
     <p:otherwise>
-      <p:identity/>
+      <p:output port="result" primary="true"/>
+      <p:output port="xml-with-normalized-equations" primary="false">
+        <p:pipe port="result" step="no-mml2tex-conversion"/>
+      </p:output>
+      <p:identity name="no-mml2tex-conversion"/>
     </p:otherwise>
   </p:choose>
   
