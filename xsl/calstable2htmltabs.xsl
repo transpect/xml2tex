@@ -208,7 +208,7 @@
   
   <xsl:function name="xml2tex:atts-to-option" as="xs:string?">
     <xsl:param name="atts" as="attribute()*"/>
-    <xsl:if test="$atts">
+    <xsl:if test="$atts and (some $att in $atts satisfies $att[not(local-name()='srcpath')])">
       <xsl:sequence select="concat('[',
                                   if ($atts[local-name() = 'width']) 
                                   then concat('width=', xml2tex:escape-for-tex($atts[local-name() = 'width']),',') else '',
