@@ -131,11 +131,16 @@
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:processing-instruction name="htmltabs" 
-                                  select="concat('\HTcol[',
-                                                 ($col-override[normalize-space()],
-                                                  concat('width=',
-                                                         xml2tex:absolute-to-relative-col-width(@css:width, parent::*/col/@css:width) * 100))[1],
-                                                 '\%]&#xa;')"/>
+                                  select="concat(
+                                            ($col-override[normalize-space()],
+                                               concat(
+                                                 '\HTcol[width=',
+                                                 xml2tex:absolute-to-relative-col-width(@css:width, parent::*/col/@css:width) * 100,
+                                                 '\%]'
+                                               )
+                                            )[1], 
+                                            '&#xa;'
+                                          )"/>
     </xsl:copy>
   </xsl:template>
   
