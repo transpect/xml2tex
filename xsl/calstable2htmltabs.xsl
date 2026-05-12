@@ -58,17 +58,21 @@
   </xsl:template>
   
   <xsl:template match="*:entry" mode="cals2html-table">
+    <xsl:param name="colnames" as="attribute(colname)*" tunnel="yes"/>
     <!-- overwritten to allow th outside of thead for vertical heads -->  
     <xsl:element name="{if (   parent::*:row/parent::*:thead 
                             or @hub:condition eq 'header'
                             or (some $a in (.|./*:para[1]) 
                                 satisfies $a[@role[matches(., $table-subhead-cell-style-regex)]])) then 'th' else 'td'}">
-      <xsl:if test="@namest">
-        <!-- should be more robust than just relying on certain column name literals -->
-        <xsl:attribute name="colspan"
-          select="number(replace(@nameend, '\D+', '')) - number(replace(@namest, '\D+', '')) + 1"
-        />
-      </xsl:if>
+      <xsl:choose>
+        <xsl:when test="@namest and exists($colnames)">
+          <xsl:attribute name="colspan" select="index-of($colnames, @nameend) - index-of($colnames, @namest) + 1"/>
+        </xsl:when>
+        <xsl:when test="@namest">
+          <!-- should be more robust than just relying on certain column name literals -->
+          <xsl:attribute name="colspan" select="number(replace(@nameend, '\D+', '')) - number(replace(@namest, '\D+', '')) + 1"/>
+        </xsl:when>
+      </xsl:choose>
       <xsl:if test="@morerows &gt; 0">
         <xsl:attribute name="rowspan" select="@morerows + 1"/>
       </xsl:if>
