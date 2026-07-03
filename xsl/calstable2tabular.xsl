@@ -20,6 +20,7 @@
   <xsl:param name="table-first-col-declaration" select="''" as="xs:string"/>
   <xsl:param name="table-last-col-declaration" select="''" as="xs:string"/>
   <xsl:param name="table-grid" select="'yes'" as="xs:string"/>
+  <xsl:param name="table-multirow-width" select="'*'" as="xs:string?"/>
   <xsl:param name="col-separator" select="if($table-grid eq 'yes') then '|' else ''" as="xs:string"/>
   <xsl:param name="no-table-grid-att" select="'role'"/>
   <xsl:param name="no-table-grid-style" select="'blind-table'"/>
@@ -77,7 +78,7 @@
         <xsl:when test="$rowspan gt 1">
           <xsl:apply-templates select="@*" mode="#current"/>
           <xsl:processing-instruction name="cals2tabular" 
-                                      select="concat('\multirow', $vertical-align, '{', $rowspan, '}{*}{' )"/>
+                                      select="concat('\multirow', $vertical-align, '{', $rowspan, '}{', cals2tabular:get-multirow-width($table-multirow-width), '}{' )"/>
           <xsl:sequence select="cals2tabular:cell-align(@css:text-align, *:para[@css:direction][1]/@css:direction)"/>
           <xsl:choose>
             <xsl:when test="count(*:para) lt 2">
@@ -376,6 +377,19 @@
                                                 '2'[$pos eq 1],
                                                 '\arrayrulewidth')[$table-grid],
                                          '}'), '')"/>
+      </xsl:otherwise>
+    </xsl:choose>
+    
+  </xsl:function>
+  
+  <xsl:function name="cals2tabular:get-multirow-width" as="xs:string">
+    <xsl:param name="width"/>
+    <xsl:choose>
+      <xsl:when test="$width != ''">
+        <xsl:sequence select="$width"/>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="'*'"/>
       </xsl:otherwise>
     </xsl:choose>
     

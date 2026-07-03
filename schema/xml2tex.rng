@@ -337,6 +337,15 @@
         </attribute>
       </optional>
       <optional>
+        <attribute name="table-multirow-width">
+          <a:documentation xmlns="http://www.w3.org/1999/xhtml">Set the width argument for multirow tables. <code>*</code> is default. Permitted
+            values are <code>*</code> (natural width of the text, no automatic wrapping), <code>=</code> (use the width of the current table column)
+            and any length value, for example <code>3cm</code>.
+          </a:documentation>
+          <text/>
+        </attribute>
+      </optional>
+      <optional>
         <attribute name="table-subhead-cell-style-regex">
           <a:documentation xmlns="http://www.w3.org/1999/xhtml">Sets entries whose style or para style matches this regex to th cells. (outside of thead)</a:documentation>
           <text/>

@@ -449,6 +449,9 @@
       <p:with-param name="table-last-col-declaration" select="xml2tex:set/@table-last-col-declaration">
         <p:pipe port="result" step="load-config"/>
       </p:with-param>
+      <p:with-param name="table-multirow-width" select="xml2tex:set/@table-multirow-width">
+        <p:pipe port="result" step="load-config"/>
+      </p:with-param>
       <p:with-param name="table-col-separator" select="xml2tex:set/@table-col-separator">
         <p:pipe port="result" step="load-config"/>
       </p:with-param>

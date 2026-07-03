@@ -474,6 +474,23 @@ xml2tex.set.attributes =
   & 
     ## Overrides the table column declaration of the last column.
     attribute table-last-col-declaration { text }?
+  & [
+      a:documentation [
+        "Set the width argument for multirow tables. "
+        ns1:code [ "*" ]
+        " is default. Permitted\x{a}" ~
+        "            values are "
+        ns1:code [ "*" ]
+        " (natural width of the text, no automatic wrapping), "
+        ns1:code [ "=" ]
+        " (use the width of the current table column)\x{a}" ~
+        "            and any length value, for example "
+        ns1:code [ "3cm" ]
+        ".\x{a}" ~
+        "          "
+      ]
+    ]
+    attribute table-multirow-width { text }?
   & 
     ## Sets entries whose style or para style matches this regex to th cells. (outside of thead)
     attribute table-subhead-cell-style-regex { text }?
