@@ -328,6 +328,12 @@
       <param/>
     </rule>
   </template>
+
+  <template context="underline">
+    <rule name="underline" type="cmd">
+      <param/>
+    </rule>
+  </template>
   
   <!-- babel support -->
   
