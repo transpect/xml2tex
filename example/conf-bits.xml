@@ -259,6 +259,23 @@
 
   <template context="list-item/label"/>
 
+  <template context="def-list">
+    <rule name="description" type="env" break-before="1">
+      <text/>
+    </rule>
+  </template>
+
+  <template context="def-item">
+    <rule name="item" type="cmd" break-before="1">
+      <xsl:if test="term/normalize-space()">
+        <option select="term/node()"/>
+      </xsl:if>
+      <text/>
+    </rule>
+  </template>
+
+  <template context="def-item/term"/>
+
   <template context="fn">
     <rule name="footnote" type="cmd">
       <xsl:if test="label[normalize-space()]">
