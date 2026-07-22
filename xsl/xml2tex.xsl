@@ -155,6 +155,7 @@
       <xsl:when test="@name">
         <!-- allow named templates but process only last in document because not two templates with the same name are allowed -->
         <xsl:if test=". is //xml2tex:template[@name = current()/@name][last()]">
+          <xsl:processing-instruction name="source" select="concat('href=', base-uri())"/>
           <xso:template name="{@name}">
             <!-- if no tex child is present, then matched node will be discarded -->
             <xsl:apply-templates/>
@@ -162,6 +163,7 @@
         </xsl:if>
       </xsl:when>
       <xsl:otherwise>
+        <xsl:processing-instruction name="source" select="concat('href=', base-uri())"/>
         <xso:template match="{@context}" mode="xml2tex" priority="{$template-priority}">
           <!-- if no tex child is present, then matched node will be discarded -->
           <xsl:apply-templates/>
@@ -175,6 +177,7 @@
   
   <xsl:template match="xml2tex:style">
     <xsl:variable name="template-priority" select="count($rule-indexes) + position()" as="xs:integer"/>
+    <xsl:processing-instruction name="source" select="concat('href=', base-uri())"/>
     <xso:template match="*[@{$style-attribute} eq '{@name}']" 
                   mode="xml2tex" priority="{$template-priority}">
       <xso:value-of select="'{@start}'"/>
