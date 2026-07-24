@@ -21,6 +21,8 @@
   
   <xsl:variable name="xml2tex:all-bad-chars-regex" as="xs:string"
                 select="concat($xml2tex:bad-chars-regex, '|([\[\]\\])')"/>
+  
+  <xsl:variable name="xml2tex:no-char-escape-elements" select="'programlisting'"/>
     
   <xsl:function name="xml2tex:escape-for-tex" as="xs:string">
     <xsl:param name="string" as="xs:string"/>
