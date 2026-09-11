@@ -252,17 +252,49 @@
       </xsl:if>
   </xsl:function>
   
+  <xsl:function name="cals2tabular:tex-color-name" as="xs:string">
+    <xsl:param name="hex" as="xs:string"/>
+    <!-- must match the naming of xml2tex:rgb-to-tex-color in functions.xsl -->
+    <xsl:sequence select="if (exists(tr:color-hex-rgb-to-keyword($hex)))
+                          then tr:color-hex-rgb-to-keyword($hex)[1]
+                          else concat('color-', upper-case(substring-after($hex, '#')))"/>
+  </xsl:function>
+
   <xsl:template match="*:row" mode="cals2tabular:final">
     <xsl:variable name="table-grid" select="if (ancestor::*/@*[name()=$no-table-grid-att] = $no-table-grid-style) then 'no' else $table-grid"/>
+    <!-- row shading: if all entries of the row share a background color, emit \rowcolor -->
+    <xsl:variable name="bg-colors" as="xs:string*" select="*:entry/@css:background-color"/>
+    <xsl:if test="count(*:entry) gt 0 and count($bg-colors) eq count(*:entry) and count(distinct-values($bg-colors)) eq 1">
+      <xsl:processing-instruction name="cals2tabular"
+                                  select="concat('\rowcolor{', cals2tabular:tex-color-name($bg-colors[1]), '}&#x20;')"/>
+    </xsl:if>
     <xsl:copy>
       <xsl:apply-templates select="@*, node()" mode="#current"/>
     </xsl:copy>
     <xsl:text>&#x20;</xsl:text>
     <xsl:processing-instruction name="cals2tabular" select="'\\'"/>
     <!-- test if a rowspan by @xml:id with reference to next row or an @linkend with reference to an @xml:id in previous row-->
-    <xsl:variable name="rowspan-exists" 
+    <xsl:variable name="rowspan-exists"
                   select="exists(for $i in *:entry[@xml:id or @linkend]
                                  return $i[parent::*:row/following-sibling::*:row[*:entry[(@xml:id, @linkend)[1]][$i/(@xml:id, @linkend)[1] eq @linkend]]])"/>
+    <!-- border colors: switch \arrayrulecolor for this row's bottom rule and
+         reset to black after a non-black rule was active (tgroup start color or colored bottom) -->
+    <xsl:variable name="bottom-colors" as="xs:string*" select="*:entry/@css:border-bottom-color"/>
+    <xsl:variable name="bottom-color" as="xs:string?"
+                  select="if (count(*:entry) gt 0 and count($bottom-colors) eq count(*:entry) and count(distinct-values($bottom-colors)) eq 1)
+                          then $bottom-colors[1]
+                          else ()"/>
+    <xsl:variable name="colored-rule-active" as="xs:boolean"
+                  select="     boolean($bottom-color)
+                          or exists(preceding-sibling::*:row[*:entry/@css:border-bottom-color])
+                          or (    exists(parent::*/*:row[1][. is current()])
+                              and exists((ancestor::*:tgroup)//*:entry[   starts-with(@css:border-top-color, '#')
+                                                                  or starts-with(@css:border-left-color, '#')
+                                                                  or starts-with(@css:border-right-color, '#')]))"/>
+    <xsl:if test="$bottom-color">
+      <xsl:processing-instruction name="cals2tabular"
+                                  select="concat('\arrayrulecolor{', cals2tabular:tex-color-name($bottom-color), '}&#x20;')"/>
+    </xsl:if>
     <xsl:choose>
       <xsl:when test="$rowspan-exists">
         <xsl:variable name="col-indices" as="xs:integer*">
@@ -275,13 +307,16 @@
           </xsl:for-each>
         </xsl:variable>
         <xsl:variable name="col-range-map" select="tr:get-adjacent-integers-from-seq($col-indices)" as="map(xs:integer, xs:integer*)"/>
+        <xsl:if test="$colored-rule-active and not($bottom-color) and $table-grid eq 'yes'">
+          <xsl:processing-instruction name="cals2tabular" select="'\arrayrulecolor{black}&#x20;'"/>
+        </xsl:if>
         <xsl:for-each select="1 to map:size($col-range-map)">
-          <xsl:variable name="col-range" 
+          <xsl:variable name="col-range"
                         select="$col-range-map(position())" as="xs:integer*"/>
           <xsl:if test="exists($col-range)">
-            <xsl:processing-instruction name="cals2tabular" 
-                                        select="concat('\cline{', 
-                                                       min($col-range), 
+            <xsl:processing-instruction name="cals2tabular"
+                                        select="concat('\cline{',
+                                                       min($col-range),
                                                        '-',
                                                        max($col-range),
                                                        '}'
@@ -290,8 +325,14 @@
         </xsl:for-each>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:processing-instruction name="cals2tabular" 
+        <xsl:if test="$colored-rule-active and not($bottom-color) and $table-grid eq 'yes'">
+          <xsl:processing-instruction name="cals2tabular" select="'\arrayrulecolor{black}&#x20;'"/>
+        </xsl:if>
+        <xsl:processing-instruction name="cals2tabular"
                                     select="'\hline&#x20;'[$table-grid eq 'yes']"/>
+        <xsl:if test="$bottom-color and exists(following-sibling::*:row) and $table-grid eq 'yes'">
+          <xsl:processing-instruction name="cals2tabular" select="'\arrayrulecolor{black}&#x20;'"/>
+        </xsl:if>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:text>&#xa;</xsl:text>
@@ -313,20 +354,38 @@
                                              $col-separator), 
                                  $col-separator)"/>
     <xsl:variable name="top-separator" select="if($table-grid eq 'yes') then '&#x20;\hline&#x20;' else ''" as="xs:string"/>
+    <!-- if the first row's entries carry colored borders (e.g. light gray Word table frames),
+         activate that rule color before the top rule so it also applies to the verticals -->
+    <xsl:variable name="first-row" select="((*:thead, *:tbody, *:tfoot)/*:row)[1]" as="element(*)?"/>
+    <xsl:variable name="first-row-top-colors" as="xs:string*"
+                  select="for $e in $first-row/*:entry
+                          return ($e/@css:border-top-color, $e/@css:border-left-color, $e/@css:border-right-color)[starts-with(., '#')][1]"/>
+    <xsl:variable name="first-row-rule-color" as="xs:string?"
+                  select="if (exists($first-row)
+                            and count($first-row-top-colors) eq count($first-row/*:entry)
+                            and count(distinct-values($first-row-top-colors)) eq 1)
+                          then $first-row-top-colors[1]
+                          else ()"/>
     <xsl:copy>
       <xsl:apply-templates select="@*" mode="#current"/>
       <xsl:text>&#xa;</xsl:text>
-      <xsl:processing-instruction name="cals2tabular" 
-                                  select="concat('\begin{', 
-                                                 if($table-model eq 'tabularx') then 'tabularx}{\textwidth' else 'tabular', 
-                                                 '}{', 
-                                                 $col-declaration, 
-                                                 '}', 
-                                                 $top-separator)"/>
+      <xsl:processing-instruction name="cals2tabular"
+                                  select="concat('\begin{',
+                                                 if($table-model eq 'tabularx') then 'tabularx}{\textwidth' else 'tabular',
+                                                 '}{',
+                                                 $col-declaration,
+                                                 '}')"/>
+      <xsl:if test="$first-row-rule-color">
+        <xsl:processing-instruction name="cals2tabular"
+                                    select="concat('\arrayrulecolor{', cals2tabular:tex-color-name($first-row-rule-color), '}&#x20;')"/>
+      </xsl:if>
+      <xsl:if test="normalize-space($top-separator)">
+        <xsl:processing-instruction name="cals2tabular" select="$top-separator"/>
+      </xsl:if>
       <xsl:text>&#xa;</xsl:text>
       <xsl:apply-templates select="*:thead, *:tbody, *:tfoot" mode="#current"/>
-      <xsl:processing-instruction name="cals2tabular" 
-                                  select="concat('\end{', 
+      <xsl:processing-instruction name="cals2tabular"
+                                  select="concat('\end{',
                                                  if($table-model eq 'tabularx') then 'tabularx' else 'tabular',
                                                  '}')"/>
     </xsl:copy>
